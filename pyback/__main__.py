@@ -2,7 +2,9 @@ import logging.config
 import yaml
 import os
 
-from sirbot.plugins.apscheduler import APSchedulerPlugin
+from raven import setup_logging
+from raven.handlers.logging import SentryHandler
+from raven.processors import SanitizePasswordsProcessor
 from sirbot.plugins.postgres import PgPlugin
 from sirbot.plugins.slack import SlackPlugin
 from dotenv import load_dotenv
@@ -20,6 +22,18 @@ VERIFICATION_TOKEN = os.environ.get("VERIFICATION_TOKEN ", "verification token")
 VERSION = "0.0.1"
 LOG = logging.getLogger(__name__)
 
+
+def make_sentry_logger():
+    client = raven.Client(
+        dsn=os.environ["SENTRY_DSN"],
+        release=VERSION,
+        processor=SanitizePasswordsProcessor,
+    )
+    handler = SentryHandler(client)
+    handler.setLevel(logging.WARNING)
+    setup_logging(handler)
+
+
 if __name__ == "__main__":
     try:
         with open(
@@ -30,6 +44,9 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
         LOG.exception(e)
 
+    if "SENTRY_DSN" in os.environ:
+        make_sentry_logger()
+
     bot = SirBot()
 
     slack = SlackPlugin()
@@ -39,10 +56,6 @@ if __name__ == "__main__":
     airtable = AirtablePlugin()
     endpoints.airtable.create_endpoints(airtable)
     bot.load_plugin(airtable)
-
-    scheduler = APSchedulerPlugin(timezone="UTC")
-    endpoints.apscheduler.create_jobs(scheduler, bot)
-    bot.load_plugin(scheduler)
 
     if "POSTGRES_DSN" in os.environ:
         postgres = PgPlugin(
