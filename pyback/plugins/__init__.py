@@ -1,0 +1,1 @@
+from .airtable import AirtablePlugin
