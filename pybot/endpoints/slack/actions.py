@@ -1,7 +1,7 @@
 from slack import methods
 
-from pyback.endpoints.slack.utils.action_messages import *
-from pyback.endpoints.slack.utils import COMMUNITY_CHANNEL
+from pybot.endpoints.slack.utils.action_messages import *
+from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
 
 
 def create_endpoints(plugin):

@@ -8,23 +8,13 @@ aiohttp = "*"
 aiohttp-xmlrpc = "*"
 python-dotenv = "*"
 distance = "*"
-gidgethub = "*"
 raven = "*"
 slack-sansio = "*"
-asyncpg = "*"
-#sirbot = {git = "https://github.com/pyslackers/sir-bot-a-lot-2.git", ref = "408432adda7c4f61c6b3a538ed828162dcab0c72"}
 sirbot = "*"
 pyyaml = "*"
 cython = "*"
 cchardet = "*"
 zipcodes = "*"
 
-[dev-packages]
-isort = "*"
-
-
 [requires]
 python_version = "3.6"
-
-[pipenv]
-allow_prereleases = true

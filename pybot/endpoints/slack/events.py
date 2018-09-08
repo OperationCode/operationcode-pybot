@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from pyback.endpoints.slack.utils.event_utils import build_messages, send_user_greetings, send_community_notification
+from pybot.endpoints.slack.utils.event_utils import build_messages, send_user_greetings, send_community_notification
 
 logger = logging.getLogger(__name__)
 

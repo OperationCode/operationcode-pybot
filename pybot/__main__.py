@@ -2,21 +2,21 @@ import logging.config
 import yaml
 import os
 
+from aiohttp.web_response import Response
 from raven import setup_logging
 from raven.handlers.logging import SentryHandler
 from raven.processors import SanitizePasswordsProcessor
-from sirbot.plugins.postgres import PgPlugin
 from sirbot.plugins.slack import SlackPlugin
 from dotenv import load_dotenv
 from sirbot import SirBot
 import raven
 
-from pyback import endpoints
-from pyback.plugins import AirtablePlugin
+from . import endpoints
+from .plugins import AirtablePlugin
 
 load_dotenv()
 PORT = os.environ.get("SIRBOT_PORT", 5000)
-HOST = os.environ.get("SIRBOT_ADDR", "127.0.0.1")
+HOST = os.environ.get("SIRBOT_ADDR", "0.0.0.0")
 ACCESS_TOKEN = os.environ.get("OAUTH_ACCESS_TOKEN", "access token")
 VERIFICATION_TOKEN = os.environ.get("VERIFICATION_TOKEN ", "verification token")
 VERSION = "0.0.1"
@@ -57,14 +57,11 @@ if __name__ == "__main__":
     endpoints.airtable.create_endpoints(airtable)
     bot.load_plugin(airtable)
 
-    if "POSTGRES_DSN" in os.environ:
-        postgres = PgPlugin(
-            version=VERSION,
-            sql_migration_directory=os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), "../migrations"
-            ),
-            dsn=os.environ["POSTGRES_DSN"],
-        )
-        bot.load_plugin(postgres)
+    LOG.info('Host: %s', HOST)
+    LOG.info('Port: %s', PORT)
+
+    # Add route to respond to AWS health check
+    bot.router.add_get("/health", lambda request: Response(status=200))
+    logging.getLogger('aiohttp.access').setLevel(logging.WARNING)
 
     bot.start(host=HOST, port=PORT, print=False)

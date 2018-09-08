@@ -4,9 +4,9 @@ from slack.events import Message
 from slack.io.abc import SlackAPI
 from slack import methods
 
-from pyback.endpoints.slack.utils import COMMUNITY_CHANNEL
-from pyback.endpoints.slack.utils.action_messages import not_greeted_attachment
-from pyback.endpoints.slack.utils.event_messages import team_join_initial_message, second_team_join_message, \
+from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
+from pybot.endpoints.slack.utils.action_messages import not_greeted_attachment
+from pybot.endpoints.slack.utils.event_messages import team_join_initial_message, second_team_join_message, \
     external_button_attachments, base_resources
 
 

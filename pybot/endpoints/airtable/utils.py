@@ -6,8 +6,8 @@ from slack import ROOT_URL, methods
 from slack.events import Message
 from slack.exceptions import SlackAPIError
 
-from pyback.endpoints.airtable.messages import (claim_mentee_attachment,
-                                                mentor_request_text)
+from pybot.endpoints.airtable.messages import (claim_mentee_attachment,
+                                               mentor_request_text)
 
 MENTORS_CHANNEL = os.environ.get("MENTORS_CHANNEL") or "G1DRT62UC"
 

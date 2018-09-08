@@ -2,9 +2,9 @@ import asyncio
 import logging
 import os
 
-from pyback.plugins.airtable import endpoints
-from pyback.plugins.airtable.api import AirtableAPI
-from pyback.plugins.airtable.requests import RequestRouter
+from pybot.plugins.airtable import endpoints
+from pybot.plugins.airtable.api import AirtableAPI
+from pybot.plugins.airtable.requests import RequestRouter
 
 logger = logging.getLogger(__name__)
 

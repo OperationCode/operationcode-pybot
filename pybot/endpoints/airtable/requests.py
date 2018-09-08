@@ -2,8 +2,8 @@ from sirbot import SirBot
 import asyncio
 import logging
 
-from pyback.endpoints.airtable.utils import (_create_messages, _get_matching_skillset_mentors, _get_requested_mentor,
-                                             _post_messages, _slack_user_id_from_email)
+from pybot.endpoints.airtable.utils import (_create_messages, _get_matching_skillset_mentors, _get_requested_mentor,
+                                            _post_messages, _slack_user_id_from_email)
 
 logger = logging.getLogger(__name__)
 
