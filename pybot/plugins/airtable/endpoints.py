@@ -11,6 +11,9 @@ async def incoming_request(request):
     payload = await request.json()
     logger.debug('Incoming event payload: %s', payload)
 
+    if payload['token'] != airtable.verify:
+        return Response(status=401)
+
     futures = list(_dispatch(airtable.routers['request'], payload, request.app))
     if futures:
         return await _wait_and_check_result(futures)

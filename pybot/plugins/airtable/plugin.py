@@ -17,21 +17,23 @@ class AirtablePlugin:
         self.api_key = None
         self.base_key = None
         self.api = None
+        self.verify = None
 
         self.routers = {
             'request': RequestRouter()
         }
 
-    def load(self, sirbot, api_key=None, base_key=None):
+    def load(self, sirbot, api_key=None, base_key=None, verify=None):
         self.session = sirbot.http_session
         self.api_key = api_key or os.environ['AIRTABLE_API_KEY']
         self.base_key = base_key or os.environ['AIRTABLE_BASE_KEY']
+        self.verify = verify or os.environ['AIRTABLE_VERIFY']
 
         self.api = AirtableAPI(self.session, self.api_key, self.base_key)
 
         sirbot.router.add_route('POST', '/airtable/request', endpoints.incoming_request)
 
-    def on_request(self, request, handler, wait=False):
+    def on_request(self, request, handler, wait=True):
         if not asyncio.iscoroutinefunction(handler):
             handler = asyncio.coroutine(handler)
         configuration = {'wait': wait}
