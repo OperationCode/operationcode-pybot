@@ -1,0 +1,22 @@
+version: '3.6'
+services:
+  pybot:
+    image: pybot:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: pybot01
+    env_file:
+    - pybot.env
+    ports:
+    - 5000:5000
+
+  ngrok:
+    image: wernight/ngrok:latest
+    env_file:
+    - example.env
+    - ngrok.env
+    environment:
+    - NGROK_PORT=pybot:5000
+    ports:
+    - 4040:4040
