@@ -31,7 +31,7 @@ class AirtablePlugin:
 
         sirbot.router.add_route('POST', '/airtable/request', endpoints.incoming_request)
 
-    def on_request(self, request, handler, wait=True):
+    def on_request(self, request, handler, wait=False):
         if not asyncio.iscoroutinefunction(handler):
             handler = asyncio.coroutine(handler)
         configuration = {'wait': wait}

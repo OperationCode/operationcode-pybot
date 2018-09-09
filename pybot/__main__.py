@@ -14,13 +14,13 @@ import raven
 from . import endpoints
 from .plugins import AirtablePlugin
 
-load_dotenv()
+# load_dotenv()
 PORT = os.environ.get("SIRBOT_PORT", 5000)
 HOST = os.environ.get("SIRBOT_ADDR", "0.0.0.0")
 ACCESS_TOKEN = os.environ.get("OAUTH_ACCESS_TOKEN", "access token")
 VERIFICATION_TOKEN = os.environ.get("VERIFICATION_TOKEN ", "verification token")
 VERSION = "0.0.1"
-LOG = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def make_sentry_logger():
@@ -42,7 +42,7 @@ if __name__ == "__main__":
             logging.config.dictConfig(yaml.load(log_configfile.read()))
     except Exception as e:
         logging.basicConfig(level=logging.DEBUG)
-        LOG.exception(e)
+        logger.exception(e)
 
     if "SENTRY_DSN" in os.environ:
         make_sentry_logger()
@@ -56,9 +56,6 @@ if __name__ == "__main__":
     airtable = AirtablePlugin()
     endpoints.airtable.create_endpoints(airtable)
     bot.load_plugin(airtable)
-
-    LOG.info('Host: %s', HOST)
-    LOG.info('Port: %s', PORT)
 
     # Add route to respond to AWS health check
     bot.router.add_get("/health", lambda request: Response(status=200))

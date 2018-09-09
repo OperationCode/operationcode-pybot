@@ -4,12 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aiohttp = "*"
 aiohttp-xmlrpc = "*"
 python-dotenv = "*"
 distance = "*"
 raven = "*"
-slack-sansio = "*"
 sirbot = "*"
 pyyaml = "*"
 cython = "*"
