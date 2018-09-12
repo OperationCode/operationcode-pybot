@@ -1,6 +1,5 @@
 from random import randint
 
-from aiohttp.web_response import Response
 from zipcodes import is_valid
 
 
@@ -49,5 +48,4 @@ def get_random_lunch(lunch_response):
 
 
 def build_response_text(loc_dict):
-    return Response(
-        text=f'The Wheel of Lunch has selected {loc_dict["name"]} at {" ".join(loc_dict["location"]["display_address"])}')
+    return f'The Wheel of Lunch has selected {loc_dict["name"]} at {" ".join(loc_dict["location"]["display_address"])}'

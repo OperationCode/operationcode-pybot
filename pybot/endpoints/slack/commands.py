@@ -10,9 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 def create_endpoints(plugin):
-    plugin.on_command('/here', slash_here)
-    plugin.on_command('/localhere', slash_here)
-    plugin.on_command('/lunch', slash_lunch)
+    plugin.on_command('/here', slash_here, wait=False)
+    plugin.on_command('/lunch', slash_lunch, wait=False)
 
 
 async def slash_here(command, app):
@@ -38,7 +37,12 @@ async def slash_here(command, app):
 
 
 async def slash_lunch(command, app):
+    channel_id = command['channel_id']
+    user_id = command['user_id']
+    slack = app["plugins"]["slack"].api
+
     param_dict = split_params(command.get('text'))
+
     params = (
         ('zip', f'{param_dict["location"]}'),
         ('query', 'lunch'),
@@ -48,5 +52,8 @@ async def slash_lunch(command, app):
     async with app.http_session.get('https://wheelof.com/lunch/yelpProxyJSON.php', params=params) as r:
         r.raise_for_status()
         loc = get_random_lunch(await r.json())
+
         logger.info(f"location selected for {command['user_name']}: {loc}")
-        return build_response_text(loc)
+        message = build_response_text(loc)
+
+        await slack.query(methods.CHAT_POST_EPHEMERAL, {'user': user_id, 'channel': channel_id, 'text': message})
