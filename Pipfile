@@ -14,5 +14,12 @@ cython = "*"
 cchardet = "*"
 zipcodes = "*"
 
+[dev-packages]
+requests = "*"
+pytest = "*"
+pytest-asyncio = "*"
+pytest-aiohttp = "*"
+asynctest = "*"
+
 [requires]
 python_version = "3.6"
