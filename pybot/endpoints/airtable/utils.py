@@ -31,6 +31,7 @@ async def _slack_user_id_from_email(email: str, app: SirBot, fallback: Optional[
         response = await app.plugins['slack'].api.query(url=ROOT_URL + 'users.lookupByEmail', data=response)
         return response['user']['id']
     except SlackAPIError:
+        # TODO: something better here
         return fallback or 'Slack User'
 
 

@@ -2,7 +2,7 @@ import logging
 
 from slack import methods
 
-from pybot.endpoints.slack.utils.command_utils import get_slash_here_message
+from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages
 from pybot.endpoints.slack.utils.slash_lunch import split_params, get_random_lunch, build_response_text
 from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN
 
@@ -21,19 +21,25 @@ async def slash_here(command, app):
 
     params = {'slack_id': slack_id, 'channel_id': channel_id}
     headers = {'Authorization': f'Token {PYBACK_TOKEN}'}
-    logger.info(f'headers: {headers}')
 
+    logger.debug(f'/here params: {params}, /here headers {headers}')
     async with app.http_session.get(f'http://{PYBACK_HOST}:{PYBACK_PORT}/api/mods/',
                                     params=params, headers=headers) as r:
+
+        logger.debug(f'pyback response status: {r.status}')
         if r.status >= 400:
             return
 
         response = await r.json()
+        logger.debug(f'pyback response: {response}')
         if not len(response):
             return
 
-    message = await get_slash_here_message(channel_id, slack, command['text'])
-    await slack.query(methods.CHAT_POST_MESSAGE, {'channel': channel_id, 'text': message})
+    message, member_list = await get_slash_here_messages(slack_id, channel_id, slack, command['text'])
+
+    response = await slack.query(methods.CHAT_POST_MESSAGE, {'channel': channel_id, 'text': message})
+    timestamp = response['ts']
+    await slack.query(methods.CHAT_POST_MESSAGE, {'channel': channel_id, 'text': member_list, 'thread_ts': timestamp})
 
 
 async def slash_lunch(command, app):
