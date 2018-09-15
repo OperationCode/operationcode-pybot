@@ -16,8 +16,8 @@ async def mentor_request(request: dict, app: SirBot) -> None:
     slack_id = await _slack_user_id_from_email(request['email'], app)
 
     futures = [app.plugins['airtable'].api.translate_service_id(request['service']),
-               _get_requested_mentor(request['requested_mentor'], app),
-               _get_matching_skillset_mentors(request['skillsets'], app)]
+               _get_requested_mentor(request.get('requested_mentor'), app),
+               _get_matching_skillset_mentors(request.get('skillsets'), app)]
 
     service_translation, requested_mentor_message, mentors = await asyncio.gather(*futures)
 
