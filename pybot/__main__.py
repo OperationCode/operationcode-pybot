@@ -1,4 +1,6 @@
 import logging.config
+from pathlib import Path
+
 import yaml
 import os
 
@@ -14,7 +16,10 @@ import raven
 from . import endpoints
 from .plugins import AirtablePlugin
 
-# load_dotenv()
+url = Path(os.path.dirname(os.path.dirname(__file__))) / 'docker' / 'pybot.env'
+load_dotenv(dotenv_path=url)
+
+
 PORT = os.environ.get("SIRBOT_PORT", 5000)
 HOST = os.environ.get("SIRBOT_ADDR", "0.0.0.0")
 ACCESS_TOKEN = os.environ.get("OAUTH_ACCESS_TOKEN", "access token")
