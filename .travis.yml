@@ -22,4 +22,4 @@ script:
 services:
 - docker
 after_success:
-- bash bin/run.sh
+- ./bin/run.sh

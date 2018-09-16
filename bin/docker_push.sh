@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # import util functions
 source "${SCRIPTDIR}/../lib/util.sh"
