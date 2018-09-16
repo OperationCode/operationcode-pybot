@@ -17,6 +17,8 @@ echo "Pushing $IMAGE_NAME:latest"
 docker tag $IMAGE_NAME:latest "$REMOTE_IMAGE_URL:latest"
 docker push "$REMOTE_IMAGE_URL:latest"
 echo "Pushed $IMAGE_NAME:latest"
+echo "calling ecs_deploy"
+bin/ecs_deploy.sh
 else
 echo "Skipping deploy because branch is not 'master'"
 fi
