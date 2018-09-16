@@ -37,8 +37,8 @@ if [ $? = 0 ]; then
   done
   export SCRIPTDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-  ${SCRIPTDIR}/docker_push.sh &&
-  ${SCRIPTDIR}/ecs_deploy.sh
+  bash ${SCRIPTDIR}/docker_push.sh &&
+  bash ${SCRIPTDIR}/ecs_deploy.sh
 
 else
   echo "Failed to install AWS CLI"
