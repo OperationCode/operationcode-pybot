@@ -1,0 +1,32 @@
+env:
+  global:
+  - IMAGE_NAME=pybot
+  - DEPLOY_BRANCHES=master
+  - AWS_REGION=us-east-2
+  #  - AWS_ACCESS_KEY
+  - secure: NZ1yRNjrnhImVpANxTMtpiCXQSogV8Zfu6+7JmG1JD5wGNVrYQiMxxUP7920YmwCFYnG7uWz7IXSoCD8M1bPlRPpCzTM5QjnVqyLyFzdcjkU1GB5PlSJhEmoX0SNP6nq2/nQ9cfuGj7LdHqXS0vQneqGDNQ2Qq1/VVWnVZpDpXr48OSaS0tU2okbDys8IuPdpr3DFGjjPphr1SJ7xSO1UDXN3RRTBMKAvJcK5nzEkUUVrRjJA2UDOe+NZviT3VCYaHHepYZ19T3HROp9YEhsv8JNwVpxTAJMIKFc/ScD5pvb+buvODmc171wkgBNy2cludoTpcoG7titSlQ25v4/f0EH1i5o7Keg/lk5sY7CqwyypDOdTn2lMhywMnuSfAD3SDqieflxBPru5J9mOWfTDI7zBVXfX0IyqqltjKyeCXOxHW57XsOG59tpJTYuLzjOG69jHhIte+46vLFVXZy2fbjW9JtEoZTC7Ao3SzZM2OYJeAeJK71EEsi0l5XvTlN1XNE2yDY+LULjRovzv7xmF7fQ5TdyuW/HFzRMBBxHMJEUBMdwiRbWlqmRrHWo4dGHEUFY2UotmNlLRbxrMNJ1jq3YXnL4QsaRgcUastEbty2zCZHevbkqPh7/mpy5I5YYuKdSnfW5h/c8HrwtRwPpd4YzkIVUx7QOaSQVKMF52tU=
+  #  - AWS_SECRET_ACCESS_KEY
+  - secure: XPvMPMkCIBORXmFSwnSVm6rOF1mHcipzgo9IdbFu87dFFC2mJG/T8UTbEyTLpjpM8WvcSawmpWHtqlhbHXnEj+6ugEongvYsl0wYh/KNU9oS5vw38CvxpvIIg3PyTS39Dp8QtP/y/EaeZPPQiN/soiNGQ0EQ9V/eazjO9Gc9vTvYfPdSc3Q4UjxAqf550L+pkEF6NSh0Lo3ShCr1sai+XCvyvYeTTtwZzufIzq/aNxs+dPUc0FDXdZ5L+J2Ds/yxXAaVcQzSfhdxV1igCcQ6HesndsrrM6DIOTPtzFhpeA3RHaNxrAeh9ZXvYoLkXbyxEmraSRTx0PBjBLNkZNNorOB/ebWj3s1CK5I/3qrZ7WVIq/keDea1Ict9g7moYe8/OLQO0b0/gNqkR/jpepSbfxnEF41DNhJ2xSSE9niuEaUnpDpCibhLCqtXGbRK90dIjnkLHemxL8mrujwm7XDHcTK+GsA5ceBMHk0aQ9WDrKPCQGw8DlQ6EfgnOd/61Dq5vMZW8cC60h8EQNQFQ3KBgEEELpNSltvaf4FYA3Og+Vie/VStjCzDuGohghKiiaGFBWUGtaQGyr4cuwCI88iAU4/LiTz83JAv7+6tD+vsczV8Bdlg360Mquc01E7Vw9Qmtvh1kRWLicA6dUemrUqHO79izqAhhmLhz5dCBZOOGoM=
+  - REMOTE_IMAGE_URL=633607774026.dkr.ecr.us-east-2.amazonaws.com/pybot
+  - ECS_CLUSTER_MASTER=python-oc-services
+  - ECS_SERVICE_MASTER=pybot-svc
+sudo: required
+
+os: linux
+
+language: python
+
+python: 3.6
+
+install:
+- pip install pipenv
+- pipenv install --system --deploy --dev
+
+script:
+- pytest
+
+services:
+- docker
+
+after_success:
+- bin/docker_push.sh
