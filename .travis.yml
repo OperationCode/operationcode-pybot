@@ -30,4 +30,4 @@ services:
 - docker
 
 after_success:
-- bin/docker_push.sh
+- bash bin/docker_push.sh
