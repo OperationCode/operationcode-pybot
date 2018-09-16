@@ -10,9 +10,11 @@ env:
   - ECS_SERVICE_MASTER=pybot-svc
   - ECS_CLUSTER_TRAVIS=python-oc-services
   - ECS_SERVICE_TRAVIS=pybot-svc
+  - PIPENV_CACHE_DIR=~./.cache/pip
 sudo: required
 os: linux
 language: python
+cache: pip
 python: 3.6
 install:
 - pip install pipenv

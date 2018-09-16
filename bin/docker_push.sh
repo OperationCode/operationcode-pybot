@@ -9,7 +9,7 @@ AWS_LOGIN=$(runCommand "aws ecr get-login --region $AWS_REGION --no-include-emai
 if [ "$?" = "0" ]; then
   eval $AWS_LOGIN || exit $?
   echo "Building Docker image..."
-  runCommand "docker build -t $IMAGE_NAME ." || exit $?
+  runCommand "docker build -t $IMAGE_NAME -f docker/Dockerfile ." || exit $?
   echo "Pushing image $IMAGE_NAME:$TRAVIS_BRANCH"
   runCommand "docker tag $IMAGE_NAME:latest $REMOTE_IMAGE_URL:$TRAVIS_BRANCH" || exit $?
   runCommand "docker push $REMOTE_IMAGE_URL:$TRAVIS_BRANCH" || exit $?
