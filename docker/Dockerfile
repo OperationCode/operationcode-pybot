@@ -12,7 +12,7 @@ RUN apt-get update \
     && apt-get install -y gcc  \
     && rm -rf /var/lib/apt/lists/* \
     && pip install pipenv \
-    && pipenv install --system --deploy --dev --verbose \
+    && pipenv install --system --deploy --dev \
     && apt-get purge -y --auto-remove gcc
 
 # Copy the rest of our app into the container
