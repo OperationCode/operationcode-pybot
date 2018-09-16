@@ -1,25 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Push only if it's not a pull request
-if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-# Push only if we're testing the master branch
-if [ "$TRAVIS_BRANCH" == "master" ]; then
+# import util functions
+source "${SCRIPTDIR}/../lib/util.sh"
 
-# This is needed to login on AWS and push the image on ECR
-# Change it accordingly to your docker repo
-pip install awscli
-export PATH=$PATH:$HOME/.local/bin
-eval $(aws ecr get-login --no-include-email --region $AWS_REGION)
+echo "Logging into ECR..."
+AWS_LOGIN=$(runCommand "aws ecr get-login --region $AWS_REGION --no-include-email")
 
-# Build and push
-docker build -t $IMAGE_NAME -f docker/Dockerfile .
-echo "Pushing $IMAGE_NAME:latest"
-docker tag $IMAGE_NAME:latest "$REMOTE_IMAGE_URL:latest"
-docker push "$REMOTE_IMAGE_URL:latest"
-echo "Pushed $IMAGE_NAME:latest"
+if [ "$?" = "0" ]; then
+  eval $AWS_LOGIN || exit $?
+  echo "Building Docker image..."
+  runCommand "docker build -t $IMAGE_NAME -f docker/Dockerfile ." || exit $?
+  echo "Pushing image $IMAGE_NAME:$TRAVIS_BRANCH"
+  runCommand "docker tag $IMAGE_NAME:latest $REMOTE_IMAGE_URL:$TRAVIS_BRANCH" || exit $?
+  runCommand "docker push $REMOTE_IMAGE_URL:$TRAVIS_BRANCH" || exit $?
+  echo "Successfully built and pushed $REMOTE_IMAGE_URL:$TRAVIS_BRANCH"
 else
-echo "Skipping deploy because branch is not 'master'"
-fi
-else
-echo "Skipping deploy because it's a pull request"
+  echo "Failed to log in to AWS, exiting"
+  exit 1
 fi
