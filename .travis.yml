@@ -10,6 +10,7 @@ env:
   - REMOTE_IMAGE_URL=633607774026.dkr.ecr.us-east-2.amazonaws.com/pybot
   - ECS_CLUSTER_MASTER=python-oc-services
   - ECS_SERVICE_MASTER=pybot-svc
+
 sudo: required
 
 os: linux
