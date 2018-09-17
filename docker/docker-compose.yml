@@ -18,5 +18,6 @@ services:
     - ngrok.env
     environment:
     - NGROK_PORT=pybot:5000
+    - NGROK_SUBDOMAIN=pybot
     ports:
     - 4040:4040
