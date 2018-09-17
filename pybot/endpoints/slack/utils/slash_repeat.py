@@ -2,12 +2,13 @@ from typing import Iterable
 
 
 def default_repeat_message(message_options: Iterable) -> str:
-    keys = ''.join([f'->\t"{key}"\n' for key in message_options])
-    return 'That is not a valid option valid options are:\n ' + keys
+    return ('That is not a valid option valid options are:\n ' +
+            ''.join([f'->\t"{key}"\n' for key in message_options]))
 
 
 def modify_params(modify_options: dict) -> dict:
     message = {
+        "channel": modify_options['channel_id'],
         "attachments": [
             {
                 "pretext": "Text before block",
@@ -18,14 +19,14 @@ def modify_params(modify_options: dict) -> dict:
         ]
     }
 
-    message['attachments'][0]['pretext'] = f'{modify_options["display_name"]}: {modify_options["pretext"]}'
+    message['attachments'][0]['pretext'] = f'<@{modify_options["slack_id"]}>: {modify_options["pretext"]}'
     message['attachments'][0]['title'] = modify_options['title']
     message['attachments'][0]['title_link'] = modify_options["link"]
 
     return message
 
 
-def repeat_items(requested_text: str, display_name: str, channel_id: str) -> dict:
+def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
     messages = {
         '10000': {'link': 'https://xkcd.com/1053/',
                   'title': 'XKCD: lucky',
@@ -38,14 +39,9 @@ def repeat_items(requested_text: str, display_name: str, channel_id: str) -> dic
     modify_options = messages.get(requested_text)
 
     if modify_options:
-        modify_options['display_name'] = display_name
+        modify_options['slack_id'] = slack_id
+        modify_options['channel_id'] = channel_id
         return {'type': 'message', 'message': modify_params(modify_options)}
     else:
-        return {'type': 'emphemeral',
-                'message': {'channel': channel_id, 'text': default_repeat_message(messages.keys())}}
-
-
-if __name__ == '__main__':
-    import json
-
-    print(json.dumps(repeat_items('test', '123safs', 'mike')))
+        return {'type': 'ephemeral',
+                'message': {'channel': channel_id, 'user': slack_id, 'text': default_repeat_message(messages.keys())}}
