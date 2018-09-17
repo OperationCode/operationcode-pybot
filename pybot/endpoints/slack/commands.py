@@ -71,21 +71,5 @@ async def slash_repeat(command, app):
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
 
-    params = {'slack_id': slack_id, 'channel_id': channel_id}
-    headers = {'Authorization': f'Token {PYBACK_TOKEN}'}
-
-    logger.debug(f'/repeat params: {params}, /repeat headers {headers}')
-    async with slack.query(methods.USERS_INFO, data={'user': slack_id})as r:
-
-        logger.debug(f'pyback response status: {r.status}')
-        if r.status >= 400:
-            return
-
-        response = await r.json()
-        logger.debug(f'pyback response: {response}')
-        if not len(response):
-            return
-
-        method_type, message = await get_slash_repeat_messages(slack_id, channel_id, slack, command['text'])
-
-        await slack.query(method_type, message)
+    method_type, message = get_slash_repeat_messages(slack_id, channel_id, command['text'])
+    await slack.query(method_type, message)
