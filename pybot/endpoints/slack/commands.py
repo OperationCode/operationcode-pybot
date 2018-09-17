@@ -2,7 +2,7 @@ import logging
 
 from slack import methods
 
-from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages
+from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages
 from pybot.endpoints.slack.utils.slash_lunch import split_params, get_random_lunch, build_response_text
 from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN
 
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 def create_endpoints(plugin):
     plugin.on_command('/here', slash_here, wait=False)
     plugin.on_command('/lunch', slash_lunch, wait=False)
+    plugin.on_command('/repeat', slash_repeat, wait=False)
 
 
 async def slash_here(command, app):
@@ -63,3 +64,12 @@ async def slash_lunch(command, app):
         message = build_response_text(loc)
 
         await slack.query(methods.CHAT_POST_EPHEMERAL, {'user': user_id, 'channel': channel_id, 'text': message})
+
+
+async def slash_repeat(command, app):
+    channel_id = command['channel_id']
+    slack_id = command['user_id']
+    slack = app["plugins"]["slack"].api
+
+    method_type, message = get_slash_repeat_messages(slack_id, channel_id, command['text'])
+    await slack.query(method_type, message)
