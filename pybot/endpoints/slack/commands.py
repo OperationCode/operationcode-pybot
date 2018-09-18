@@ -5,17 +5,23 @@ from slack import methods
 from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages
 from pybot.endpoints.slack.utils.slash_lunch import split_params, get_random_lunch, build_response_text
 from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN
-
+from sirbot.plugins.slack import SlackPlugin
 logger = logging.getLogger(__name__)
 
+# TODO: write input-serializer for the input from the slash command. see repeated code in each slash command
 
-def create_endpoints(plugin):
+
+
+# TODO: write test to ensure these functions exist at compile time -unit
+# TODO: write test to ensure that the slack api that is being targeted has the slash commands - integration
+# TODO: write functionality to automatically add the slash command to slack api - integration
+def create_endpoints(plugin:SlackPlugin):
     plugin.on_command('/here', slash_here, wait=False)
     plugin.on_command('/lunch', slash_lunch, wait=False)
     plugin.on_command('/repeat', slash_repeat, wait=False)
 
 
-async def slash_here(command, app):
+async def slash_here(command:dict, app):
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
@@ -43,7 +49,7 @@ async def slash_here(command, app):
     await slack.query(methods.CHAT_POST_MESSAGE, {'channel': channel_id, 'text': member_list, 'thread_ts': timestamp})
 
 
-async def slash_lunch(command, app):
+async def slash_lunch(command: dict, app):
     channel_id = command['channel_id']
     user_id = command['user_id']
     slack = app["plugins"]["slack"].api
@@ -56,17 +62,15 @@ async def slash_lunch(command, app):
         ('radius', f'{param_dict["range"]}'),
     )
 
+    # TODO: turn this into a yelp plugin and stop using someone elses website
     async with app.http_session.get('https://wheelof.com/lunch/yelpProxyJSON.php', params=params) as r:
         r.raise_for_status()
-        loc = get_random_lunch(await r.json())
-
-        logger.info(f"location selected for {command['user_name']}: {loc}")
-        message = build_response_text(loc)
+        message = get_random_lunch(await r.json(), command['user_name'])
 
         await slack.query(methods.CHAT_POST_EPHEMERAL, {'user': user_id, 'channel': channel_id, 'text': message})
 
 
-async def slash_repeat(command, app):
+async def slash_repeat(command:dict, app):
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
