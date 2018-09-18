@@ -52,8 +52,10 @@ async def slash_here(command: dict, app):
 
 
 async def slash_lunch(command: dict, app):
-    lunch = LunchCommand(command['channel_id'], command['user_id'], app["plugins"]["slack"].api,
+    lunch = LunchCommand(command['channel_id'], command['user_id'],
                          command.get('text'), command['user_name'])
+
+    slack = app["plugins"]["slack"].api
 
     param_dict = lunch.get_lunch_api_params()
 

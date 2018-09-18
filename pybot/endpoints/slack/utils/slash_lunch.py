@@ -10,11 +10,10 @@ class LunchCommand:
     DEFAULT_LUNCH_DISTANCE = 20
     MIN_LUNCH_RANGE = 0.5
 
-    def __init__(self, channel: str, user: str, slack: str, input_text: str, user_name: str):
+    def __init__(self, channel: str, user: str, input_text: str, user_name: str):
 
         self.channel_id = channel
         self.user_id = user
-        self.slack = slack
         self.input_text = input_text
         self.user_name = user_name
 
@@ -112,7 +111,6 @@ class LunchCommand:
 if __name__ == '__main__':
     channel_id = 'AAAAAAAA'
     user_id = 'BBBBBBB'
-    slack = 'CCCCCCCC'
     user_name = 'DDDDDDDD'
 
     single_valid = '80020'
@@ -125,4 +123,4 @@ if __name__ == '__main__':
     double_invalid_both_again_again = 'abc 01210'
     float_valid = '80020 0.5'
     float_invalid = '80020 0.3'
-    lunch = LunchCommand(channel_id, user_id, slack, float_valid, user_name)
+    lunch = LunchCommand(channel_id, user_id, float_valid, user_name)
