@@ -94,6 +94,7 @@ class LunchCommand:
     def _within_lunch_range(self, input_number: int) -> bool:
         return input_number <= self.DEFAULT_LUNCH_DISTANCE
 
+
     def _convert_max_distance(self, input: str) -> int:
 
         try:
