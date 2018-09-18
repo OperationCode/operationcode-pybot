@@ -32,7 +32,11 @@ def repeat_items(requested_text: str, display_name: str, channel_id: str) -> dic
                   'pretext': 'Looks like you\'re one of the lucky 10,000 today!'},
         'asking': {'link': 'http://sol.gfxile.net/dontask.html',
                    'title': 'Asking Questions',
-                   'pretext': 'You can just ask, we\'re all here to help'}
+                   'pretext': 'You can just ask, we\'re all here to help'},
+
+        'ldap': {'link': 'http://large-type.com/#yes',
+                   'title': 'Is Someone complaining about LDAP?' ,
+                   'pretext': 'What\'s that I hear about LDAP?',
     }
 
     modify_options = messages.get(requested_text)
