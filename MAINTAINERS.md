@@ -6,11 +6,11 @@ Check out [how Operation Code Open Source projects are maintained](https://githu
 
 # Project Lead
 
-* [William Montgomery](http://www.github.com/wimo7083)
+* [Allen Anthes](http://www.github.com/allenanthes)
 
 # Lieutenant
 
-* [Allen Anthes](http://www.github.com/allenanthes)
+* [William Montgomery](http://www.github.com/wimo7083)
 
 # Maintainers
 
