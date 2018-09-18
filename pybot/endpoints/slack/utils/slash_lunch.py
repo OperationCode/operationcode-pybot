@@ -80,7 +80,7 @@ def split_params(param_text: str) -> dict:
     if len(params) == 2:
         return two_params(fix_param(params[0]), fix_param(params[1]))
 
-    if len(params) == 1 and is_valid(fix_param(params[0])):
+    if len(params) == 1 and is_valid(params[0]):
         return {'location': params[0], 'range': DEFAULT_LUNCH_RANGE}
 
     else:
