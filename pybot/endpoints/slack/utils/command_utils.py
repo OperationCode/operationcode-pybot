@@ -10,11 +10,9 @@ async def get_slash_here_messages(mod_id, channel, slack, text):
     return announcement, member_list
 
 
-async def get_slash_repeat_messages(user_id, channel, slack, text):
-    display_name = await slack.query(methods.USERS_INFO, data={'user': user_id})
-
+def get_slash_repeat_messages(user_id, channel, text):
     response_type = {'ephemeral': methods.CHAT_POST_EPHEMERAL,
                      'message': methods.CHAT_POST_MESSAGE}
 
-    values_dict = repeat_items(text, display_name, channel)
+    values_dict = repeat_items(text, user_id, channel)
     return response_type[values_dict['type']], values_dict['message']
