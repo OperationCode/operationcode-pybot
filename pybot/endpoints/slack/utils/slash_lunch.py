@@ -45,9 +45,6 @@ def within_lunch_range(input_number: str) -> bool:
 
 def fix_param(input: str) -> str:
     try:
-        # TODO: this is wonky because we use a website that uses yelp api.
-        # and we need to normalize the values for different cases
-        # the better solution is to use the yelp api.
         float_val = float(input)
 
         if float_val < 1:
