@@ -1,7 +1,7 @@
-from random import randint
-import logging
-from zipcodes import is_valid
 from typing import List
+import logging
+from random import randint
+from zipcodes import is_valid
 
 logger = logging.getLogger(__name__)
 
@@ -10,10 +10,10 @@ class LunchCommand:
     DEFAULT_LUNCH_DISTANCE = 20
     MIN_LUNCH_RANGE = 0.5
 
-    def __init__(self, channel_id: str, user_id: str, slack: str, input_text: str, user_name: str):
+    def __init__(self, channel: str, user_id: str, slack: str, input_text: str, user_name: str):
 
-        self.channel_id = channel_id
-        self.user_id = user_id
+        self.channel_id = channel
+        self.user_id = user
         self.slack = slack
         self.input_text = input_text
         self.user_name = user_name
@@ -24,10 +24,10 @@ class LunchCommand:
         return self.lunch_api_params
 
     def select_random_lunch(self, lunch_response: dict) -> dict:
-        number_locs = len(lunch_response['businesses'])
+        location_count = len(lunch_response['businesses'])
 
-        selected_loc = randint(0, number_locs - 1)
-        location = lunch_response['businesses'][selected_loc]
+        selected_location = randint(0, location_count - 1)
+        location = lunch_response['businesses'][selected_location]
 
         logger.info(f"location selected for {self.user_name}: {location}")
 
@@ -38,7 +38,6 @@ class LunchCommand:
     def _parse_input(self) -> dict:
         if not self.input_text:
             return {'location': self._random_zip(), 'range': self.DEFAULT_LUNCH_DISTANCE}
-
 
         else:
             split_items: List[str]
@@ -62,22 +61,24 @@ class LunchCommand:
             return self.DEFAULT_LUNCH_DISTANCE
 
     def _build_response_text(self, loc_dict: dict) -> dict:
-        return {'user': self.user_id, 'channel': self.channel_id, 'text':
-            f'The Wheel of Lunch has selected {loc_dict["name"]} at {" ".join(loc_dict["location"]["display_address"])}'}
+        return {'user': self.user_id, 'channel': self.channel_id,
+                'text': (f'The Wheel of Lunch has selected {loc_dict["name"]} ' +
+                         f'at {" ".join(loc_dict["location"]["display_address"])}')}
 
     def _get_zipcode(self, zipcode_val: str) -> int:
         try:
 
             if is_valid(zipcode_val):
                 return int(zipcode_val)
-        except TypeError as E:
+        except TypeError:
             pass
 
         finally:
 
-            return self._random_zip()
+            return LunchCommand._random_zip()
 
-    def _random_zip(self) -> int:
+    @staticmethod
+    def _random_zip() -> int:
         """
         Because what doesn't matter is close food but good food
         :return: zip_code
@@ -85,7 +86,7 @@ class LunchCommand:
         """
         random_zip = 0
         while not is_valid(str(random_zip)):
-            range_start = 10 ** (4)
+            range_start = 10 ** 4
             range_end = (10 ** 5) - 1
             random_zip = randint(range_start, range_end)
 
@@ -94,11 +95,10 @@ class LunchCommand:
     def _within_lunch_range(self, input_number: int) -> bool:
         return input_number <= self.DEFAULT_LUNCH_DISTANCE
 
-
-    def _convert_max_distance(self, input: str) -> int:
+    def _convert_max_distance(self, user_param: str) -> int:
 
         try:
-            float_val = float(input)
+            float_val = float(user_param)
 
             if float_val < 0:
                 float_val = abs(float_val)
