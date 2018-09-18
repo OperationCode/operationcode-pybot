@@ -60,7 +60,5 @@ def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
         modify_options['channel_id'] = channel_id
         return {'type': 'message', 'message': modify_params(modify_options)}
     else:
-        return {'type': 'emphemeral',
-                'message': {'channel': channel_id, 'text': default_repeat_message(messages.keys())}}
-
-
+        return {'type': 'ephemeral',
+                'message': {'channel': channel_id, 'user': slack_id, 'text': default_repeat_message(messages.keys())}}
