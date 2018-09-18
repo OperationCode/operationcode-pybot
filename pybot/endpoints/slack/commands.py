@@ -3,10 +3,12 @@ import logging
 from slack import methods
 
 from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages
-from pybot.endpoints.slack.utils.slash_lunch import split_params, get_random_lunch, build_response_text
+from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
 from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN
 from sirbot.plugins.slack import SlackPlugin
+
 logger = logging.getLogger(__name__)
+
 
 # TODO: write input-serializer for the input from the slash command. see repeated code in each slash command
 
@@ -15,13 +17,13 @@ logger = logging.getLogger(__name__)
 # TODO: write test to ensure these functions exist at compile time -unit
 # TODO: write test to ensure that the slack api that is being targeted has the slash commands - integration
 # TODO: write functionality to automatically add the slash command to slack api - integration
-def create_endpoints(plugin:SlackPlugin):
+def create_endpoints(plugin: SlackPlugin):
     plugin.on_command('/here', slash_here, wait=False)
     plugin.on_command('/lunch', slash_lunch, wait=False)
     plugin.on_command('/repeat', slash_repeat, wait=False)
 
 
-async def slash_here(command:dict, app):
+async def slash_here(command: dict, app):
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
@@ -50,11 +52,10 @@ async def slash_here(command:dict, app):
 
 
 async def slash_lunch(command: dict, app):
-    channel_id = command['channel_id']
-    user_id = command['user_id']
-    slack = app["plugins"]["slack"].api
+    lunch = LunchCommand(command['channel_id'], command['user_id'], app["plugins"]["slack"].api,
+                         command.get('text'), command['user_name'])
 
-    param_dict = split_params(command.get('text'))
+    param_dict = lunch.lunch_api_params()
 
     params = (
         ('zip', f'{param_dict["location"]}'),
@@ -65,12 +66,12 @@ async def slash_lunch(command: dict, app):
     # TODO: turn this into a yelp plugin and stop using someone elses website
     async with app.http_session.get('https://wheelof.com/lunch/yelpProxyJSON.php', params=params) as r:
         r.raise_for_status()
-        message = get_random_lunch(await r.json(), command['user_name'])
+        message_params = lunch.select_random_lunch(await r.json())
 
-        await slack.query(methods.CHAT_POST_EPHEMERAL, {'user': user_id, 'channel': channel_id, 'text': message})
+        await slack.query(methods.CHAT_POST_EPHEMERAL, message_params)
 
 
-async def slash_repeat(command:dict, app):
+async def slash_repeat(command: dict, app):
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
