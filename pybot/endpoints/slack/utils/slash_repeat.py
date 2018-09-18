@@ -1,6 +1,7 @@
 from typing import Iterable
 
 
+# TODO: use the github api to find the file even if location changes
 def find_resources() -> dict:
     return {'link': 'https://github.com/OperationCode/resources_api/blob/master/db_setup/resources.yml',
             'title': 'A big list of resources',
@@ -39,6 +40,8 @@ def modify_params(modify_options: dict) -> dict:
 
 
 def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
+    # TODO: get better way of only showing unique values
+    # for keys instead of my wonky way of adding more options
     messages = {
         '10000': {'link': 'https://xkcd.com/1053/',
                   'title': 'XKCD: lucky',
