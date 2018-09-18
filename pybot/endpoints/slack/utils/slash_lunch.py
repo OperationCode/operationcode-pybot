@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 MAX_LUNCH_RANGE = '30'
 DEFAULT_LUNCH_RANGE = '20'
-MIN_LUNCH_RANGE = '1'
+MIN_LUNCH_RANGE = 0.5
 
 
 def get_random_lunch(lunch_response: dict, user_name: str) -> str:
@@ -45,7 +45,17 @@ def within_lunch_range(input_number: str) -> bool:
 
 def fix_param(input: str) -> str:
     try:
-        val = str(max(int(float(input)), int(MIN_LUNCH_RANGE)))
+        # TODO: this is wonky because we use a website that uses yelp api.
+        # and we need to normalize the values for different cases
+        # the better solution is to use the yelp api.
+        float_val = float(input)
+
+        if float_val < 1:
+            float_val = abs(float_val)
+        float_val = max(float_val, MIN_LUNCH_RANGE)
+
+        val = str(float_val)
+
     except ValueError:
         val = DEFAULT_LUNCH_RANGE
 
@@ -60,6 +70,7 @@ def two_params(first_param: str, second_param: str) -> dict:
 
 
 # TODO: add test cases for various inputs
+# TODO: allow user to set defaults
 def split_params(param_text: str) -> dict:
     if not param_text:  # no params, default random zip code, 20 miles
         return {'location': random_zip(), 'range': DEFAULT_LUNCH_RANGE}
@@ -67,7 +78,6 @@ def split_params(param_text: str) -> dict:
     params = param_text.split()
 
     if len(params) == 0:
-
         return {'location': random_zip(), 'range': DEFAULT_LUNCH_RANGE}
 
     if len(params) == 2:
@@ -81,6 +91,9 @@ def split_params(param_text: str) -> dict:
 
 
 if __name__ == '__main__':
-    assert (fix_param('0.5') == '1')
-    assert (fix_param('12') == '12')
+    assert (fix_param('0.5') == '0.5')
+    assert (fix_param('12') == '12.0')
+    assert (fix_param('12.0') == '12.0')
     assert (fix_param('abc') == '20')
+    assert (fix_param('-1') == '1.0')
+
