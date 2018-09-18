@@ -67,7 +67,7 @@ def split_params(param_text: str) -> dict:
     params = param_text.split()
 
     if len(params) == 0:
-        
+
         return {'location': random_zip(), 'range': DEFAULT_LUNCH_RANGE}
 
     if len(params) == 2:
