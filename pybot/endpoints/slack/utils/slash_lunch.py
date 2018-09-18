@@ -10,7 +10,7 @@ class LunchCommand:
     DEFAULT_LUNCH_DISTANCE = 20
     MIN_LUNCH_RANGE = 0.5
 
-    def __init__(self, channel: str, user_id: str, slack: str, input_text: str, user_name: str):
+    def __init__(self, channel: str, user: str, slack: str, input_text: str, user_name: str):
 
         self.channel_id = channel
         self.user_id = user
