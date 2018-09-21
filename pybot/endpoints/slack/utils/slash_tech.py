@@ -1,11 +1,10 @@
 import logging
+import re
 from datetime import datetime, timedelta
 from random import random
+from typing import Dict, List, Pattern, Generator
 
 logger = logging.getLogger(__name__)
-
-import re
-from typing import Dict, List, Pattern, Generator
 
 
 class TechTermsGrabber:
@@ -71,8 +70,8 @@ class TechTerms:
             return {'type': 'epehmeral', 'message': self._grab_term(), }
 
         else:
-            split_items: List[str]
-            split_items = self.input_text.split()
+
+            split_items: List[str] = self.input_text.split()
             if split_items[0] == 'loud':
                 return {'type': 'loud', 'message': self._grab_term(split_items)}
 
@@ -93,11 +92,11 @@ class TechTerms:
 
     def _build_response_text(self, term: dict) -> dict:
         return {'user': self.user_id, 'channel': self.channel_id,
-                'text': (f'{term["term"]} is {term["definition"]}')}
+                'text': f'{term["term"]} is {term["definition"]}'}
 
     def _random_term(self) -> dict:
         choice = random.choice(self.TERMS.keys())
         return self._convert_key_to_dict(choice)
 
     def _serialize_term(self, term: Dict[str, str]) -> str:
-        f'{term["term"]} is {term["definition"]}'
+        return f'{term["term"]} is {term["definition"]}'
