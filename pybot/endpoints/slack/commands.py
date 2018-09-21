@@ -83,7 +83,7 @@ async def slash_repeat(command: dict, app):
     await slack.query(method_type, message)
 
 
-async def slack_tech(command: dict, app):
+async def slash_tech(command: dict, app):
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
