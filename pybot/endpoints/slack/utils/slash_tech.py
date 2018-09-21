@@ -1,7 +1,7 @@
 import logging
 import re
 from datetime import datetime, timedelta
-from random import random
+from random import random, choice
 from typing import Dict, List, Pattern, Generator
 
 logger = logging.getLogger(__name__)
@@ -109,8 +109,8 @@ class TechTerms:
                 'text': self._serialize_term(term)}
 
     def _random_term(self) -> dict:
-        choice = random.choice(self.TERMS.keys())
-        return self._convert_key_to_dict(choice)
+        item = choice(self.TERMS.keys())
+        return self._convert_key_to_dict(item)
 
     def _serialize_term(self, term: Dict[str, str]) -> str:
         addnl = self._source_text() if random.random() < self.ADD_GITHUB_CHANCE else ''
