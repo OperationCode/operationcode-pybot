@@ -55,6 +55,7 @@ class TechTermsGrabber:
 class TechTerms:
     # shared across all instances
     TERMS = {}
+    ADD_GITHUB_CHANCE = .25
 
     def __init__(self, channel: str, user: str, input_text: str, user_name: str, app):
 
@@ -68,7 +69,7 @@ class TechTerms:
 
     def grab_values(self) -> dict:
         if not self.input_text:
-            return {'type': 'epehmeral', 'message': self._grab_term(), }
+            return {'type': 'epehmeral', 'message': self._help_text()}
 
         else:
 
@@ -76,10 +77,22 @@ class TechTerms:
             if split_items[0] == 'loud':
                 return {'type': 'loud', 'message': self._grab_term(split_items)}
 
+            if split_items[0] == 'loud':
+                return {'type': 'loud', 'message': self._grab_term(split_items)}
+
         return {'type': 'epehmeral', 'message': self._grab_term(), }
 
     async def _parse_input(self) -> None:
         self.TERMS = await TechTermsGrabber(self.app).get_terms()
+
+    def _help_text(self):
+        return ('Use this to find descriptions of common and useful tech terms. Examples:\n' +
+                '"/resources Javascript", for self study\n' +
+                '"/resources loud Javascript", to announce to channel' +
+                self._source_text())
+
+    def _source_text(self):
+        return '\nFor the source data please see <github|https://github.com/togakangaroo/tech-terms>'
 
     def _convert_key_to_dict(self, key: str) -> dict:
         return {'term': key, 'definition': self.TERMS[key]}
@@ -100,4 +113,6 @@ class TechTerms:
         return self._convert_key_to_dict(choice)
 
     def _serialize_term(self, term: Dict[str, str]) -> str:
-        return f'{term["definition"]}'
+        addnl = self._source_text() if random.random() < self.ADD_GITHUB_CHANCE else ''
+
+        return f'{term["definition"]}{addnl}'
