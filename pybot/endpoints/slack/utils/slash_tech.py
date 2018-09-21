@@ -28,7 +28,8 @@ class TechTermsGrabber:
 
         lines: List[str] = content.splitlines()
 
-        return {x['term']: x['definition'] for x in self._filter_matches(lines, two_col_org_row)}
+        return {x['term'].lower(): 'f{x["term"]} is x["definition"]}' for x in
+                self._filter_matches(lines, two_col_org_row)}
 
     async def _grab_data_from_github(self) -> str:
         async with self.app.http_session.get(self.TERM_URL) as r:
@@ -84,7 +85,7 @@ class TechTerms:
         return {'term': key, 'definition': self.TERMS[key]}
 
     def _grab_term(self, term=None):
-        if isinstance(term, list) and len(term) > 1 and self.TERMS.get(term[1]):
+        if isinstance(term, list) and len(term) > 1 and self.TERMS.get(term[1].lower()):
             term_key: str = self.TERMS.get(term[1])
             return self._build_response_text(self._convert_key_to_dict(term_key))
 
@@ -92,11 +93,11 @@ class TechTerms:
 
     def _build_response_text(self, term: dict) -> dict:
         return {'user': self.user_id, 'channel': self.channel_id,
-                'text': f'{term["term"]} is {term["definition"]}'}
+                'text': self._serialize_term(term)}
 
     def _random_term(self) -> dict:
         choice = random.choice(self.TERMS.keys())
         return self._convert_key_to_dict(choice)
 
     def _serialize_term(self, term: Dict[str, str]) -> str:
-        return f'{term["term"]} is {term["definition"]}'
+        return f'{term["definition"]}'
