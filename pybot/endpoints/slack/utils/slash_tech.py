@@ -69,7 +69,7 @@ class TechTerms:
 
     def grab_values(self) -> dict:
         if not self.input_text:
-            return {'type': 'epehmeral', 'message': self._help_text()}
+            return {'type': 'ephemeral', 'message': self._help_text()}
 
         else:
 
@@ -80,7 +80,7 @@ class TechTerms:
             if split_items[0] == 'loud':
                 return {'type': 'loud', 'message': self._grab_term(split_items)}
 
-        return {'type': 'epehmeral', 'message': self._grab_term(), }
+        return {'type': 'ephemeral', 'message': self._grab_term(), }
 
     async def _parse_input(self) -> None:
         self.TERMS = await TechTermsGrabber(self.app).get_terms()
