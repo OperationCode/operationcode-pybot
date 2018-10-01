@@ -1,3 +1,15 @@
+<div align="center">
+  <br />
+  <a href="https://operationcode.org">
+    <img
+      alt="Operation Code Hacktoberfest Banner"
+      src="https://s3.amazonaws.com/operationcode-assets/operationcode-hacktoberfest-2018.png"
+    >
+  </a>
+  <br />
+  <br />
+</div>
+
 # [OperationCode-Pybot](https://github.com/OperationCode/operationcode-pybot)
 
 OperationCode PyBot is a Python [Slack Bot](https://api.slack.com)
