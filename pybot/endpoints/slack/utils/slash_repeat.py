@@ -54,6 +54,9 @@ def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
         'merge': {'link': 'http://large-type.com/#WILL',
                  'title': 'Who is that force merging to master?',
                  'pretext': 'git push -f origin master'},
+        'firstpr': {'link': 'https://goo.gl/forms/r02wt0pBNhkxYciI3',
+                     'title': 'Get your sticker here!',
+                      'pretext': ':firstpr:' }
         # TODO: make this into a url call.
         'resources': find_resources(),
         'resource': find_resources(),
