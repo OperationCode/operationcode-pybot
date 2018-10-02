@@ -51,6 +51,9 @@ def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
         'ldap': {'link': 'http://large-type.com/#yes',
                  'title': 'Is someone complaining about LDAP?',
                  'pretext': 'What\'s that I hear about LDAP?'},
+        'merge': {'link': 'http://large-type.com/#WILL',
+                 'title': 'Who is that force merging to master?',
+                 'pretext': 'git push -f origin master'},
         # TODO: make this into a url call.
         'resources': find_resources(),
         'resource': find_resources(),
