@@ -58,8 +58,8 @@ def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
                     'title': 'Get your sticker here!',
                     'pretext': ':firstpr:' },
         'channels': {'link': 'https://github.com/OperationCode/operationcode_docs/blob/master/community/slack_channel_guide.md',
-                    'title': 'Channel Guide!',
-                    'pretext': 'Check out the Channel Guide!' },
+                     'title': 'Channel Guide!',
+                     'pretext': 'Check out the Channel Guide!' },
         # TODO: make this into a url call.
         'resources': find_resources(),
         'resource': find_resources(),
