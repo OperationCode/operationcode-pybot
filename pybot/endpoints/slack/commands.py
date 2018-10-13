@@ -21,6 +21,7 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command('/here', slash_here, wait=False)
     plugin.on_command('/lunch', slash_lunch, wait=False)
     plugin.on_command('/repeat', slash_repeat, wait=False)
+    plugin.on_command('/repeat channels', slash_repeat_channels, wait=False)
 
 
 async def slash_here(command: dict, app):
@@ -79,4 +80,13 @@ async def slash_repeat(command: dict, app):
     slack = app["plugins"]["slack"].api
 
     method_type, message = get_slash_repeat_messages(slack_id, channel_id, command['text'])
+    await slack.query(method_type, message)
+
+
+async def slash_repeat_channels(command: dict, app):
+    channel_id = command['channel_id']
+    slack_id = command['user_id']
+    slack = app["plugins"]["slack"].api
+
+    method_type, message = get_slash_repeat_channels_messages(slack_id, channel_id, command['text'])
     await slack.query(method_type, message)
