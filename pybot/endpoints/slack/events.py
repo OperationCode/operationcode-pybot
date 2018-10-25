@@ -21,8 +21,15 @@ async def team_join(event, app):
     await asyncio.wait(futures)
 
 
+def match_edit_or_delete(message_json):
+    subtype = message_json.get('subtype')
+    if subtype:
+        return any(subtype == desired_match for desired_match in ['message_changed', 'message_deleted'])
+    return False
+
+
 async def messages(event, app):
-    if any(event['subtype'] == desired_match for desired_match in ['message_changed', 'message_deleted']):
+    if match_edit_or_delete(event):
         logger.info(
             f'user_id: {event["message"]["edited"]["user"]} has performed {event["subtype"]} on  message: {event["ts"]} for user: {event["message"]["user"]}')
         logger.info(event)
