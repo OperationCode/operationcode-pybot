@@ -30,7 +30,13 @@ def match_edit_or_delete(message_json):
 
 async def messages(event, app):
     if match_edit_or_delete(event):
-        logger.info(
-            f'user_id: {event["message"]["edited"]["user"]} has performed {event["subtype"]} on  message: {event["ts"]} for user: {event["message"]["user"]}')
-        logger.info(event)
+        logger.debug(event)
+        try:
 
+            logger.info(
+                f'user_id: {event["message"]["edited"]["user"]} has performed {event["subtype"]} on  message: {event["ts"]} for user: {event["message"]["user"]}')
+            logger.info(event)
+
+        except Exception as E:
+            logger.debug(event)
+            logger.exception(E)
