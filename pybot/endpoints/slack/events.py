@@ -28,7 +28,7 @@ def match_edit_or_delete(message_json):
     return False
 
 
-def messages(event, app):
+async def messages(event, app):
     if match_edit_or_delete(event):
         logger.debug(event)
         try:
