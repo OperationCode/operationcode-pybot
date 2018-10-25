@@ -28,7 +28,7 @@ def match_edit_or_delete(message_json):
     return False
 
 
-async def messages(event, app):
+def messages(event, app):
     if match_edit_or_delete(event):
         logger.debug(event)
         try:
@@ -38,5 +38,6 @@ async def messages(event, app):
             logger.info(event)
 
         except Exception as E:
-            logger.debug(event)
             logger.exception(E)
+
+        logger.debug(event)
