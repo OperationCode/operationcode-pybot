@@ -24,21 +24,21 @@ async def team_join(event, app):
 
 
 async def message_changed(event, app):
-        try:
-            logger.info(f'message changed event data: {pformat(event)}')
-            logger.info(
-                f'message edited: {event["ts"]} for user: {event["previous_message"]["user"]}')
+    try:
+        logger.debug(f'message changed event data: {pformat(event)}')
+        logger.info(
+            f'CHANGE_LOGGING: edited: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
 
-        except Exception as E:
-            logger.exception(E)
-            logger.debug(event)
+    except Exception as E:
+        logger.exception(E)
+        logger.debug(event)
 
 
 async def message_deleted(event, app):
     try:
-        logger.info(f'message deleted event data: {pformat(event)}')
+        logger.debug(f'message deleted event data: {pformat(event)}')
         logger.info(
-            f'message deleted: {event["ts"]} for user: {event["previous_message"]["user"]}')
+            f'CHANGE_LOGGING: deleted: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
 
     except Exception as E:
         logger.exception(E)
