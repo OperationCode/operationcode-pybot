@@ -53,6 +53,7 @@ async def slash_here(command: dict, app):
 
 
 async def slash_lunch(command: dict, app):
+    logger.debug(command)
     lunch = LunchCommand(command['channel_id'], command['user_id'],
                          command.get('text'), command['user_name'])
 
@@ -90,7 +91,7 @@ async def slash_tech(command: dict, app):
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
 
-    tech_terms:dict = TechTerms(command['channel_id'], command['user_id'],
+    tech_terms: dict = TechTerms(command['channel_id'], command['user_id'],
                            command.get('text'), command['user_name'], app).grab_values()
     method_type = response_type(tech_terms['type'])
     message =  tech_terms['message']

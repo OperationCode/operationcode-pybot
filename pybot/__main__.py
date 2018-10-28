@@ -1,24 +1,24 @@
-import logging.config
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+url = Path(os.path.dirname(os.path.dirname(__file__))) / 'docker' / 'pybot.env'
+load_dotenv(dotenv_path=url)
+
+import logging.config
 
 import yaml
-import os
 
 from aiohttp.web_response import Response
 from raven import setup_logging
 from raven.handlers.logging import SentryHandler
 from raven.processors import SanitizePasswordsProcessor
 from sirbot.plugins.slack import SlackPlugin
-from dotenv import load_dotenv
 from sirbot import SirBot
 import raven
 
 from . import endpoints
 from .plugins import AirtablePlugin
-
-url = Path(os.path.dirname(os.path.dirname(__file__))) / 'docker' / 'pybot.env'
-load_dotenv(dotenv_path=url)
-
 
 PORT = os.environ.get("SIRBOT_PORT", 5000)
 HOST = os.environ.get("SIRBOT_ADDR", "0.0.0.0")
