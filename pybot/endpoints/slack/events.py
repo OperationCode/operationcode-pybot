@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 
 def create_endpoints(plugin):
     plugin.on_event("team_join", team_join, wait=False)
-    plugin.on_event("message", messages, wait=False)
+    plugin.on_message(".*", messages, subtype="message_change")
+    plugin.on_message(".*", messages, subtype="message_deleted")
 
 
 async def team_join(event, app):
@@ -21,24 +22,12 @@ async def team_join(event, app):
     await asyncio.sleep(30)
     await asyncio.wait(futures)
 
-
-def match_edit_or_delete(message_json):
-    subtype = message_json.get('subtype')
-    if subtype:
-        return any(subtype == desired_match for desired_match in ['message_changed', 'message_deleted'])
-    return False
-
-
 async def messages(event, app):
-    if match_edit_or_delete(event):
-        logger.debug(event)
-        try:
+    try:
+        logger.info(
+            f'user_id: {event["message"]["edited"]["user"]} has performed {event["subtype"]} on  message: {event["ts"]} for user: {event["message"]["user"]}')
+        logger.info(event)
 
-            logger.info(
-                f'user_id: {event["message"]["edited"]["user"]} has performed {event["subtype"]} on  message: {event["ts"]} for user: {event["message"]["user"]}')
-            logger.info(event)
-
-        except Exception as E:
-            logger.exception(E)
-
+    except Exception as E:
+        logger.exception(E)
         logger.debug(event)
