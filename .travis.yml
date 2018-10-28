@@ -11,11 +11,12 @@ env:
   - ECS_CLUSTER_STAGING=python-oc-services
   - ECS_SERVICE_STAGING=pybot-svc-staging
   - PIPENV_CACHE_DIR=~./.cache/pip
-sudo: required
 os: linux
-language: python
 cache: pip
-python: 3.6
+sudo: required
+language: python
+dist: xenial
+python: 3.7
 install:
 - pip install pipenv
 - pipenv install --system --deploy --dev

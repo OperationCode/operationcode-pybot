@@ -17,6 +17,7 @@ zipcodes = "*"
 [dev-packages]
 requests = "*"
 pytest = "*"
+pytest-mock = "*"
 pytest-asyncio = "*"
 pytest-aiohttp = "*"
 asynctest = "*"
