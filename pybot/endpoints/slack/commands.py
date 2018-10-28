@@ -92,7 +92,13 @@ async def slash_tech(command: dict, app):
     slack = app["plugins"]["slack"].api
 
     tech_terms: dict = TechTerms(command['channel_id'], command['user_id'],
-                           command.get('text'), command['user_name'], app).grab_values()
+                                 command.get('text'), command['user_name'], app).grab_values()
     method_type = response_type(tech_terms['type'])
-    message =  tech_terms['message']
+    text = tech_terms['message']
+    message = {
+        'text': text,
+        'channel': channel_id,
+        'user': slack_id
+    }
+
     await slack.query(method_type, message)
