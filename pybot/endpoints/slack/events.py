@@ -1,6 +1,6 @@
 import asyncio
 import logging
-
+from pprint import pformat
 from pybot.endpoints.slack.utils.event_utils import build_messages, send_user_greetings, send_community_notification
 
 logger = logging.getLogger(__name__)
@@ -25,9 +25,9 @@ async def team_join(event, app):
 
 async def message_changed(event, app):
         try:
-            logger.info(event)
+            logger.info(f'message changed event data: {pformat(event)}')
             logger.info(
-                f'user_id: {event["user"]} has performed {event["subtype"]} on  message: {event["ts"]} for user: {event["previous_message"]["user"]}')
+                f'message edited: {event["ts"]} for user: {event["previous_message"]["user"]}')
 
         except Exception as E:
             logger.exception(E)
@@ -36,7 +36,7 @@ async def message_changed(event, app):
 
 async def message_deleted(event, app):
     try:
-        logger.info(event)
+        logger.info(f'message deleted event data: {pformat(event)}')
         logger.info(
             f'message deleted: {event["ts"]} for user: {event["previous_message"]["user"]}')
 
