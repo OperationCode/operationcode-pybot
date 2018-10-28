@@ -76,6 +76,7 @@ async def slash_lunch(command: dict, app):
 
 
 async def slash_repeat(command: dict, app):
+    logger.info(f'repeat command data incoming {command}')
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
@@ -85,7 +86,7 @@ async def slash_repeat(command: dict, app):
 
 
 async def slash_tech(command: dict, app):
-    logger.debug(command)
+    logger.info(f'tech command data incoming {command}')
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
