@@ -71,7 +71,7 @@ class AirtableAPI:
         except Exception as e:
             return []
 
-        if len(complete_match) < 3:
+        if len(complete_match) < 5:
             complete_match += partial_match
 
         return complete_match or partial_match
