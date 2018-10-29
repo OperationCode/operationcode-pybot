@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from pprint import pformat
 from pybot.endpoints.slack.utils.event_utils import build_messages, send_user_greetings, send_community_notification
 
 logger = logging.getLogger(__name__)
@@ -8,8 +7,6 @@ logger = logging.getLogger(__name__)
 
 def create_endpoints(plugin):
     plugin.on_event("team_join", team_join, wait=False)
-    plugin.on_message(".*", message_changed, subtype="message_changed")
-    plugin.on_message(".*", message_deleted, subtype="message_deleted")
 
 
 async def team_join(event, app):
@@ -21,25 +18,3 @@ async def team_join(event, app):
 
     await asyncio.sleep(30)
     await asyncio.wait(futures)
-
-
-async def message_changed(event, app):
-    try:
-        logger.debug(f'message changed event data: {pformat(event)}')
-        logger.info(
-            f'CHANGE_LOGGING: edited: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
-
-    except Exception as E:
-        logger.exception(E)
-        logger.debug(event)
-
-
-async def message_deleted(event, app):
-    try:
-        logger.debug(f'message deleted event data: {pformat(event)}')
-        logger.info(
-            f'CHANGE_LOGGING: deleted: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
-
-    except Exception as E:
-        logger.exception(E)
-        logger.debug(event)
