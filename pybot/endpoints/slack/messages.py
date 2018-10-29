@@ -17,22 +17,24 @@ def match_edit_or_delete(message_json):
 
 
 async def message_changed(event, app):
-    try:
-        logger.debug(f'message changed event data: {pformat(event)}')
-        logger.info(
-            f'CHANGE_LOGGING: edited: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
+    if 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message':
+        try:
+            logger.debug(f'message changed event data: {pformat(event)}')
+            logger.info(
+                f'CHANGE_LOGGING: edited: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
 
-    except Exception as E:
-        logger.exception(E)
-        logger.debug(event)
+        except Exception as E:
+            logger.exception(E)
+            logger.debug(event)
 
 
 async def message_deleted(event, app):
-    try:
-        logger.debug(f'message deleted event data: {pformat(event)}')
-        logger.info(
-            f'CHANGE_LOGGING: deleted: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
+    if 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message':
+        try:
+            logger.debug(f'message deleted event data: {pformat(event)}')
+            logger.info(
+                f'CHANGE_LOGGING: deleted: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
 
-    except Exception as E:
-        logger.exception(E)
-        logger.debug(event)
+        except Exception as E:
+            logger.exception(E)
+            logger.debug(event)
