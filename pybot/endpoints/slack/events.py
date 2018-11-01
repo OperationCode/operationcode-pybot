@@ -1,6 +1,5 @@
 import asyncio
 import logging
-
 from pybot.endpoints.slack.utils.event_utils import build_messages, send_user_greetings, send_community_notification
 
 logger = logging.getLogger(__name__)
@@ -17,5 +16,5 @@ async def team_join(event, app):
     futures = [send_user_greetings(user_messages, slack_api),
                send_community_notification(community_message, slack_api)]
 
-    asyncio.sleep(30)
+    await asyncio.sleep(30)
     await asyncio.wait(futures)

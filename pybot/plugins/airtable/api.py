@@ -45,7 +45,6 @@ class AirtableAPI:
         self.services_id_to_service = {record['id']: record['fields']['Name'] for record in records}
         return self.services_id_to_service[service_id]
 
-    @lru_cache(64)
     async def get_mentor_from_record_id(self, record_id: str) -> dict:
         url = self.table_url("Mentors", record_id)
         try:
@@ -71,6 +70,9 @@ class AirtableAPI:
                     partial_match.append(mentor['fields'])
         except Exception as e:
             return []
+
+        if len(complete_match) < 5:
+            complete_match += partial_match
 
         return complete_match or partial_match
 

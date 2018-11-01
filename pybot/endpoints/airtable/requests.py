@@ -13,7 +13,8 @@ def create_endpoints(plugin):
 
 
 async def mentor_request(request: dict, app: SirBot) -> None:
-    slack_id = await _slack_user_id_from_email(request['email'], app)
+    id_fallback = f" [couldn't find user - email provided: {request['email']} ]"
+    slack_id = await _slack_user_id_from_email(request['email'], app, fallback=id_fallback)
 
     futures = [app.plugins['airtable'].api.translate_service_id(request['service']),
                _get_requested_mentor(request.get('requested_mentor'), app),

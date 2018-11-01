@@ -60,6 +60,7 @@ async def post_suggestion(action, app):
 
 
 async def claim_mentee(action, app):
+    update_airtable = True
     clicker_id = action['user']['id']
     request_record = action['actions'][0]['name']
     click_type = action['actions'][0]['value']
@@ -74,8 +75,9 @@ async def claim_mentee(action, app):
         if mentor_id:
             attachment = mentee_claimed_attachment(clicker_id, request_record)
         else:
-            attachment = action['original_message']['attachments'][0]
-            attachment['text'] = f":warning: <@{clicker_id}>'s slack Email not found in Mentor table. :warning:"
+            update_airtable = False
+            attachment = action['original_message']['attachments']
+            attachment[0]['text'] = f":warning: <@{clicker_id}>'s slack Email not found in Mentor table. :warning:"
     else:
         mentor_id = ''
         attachment = mentee_unclaimed_attachment(clicker_id, request_record)
@@ -83,4 +85,5 @@ async def claim_mentee(action, app):
     response['attachments'] = attachment
 
     await app.plugins['slack'].api.query(url=methods.CHAT_UPDATE, data=response)
-    await app.plugins['airtable'].api.update_request(request_record, mentor_id)
+    if update_airtable:
+        await app.plugins['airtable'].api.update_request(request_record, mentor_id)

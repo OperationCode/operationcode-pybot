@@ -17,9 +17,10 @@ zipcodes = "*"
 [dev-packages]
 requests = "*"
 pytest = "*"
+pytest-mock = "*"
 pytest-asyncio = "*"
 pytest-aiohttp = "*"
 asynctest = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
