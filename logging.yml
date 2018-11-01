@@ -3,10 +3,16 @@ disable_existing_loggers: false
 formatters:
   simple:
     format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+filters:
+  messages:
+    (): 'pybot.logging.SlackMessageFilter'
+
 handlers:
   console:
     class: logging.StreamHandler
     level: DEBUG
+    filters:
+    - messages
     formatter: simple
     stream: ext://sys.stdout
 loggers:
