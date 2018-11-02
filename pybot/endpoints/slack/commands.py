@@ -3,7 +3,8 @@ import logging
 from sirbot.plugins.slack import SlackPlugin
 from slack import methods
 
-from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN
+from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, REPORT_CHANNEL
+from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages, response_type
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
 from pybot.endpoints.slack.utils.slash_tech import TechTerms
@@ -22,6 +23,24 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command('/lunch', slash_lunch, wait=False)
     plugin.on_command('/repeat', slash_repeat, wait=False)
     plugin.on_command('/tech', slash_tech, wait=False)
+    plugin.on_command('/report', slash_report, wait=False)
+
+
+async def slash_report(command: dict, app):
+    slack_id = command['user_id']
+    text = command['text']
+
+    slack = app["plugins"]["slack"].api
+
+    message = f'<@{slack_id}> sent report: {text}'
+
+    response = {
+        'text': message,
+        'channel': REPORT_CHANNEL,
+        'attachments': not_claimed_attachment(),
+    }
+
+    await slack.query(methods.CHAT_POST_MESSAGE, response)
 
 
 async def slash_here(command: dict, app):
