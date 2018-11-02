@@ -43,6 +43,7 @@ async def slash_report(command: dict, app):
     await slack.query(methods.CHAT_POST_MESSAGE, response)
 
 
+
 async def slash_here(command: dict, app):
     channel_id = command['channel_id']
     slack_id = command['user_id']

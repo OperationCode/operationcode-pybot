@@ -3,7 +3,7 @@ from typing import Iterable
 
 # TODO: use the github api to find the file even if location changes
 def find_resources() -> dict:
-    return {'link': 'https://github.com/OperationCode/resources_api/blob/master/db_setup/resources.yml',
+    return {'link': 'https://github.com/OperationCode/resources_api/blob/master/resources.yml',
             'title': 'A big list of resources',
             'pretext': 'Would you like some resources.yml?'}
 
@@ -51,6 +51,15 @@ def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
         'ldap': {'link': 'http://large-type.com/#yes',
                  'title': 'Is someone complaining about LDAP?',
                  'pretext': 'What\'s that I hear about LDAP?'},
+        'merge': {'link': 'http://large-type.com/#WILL',
+                 'title': 'Who is that force merging to master?',
+                 'pretext': 'git push -f origin master'},
+        'firstpr': {'link': 'https://goo.gl/forms/r02wt0pBNhkxYciI3',
+                    'title': 'Get your sticker here!',
+                    'pretext': ':firstpr:' },
+        'channels': {'link': 'https://github.com/OperationCode/operationcode_docs/blob/master/community/slack_channel_guide.md',
+                     'title': 'Channel Guide!',
+                     'pretext': 'Check out the Channel Guide!' },
         # TODO: make this into a url call.
         'resources': find_resources(),
         'resource': find_resources(),
