@@ -9,6 +9,7 @@ def create_endpoints(plugin):
     plugin.on_message(".*", message_deleted, subtype="message_deleted")
 
 
+
 def not_bot_message(event):
     return 'message' not in event or 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message'
 

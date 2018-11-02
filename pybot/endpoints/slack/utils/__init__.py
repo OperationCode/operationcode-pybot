@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 COMMUNITY_CHANNEL = os.environ.get("COMMUNITY_CHANNEL") or "G12343"
+REPORT_CHANNEL = os.environ.get('REPORT_CHANNEL') or 'G8NDRJJF9'
 APP_TOKEN = os.environ.get('APP_TOKEN') or "123"
 PYBACK_HOST = os.environ.get('PYBACK_HOST') or 'pyback'
 PYBACK_PORT = os.environ.get('PYBACK_PORT') or 8000

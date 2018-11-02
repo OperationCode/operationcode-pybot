@@ -12,7 +12,7 @@ def now():
     return int(time())
 
 
-def base_greeted_response(action):
+def base_response(action):
     response = Message()
 
     response['text'] = action['original_message']['text']
@@ -64,6 +64,41 @@ def not_greeted_attachment():
     }]
 
 
+def not_claimed_attachment():
+    return [{
+        'text': "",
+        "fallback": "",
+        "color": "#3AA3E3",
+        "callback_id": "claimed",
+        "attachment_type": "default",
+        "actions": [{
+            "name": "claimed",
+            "text": "Claim",
+            "type": "button",
+            "style": "primary",
+            "value": "claimed"
+        }]
+    }]
+
+
+def claimed_attachment(user_id):
+    return [{
+        "text": f"Claimed by <@{user_id}>\n"
+                f"<!date^{now()}^at {{date_num}} {{time_secs}}|Failed to parse time>",
+        "fallback": "",
+        "color": "#3AA3E3",
+        "callback_id": "claimed",
+        "attachment_type": "default",
+        "actions": [{
+            "name": "reset_claim",
+            "text": f"Reset claim",
+            "type": "button",
+            "style": "danger",
+            "value": "reset_claim",
+        }]
+    }]
+
+
 def reset_greet_message(user_id):
     return (f"Reset by <@{user_id}> at"
             f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>")
@@ -101,6 +136,7 @@ def mentee_claimed_attachment(user_id: str, record: str) -> List[dict]:
         }]
     }]
 
+
 def mentee_unclaimed_attachment(user_id: str, record: str) -> List[dict]:
     return [{
         'text': f"Reset by <@{user_id}> at"
@@ -117,6 +153,7 @@ def mentee_unclaimed_attachment(user_id: str, record: str) -> List[dict]:
             'value': 'mentee_claimed'
         }]
     }]
+
 
 def new_suggestion_text(user_id: str, suggestion: str) -> str:
     return f":exclamation:<@{user_id}> just submitted a suggestion for a help topic:exclamation:\n-- {suggestion}"
