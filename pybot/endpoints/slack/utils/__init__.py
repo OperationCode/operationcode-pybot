@@ -7,6 +7,7 @@ load_dotenv()
 COMMUNITY_CHANNEL = os.environ.get("COMMUNITY_CHANNEL") or "G12343"
 REPORT_CHANNEL = os.environ.get('REPORT_CHANNEL') or 'G8NDRJJF9'
 APP_TOKEN = os.environ.get('APP_TOKEN') or "123"
+YELP_TOKEN = os.environ.get('YELP_TOKEN') or 'token'
 PYBACK_HOST = os.environ.get('PYBACK_HOST') or 'pyback'
 PYBACK_PORT = os.environ.get('PYBACK_PORT') or 8000
 PYBACK_TOKEN = os.environ.get('PYBACK_TOKEN') or 'token'

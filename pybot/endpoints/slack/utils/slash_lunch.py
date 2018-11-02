@@ -3,12 +3,15 @@ import logging
 from random import randint
 from zipcodes import is_valid
 
+from pybot.endpoints.slack.utils import YELP_TOKEN
+
 logger = logging.getLogger(__name__)
 
 
 class LunchCommand:
     DEFAULT_LUNCH_DISTANCE = 20
-    MIN_LUNCH_RANGE = 0.5
+    MIN_LUNCH_RANGE = 1
+    AUTH_HEADER = {f'Authorization': f"Bearer {YELP_TOKEN}"}
 
     def __init__(self, channel: str, user: str, input_text: str, user_name: str):
 
@@ -19,8 +22,12 @@ class LunchCommand:
 
         self.lunch_api_params = self._parse_input()
 
-    def get_lunch_api_params(self):
-        return self.lunch_api_params
+    def get_yelp_request(self):
+        return {
+            'url': 'https://api.yelp.com/v3/businesses/search',
+            'params': self.lunch_api_params,
+            'headers': self.AUTH_HEADER
+        }
 
     def select_random_lunch(self, lunch_response: dict) -> dict:
         location_count = len(lunch_response['businesses'])
@@ -36,45 +43,48 @@ class LunchCommand:
     # TODO: allow user to set defaults
     def _parse_input(self) -> dict:
         if not self.input_text:
-            return {'location': self._random_zip(), 'range': self.DEFAULT_LUNCH_DISTANCE}
+            return {
+                'location': self._random_zip(),
+                'range': self._convert_to_meters(self.DEFAULT_LUNCH_DISTANCE),
+                'term': 'lunch'
+            }
 
         else:
-            split_items: List[str]
             split_items = self.input_text.split()
             zipcode = self._get_zipcode(split_items[0])
             distance = self._get_distance(split_items)
-            return {'location': zipcode, 'range': distance}
+            return {
+                'location': zipcode,
+                'range': distance,
+                'term': 'lunch'
+            }
 
     def _get_distance(self, split_items: List[str]):
-        distance: int
-
         distance_index = min(len(split_items), 2) - 1
 
         str_distance = split_items[distance_index]
-
         distance = self._convert_max_distance(str_distance)
 
-        if self._within_lunch_range(distance):
-            return distance
-        else:
-            return self.DEFAULT_LUNCH_DISTANCE
+        if not self._within_lunch_range(distance):
+            distance = self.DEFAULT_LUNCH_DISTANCE
+
+        return self._convert_to_meters(distance)
 
     def _build_response_text(self, loc_dict: dict) -> dict:
         return {'user': self.user_id, 'channel': self.channel_id,
                 'text': (f'The Wheel of Lunch has selected {loc_dict["name"]} ' +
                          f'at {" ".join(loc_dict["location"]["display_address"])}')}
 
-    def _get_zipcode(self, zipcode_val: str) -> int:
+    @classmethod
+    def _get_zipcode(cls, zipcode: str) -> int:
         try:
 
-            if is_valid(zipcode_val):
-                return int(zipcode_val)
+            if is_valid(zipcode):
+                return int(zipcode)
         except TypeError:
             pass
 
-        finally:
-
-            return LunchCommand._random_zip()
+        return cls._random_zip()
 
     @staticmethod
     def _random_zip() -> int:
@@ -97,19 +107,22 @@ class LunchCommand:
     def _convert_max_distance(self, user_param: str) -> int:
 
         try:
-            float_val = float(user_param)
+            distance = int(user_param)
 
-            if float_val < 0:
-                float_val = abs(float_val)
+            if distance < 0:
+                distance = abs(distance)
 
-            return max(float_val, self.MIN_LUNCH_RANGE)
+            return max(distance, self.MIN_LUNCH_RANGE)
 
         except ValueError:
             return self.DEFAULT_LUNCH_DISTANCE
 
+    @classmethod
+    def _convert_to_meters(cls, distance):
+        return int(distance * 1609.34)
+
 
 if __name__ == '__main__':
-
     channel_id = 'AAAAAAAA'
     user_id = 'BBBBBBB'
     user_name = 'DDDDDDDD'

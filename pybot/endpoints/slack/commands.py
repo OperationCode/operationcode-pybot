@@ -3,7 +3,7 @@ import logging
 from sirbot.plugins.slack import SlackPlugin
 from slack import methods
 
-from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, REPORT_CHANNEL
+from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, REPORT_CHANNEL, YELP_TOKEN
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages, response_type
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
@@ -79,16 +79,8 @@ async def slash_lunch(command: dict, app):
 
     slack = app["plugins"]["slack"].api
 
-    param_dict = lunch.get_lunch_api_params()
-
-    params = (
-        ('zip', f'{param_dict["location"]}'),
-        ('query', 'lunch'),
-        ('radius', f'{param_dict["range"]}'),
-    )
-
-    # TODO: turn this into a yelp plugin and stop using someone elses website
-    async with app.http_session.get('https://wheelof.com/lunch/yelpProxyJSON.php', params=params) as r:
+    request = lunch.get_yelp_request()
+    async with app.http_session.get(**request) as r:
         r.raise_for_status()
         message_params = lunch.select_random_lunch(await r.json())
 
