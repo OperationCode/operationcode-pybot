@@ -28,7 +28,7 @@ async def team_join(event: Event, app: SirBot) -> None:
     futures = [send_user_greetings(user_messages, slack_api),
                send_community_notification(community_message, slack_api)]
 
-    # await asyncio.sleep(30)
+    await asyncio.sleep(30)
     await asyncio.wait(futures)
 
 
