@@ -11,8 +11,6 @@ logger = logging.getLogger(__name__)
 
 def create_endpoints(plugin):
     plugin.on_event("team_join", team_join, wait=False)
-    plugin.on_message(".*", message_changed, subtype="message_changed")
-    plugin.on_message(".*", message_deleted, subtype="message_deleted")
 
 
 async def team_join(event: Event, app: SirBot) -> None:
@@ -30,25 +28,3 @@ async def team_join(event: Event, app: SirBot) -> None:
 
     await asyncio.sleep(30)
     await asyncio.wait(futures)
-
-
-async def message_changed(event, app):
-        try:
-            logger.info(event)
-            logger.info(
-                f'user_id: {event["user"]} has performed {event["subtype"]} on  message: {event["ts"]} for user: {event["previous_message"]["user"]}')
-
-        except Exception as E:
-            logger.exception(E)
-            logger.debug(event)
-
-
-async def message_deleted(event, app):
-    try:
-        logger.info(event)
-        logger.info(
-            f'message deleted: {event["ts"]} for user: {event["previous_message"]["user"]}')
-
-    except Exception as E:
-        logger.exception(E)
-        logger.debug(event)
