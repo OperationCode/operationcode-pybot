@@ -1,5 +1,7 @@
 import logging
-from pprint import pformat
+
+from sirbot import SirBot
+from slack.events import Message
 
 logger = logging.getLogger(__name__)
 
@@ -9,12 +11,14 @@ def create_endpoints(plugin):
     plugin.on_message(".*", message_deleted, subtype="message_deleted")
 
 
-
-def not_bot_message(event):
+def not_bot_message(event: Message):
     return 'message' not in event or 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message'
 
 
-async def message_changed(event, app):
+async def message_changed(event: Message, app: SirBot):
+    """
+    Logs all message edits not made by a bot.
+    """
     if not_bot_message(event):
         try:
             logger.info(
@@ -25,7 +29,10 @@ async def message_changed(event, app):
             logger.debug(event)
 
 
-async def message_deleted(event, app):
+async def message_deleted(event: Message, app: SirBot):
+    """
+    Logs all message deletions not made by a bot.
+    """
     if not_bot_message(event):
         try:
             logger.info(

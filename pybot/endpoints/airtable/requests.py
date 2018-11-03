@@ -13,6 +13,12 @@ def create_endpoints(plugin):
 
 
 async def mentor_request(request: dict, app: SirBot) -> None:
+    """
+    Endpoint that receives the zapier POST when a new Mentor Request comes in.
+
+    Queries Airtable to find mentors matching the requested skillsets and posts a message
+    in the Mentor slack channel.
+    """
     id_fallback = f" [couldn't find user - email provided: {request['email']} ]"
     slack_id = await _slack_user_id_from_email(request['email'], app, fallback=id_fallback)
 

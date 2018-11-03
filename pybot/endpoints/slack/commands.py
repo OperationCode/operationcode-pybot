@@ -1,7 +1,9 @@
 import logging
 
+from sirbot import SirBot
 from sirbot.plugins.slack import SlackPlugin
 from slack import methods
+from slack.commands import Command
 
 from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, REPORT_CHANNEL, YELP_TOKEN
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
@@ -26,7 +28,11 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command('/report', slash_report, wait=False)
 
 
-async def slash_report(command: dict, app):
+async def slash_report(command: Command, app: SirBot):
+    """
+    Sends text supplied with the /report command to the moderators channel along
+    with a button to claim the issue
+    """
     slack_id = command['user_id']
     text = command['text']
 
@@ -43,8 +49,11 @@ async def slash_report(command: dict, app):
     await slack.query(methods.CHAT_POST_MESSAGE, response)
 
 
-
-async def slash_here(command: dict, app):
+async def slash_here(command: Command, app: SirBot):
+    """
+    /here allows admins to give non-admins the ability to use @here-esque functionality for specific channels.
+    Queries pyback to determine if user is authorized
+    """
     channel_id = command['channel_id']
     slack_id = command['user_id']
     slack = app["plugins"]["slack"].api
@@ -72,7 +81,10 @@ async def slash_here(command: dict, app):
     await slack.query(methods.CHAT_POST_MESSAGE, {'channel': channel_id, 'text': member_list, 'thread_ts': timestamp})
 
 
-async def slash_lunch(command: dict, app):
+async def slash_lunch(command: Command, app: SirBot):
+    """
+    Provides the user with a random restaurant in their area.
+    """
     logger.debug(command)
     lunch = LunchCommand(command['channel_id'], command['user_id'],
                          command.get('text'), command['user_name'])
@@ -87,7 +99,7 @@ async def slash_lunch(command: dict, app):
         await slack.query(methods.CHAT_POST_EPHEMERAL, message_params)
 
 
-async def slash_repeat(command: dict, app):
+async def slash_repeat(command: Command, app: SirBot):
     logger.info(f'repeat command data incoming {command}')
     channel_id = command['channel_id']
     slack_id = command['user_id']
@@ -97,7 +109,7 @@ async def slash_repeat(command: dict, app):
     await slack.query(method_type, message)
 
 
-async def slash_tech(command: dict, app):
+async def slash_tech(command: Command, app: SirBot):
     logger.info(f'tech command data incoming {command}')
     channel_id = command['channel_id']
     slack_id = command['user_id']
