@@ -21,14 +21,6 @@ def base_response(action):
     return response
 
 
-def base_claim_mentee_response(action):
-    response = Message()
-    response['text'] = action['original_message']['text']
-    response['channel'] = action['channel']['id']
-    response['ts'] = action['message_ts']
-    return response
-
-
 def greeted_attachment(user_id: str) -> List[dict]:
     return [{
         "text": f":100:<@{user_id}> has greeted the new user!:100:\n"
@@ -84,7 +76,7 @@ def not_claimed_attachment():
 def claimed_attachment(user_id):
     return [{
         "text": f"Claimed by <@{user_id}>\n"
-                f"<!date^{now()}^at {{date_num}} {{time_secs}}|Failed to parse time>",
+                f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
         "fallback": "",
         "color": "#3AA3E3",
         "callback_id": "claimed",
