@@ -25,17 +25,15 @@ class TechTermsGrabber:
         two_col_org_row: Pattern[str] = self._compile_regex_from_parts()
 
         content = await self._grab_data_from_github()
-
         lines: List[str] = content.splitlines()
 
-        return {x['term'].lower(): 'f{x["term"]} is x["definition"]}' for x in
+        return {x['term'].lower(): f'{x["term"]} is {x["definition"]}' for x in
                 self._filter_matches(lines, two_col_org_row)}
 
     async def _grab_data_from_github(self) -> str:
         async with self.app.http_session.get(self.TERM_URL) as r:
             r.raise_for_status()
-            data = await r.json()
-            return data.decode('utf-8')
+            return await r.text(encoding='utf-8')
 
     def _compile_regex_from_parts(self) -> Pattern[str]:
         n_spaces_pipe_n_spaces = '\\s*\\|\\s*'
@@ -55,35 +53,36 @@ class TechTermsGrabber:
 class TechTerms:
     # shared across all instances
     TERMS = {}
-    ADD_GITHUB_CHANCE = .25
+    ADD_GITHUB_CHANCE = 1
 
-    def __init__(self, channel: str, user: str, input_text: str, user_name: str, app):
+    def __init__(self, channel: str, user: str, input_text: str, app):
 
         self.channel_id = channel
         self.user_id = user
-        self.input_text = input_text
-        self.user_name = user_name
+        self.input_text = self.remove_tech(input_text)
         self.app = app
+        self.response_params = None
 
-        self.response_params = self._parse_input()
+    def remove_tech(self, initial_input):
+        return initial_input.split('!tech', 1)[1]
 
-    def grab_values(self) -> dict:
+    async def grab_values(self) -> dict:
+
         if not self.input_text:
-            return {'type': 'ephemeral', 'message': self._help_text()}
+            return {'message': self._help_text()}
 
         else:
+            if not self.response_params:
+                await self._parse_input()
 
-            split_items: List[str] = self.input_text.split()
-            if split_items[0] == 'loud':
-                return {'type': 'loud', 'message': self._grab_term(split_items)}
+            if self.input_text:
+                return {'message': self._grab_term(term=self.input_text)}
 
-            if split_items[0] == 'loud':
-                return {'type': 'loud', 'message': self._grab_term(split_items)}
-
-        return {'type': 'ephemeral', 'message': self._grab_term(), }
+        return {'message': self._grab_term(), }
 
     async def _parse_input(self) -> None:
-        self.TERMS = await TechTermsGrabber(self.app).get_terms()
+        grabber = TechTermsGrabber(self.app)
+        self.TERMS = await grabber.get_terms()
 
     def _help_text(self):
         return ('Use this to find descriptions of common and useful tech terms. Examples:\n' +
@@ -92,27 +91,28 @@ class TechTerms:
                 self._source_text())
 
     def _source_text(self):
-        return '\nFor the source data please see <github|https://github.com/togakangaroo/tech-terms>'
+        return '\nTech Terms source: <https://github.com/togakangaroo/tech-terms|github>'
 
-    def _convert_key_to_dict(self, key: str) -> dict:
-        return {'term': key, 'definition': self.TERMS[key]}
+    def _convert_key_to_dict(self, key: str, random_val: bool = False) -> dict:
+        return {'term': key, 'random': random_val, 'definition': f'{self.TERMS[key]}'}
 
     def _grab_term(self, term=None):
-        if isinstance(term, list) and len(term) > 1 and self.TERMS.get(term[1].lower()):
-            term_key: str = self.TERMS.get(term[1])
+        if term and self.TERMS.get(term.lower().strip()):
+            term_key: str = term.lower().strip()
             return self._build_response_text(self._convert_key_to_dict(term_key))
 
         return self._build_response_text(self._random_term())
 
     def _build_response_text(self, term: dict) -> dict:
-        return {'user': self.user_id, 'channel': self.channel_id,
+        return {'channel': self.channel_id,
                 'text': self._serialize_term(term)}
 
     def _random_term(self) -> dict:
-        item = choice(self.TERMS.keys())
-        return self._convert_key_to_dict(item)
+        item = choice(list(self.TERMS.keys()))
+        return self._convert_key_to_dict(item, random_val=True)
 
     def _serialize_term(self, term: Dict[str, str]) -> str:
-        addnl = self._source_text() if random.random() < self.ADD_GITHUB_CHANCE else ''
+        random_text = "Selected random term:\n"
+        addnl = self._source_text() if random() < self.ADD_GITHUB_CHANCE else ''
 
-        return f'{term["definition"]}{addnl}'
+        return f'{random_text if term["random"] else ""} {term["definition"]}{addnl}'

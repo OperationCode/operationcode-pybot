@@ -2,6 +2,9 @@ import logging
 
 from sirbot import SirBot
 from slack.events import Message
+from slack import methods
+
+from pybot.endpoints.slack.event_messages.tech import TechTerms
 
 logger = logging.getLogger(__name__)
 
@@ -9,6 +12,7 @@ logger = logging.getLogger(__name__)
 def create_endpoints(plugin):
     plugin.on_message(".*", message_changed, subtype="message_changed")
     plugin.on_message(".*", message_deleted, subtype="message_deleted")
+    plugin.on_message(".*\!tech", tech_tips)
 
 
 def not_bot_message(event: Message):
@@ -17,6 +21,18 @@ def not_bot_message(event: Message):
 
 def not_bot_delete(event: Message):
     return 'previous_message' not in event or 'bot_id' not in event['previous_message']
+
+
+async def tech_tips(event: Message, app: SirBot):
+    logger.info(
+        f'tech logging: {event}')
+    try:
+        tech_terms: dict = await TechTerms(event['channel'], event['user'],
+                                           event.get('text'), app).grab_values()
+
+        await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, tech_terms['message'])
+    except Exception as E:
+        logger.exception(E)
 
 
 async def message_changed(event: Message, app: SirBot):
