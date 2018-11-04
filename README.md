@@ -10,6 +10,8 @@
   <br />
 </div>
 
+[![Build Status](https://travis-ci.org/OperationCode/operationcode-pybot.svg?branch=master)](https://travis-ci.org/OperationCode/operationcode-pybot)
+
 # [OperationCode-Pybot](https://github.com/OperationCode/operationcode-pybot)
 
 OperationCode PyBot is a Python [Slack Bot](https://api.slack.com)
