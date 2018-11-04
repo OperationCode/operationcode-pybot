@@ -5,7 +5,7 @@ from sirbot.plugins.slack import SlackPlugin
 from slack import methods
 from slack.commands import Command
 
-from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, REPORT_CHANNEL
+from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, REPORT_CHANNEL, YELP_TOKEN
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages, response_type
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand

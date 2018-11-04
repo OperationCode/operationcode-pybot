@@ -25,6 +25,10 @@ def not_bot_message(event: Message):
     return 'message' not in event or 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message'
 
 
+async def message_changed(event: Message, app: SirBot):
+    """
+    Logs all message edits not made by a bot.
+    """
 def not_bot_delete(event: Message):
     return 'previous_message' not in event or 'bot_id' not in event['previous_message']
 
@@ -66,7 +70,7 @@ async def message_deleted(event: Message, app: SirBot):
     """
     Logs all message deletions not made by a bot.
     """
-    if not_bot_delete(event):
+    if not_bot_message(event):
         try:
             logger.info(
                 f'CHANGE_LOGGING: deleted: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
