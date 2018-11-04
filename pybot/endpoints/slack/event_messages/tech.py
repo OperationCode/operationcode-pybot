@@ -53,7 +53,7 @@ class TechTermsGrabber:
 class TechTerms:
     # shared across all instances
     TERMS = {}
-    ADD_GITHUB_CHANCE = 1
+    ADD_GITHUB_CHANCE = 0.25
 
     def __init__(self, channel: str, user: str, input_text: str, app):
 
