@@ -67,9 +67,8 @@ class TechTerms:
         return initial_input.split('!tech', 1)[1]
 
     async def grab_values(self) -> dict:
-
         if not self.input_text:
-            return {'message': self._help_text()}
+            return {'message': {'text' : self._help_text(), 'channel': self.channel_id,}}
 
         else:
             if not self.response_params:
@@ -86,8 +85,7 @@ class TechTerms:
 
     def _help_text(self):
         return ('Use this to find descriptions of common and useful tech terms. Examples:\n' +
-                '"/resources Javascript", for self study\n' +
-                '"/resources loud Javascript", to announce to channel' +
+                '"!tech Java" or "!tech prolog"' +
                 self._source_text())
 
     def _source_text(self):
