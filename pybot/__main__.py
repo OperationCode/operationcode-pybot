@@ -50,9 +50,9 @@ if __name__ == "__main__":
     endpoints.slack.create_endpoints(slack)
     bot.load_plugin(slack)
 
-    #airtable = AirtablePlugin()
-    #endpoints.airtable.create_endpoints(airtable)
-    #bot.load_plugin(airtable)
+    airtable = AirtablePlugin()
+    endpoints.airtable.create_endpoints(airtable)
+    bot.load_plugin(airtable)
 
     # Add route to respond to AWS health check
     bot.router.add_get("/health", lambda request: Response(status=200))

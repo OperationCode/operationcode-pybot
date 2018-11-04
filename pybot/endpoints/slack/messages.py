@@ -23,8 +23,7 @@ def create_endpoints(plugin):
 
 
 def not_bot_message(event: Message):
-    value = 'message' not in event or 'subtype' not in event or event['subtype'] != 'bot_message'
-    return value
+    return 'message' not in event or 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message'
 
 def not_bot_delete(event: Message):
     return 'previous_message' not in event or 'bot_id' not in event['previous_message']
