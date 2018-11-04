@@ -13,7 +13,13 @@ def create_endpoints(plugin):
     plugin.on_message(".*", message_changed, subtype="message_changed")
     plugin.on_message(".*", message_deleted, subtype="message_deleted")
     plugin.on_message(".*\!tech", tech_tips)
-
+    plugin.on_message(".*\<\!here\>", here_bad)
+    plugin.on_message(".*\<\!channel\>", here_bad)
+    plugin.on_message(".*\@here", here_bad)
+    plugin.on_message(".*\@channel", here_bad)
+    plugin.on_message(".*@here", here_bad)
+    plugin.on_message(".*@channel", here_bad)
+    plugin.on_message(".*codervets", not_named)
 
 def not_bot_message(event: Message):
     return 'message' not in event or 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message'
@@ -22,6 +28,13 @@ def not_bot_message(event: Message):
 def not_bot_delete(event: Message):
     return 'previous_message' not in event or 'bot_id' not in event['previous_message']
 
+async def not_named(event: Message, app: SirBot):
+    response = {'channel': event['channel'], 'text': f'<@{event["user"]}> - How dare you utter the Dark Lord\'s name'}
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response )
+
+async def here_bad(event: Message, app: SirBot):
+    response = {'channel': event['channel'], 'text': f'<@{event["user"]}> - you are a very bad person for using that command'}
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response )
 
 async def tech_tips(event: Message, app: SirBot):
     logger.info(
