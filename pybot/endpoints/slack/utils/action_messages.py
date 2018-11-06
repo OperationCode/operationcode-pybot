@@ -1,7 +1,10 @@
+import json
 from time import time
 from typing import List
 
 from slack.events import Message
+
+from pybot.endpoints.slack.utils import REPORT_CHANNEL
 
 
 def now():
@@ -108,6 +111,62 @@ def suggestion_dialog(trigger_id):
             "name": "suggestion",
             "placeholder": "Underwater Basket Weaving"
         }]
+    }
+
+
+def report_dialog(action):
+    trigger_id = action['trigger_id']
+
+    user = action['message'].get('user') or action['message'].get('username')  # for bots
+    message_data = {
+        'text': action['message']['text'],
+        'user': user,
+        'channel': action['channel']
+    }
+    return {
+        "callback_id": "report_dialog",
+        "state": json.dumps(message_data),
+        "title": "Report details",
+        "submit_label": "Submit",
+        "trigger_id": trigger_id,
+        "elements": [{
+            "type": "textarea",
+            "label": "Details",
+            "name": "details",
+            "placeholder": "",
+            "required": False
+        }]
+    }
+
+
+def build_report_message(slack_id, details, message_details):
+    message = f'<@{slack_id}> sent a report with details: {details}'
+
+    attachment = [{
+        "fields": [
+            {
+                "title": "User",
+                "value": f"<@{message_details['user']}>",
+                "short": True
+            },
+            {
+                "title": "Channel",
+                "value": f"<#{message_details['channel']['id']}|{message_details['channel']['name']}>",
+                "short": True
+            },
+            {
+                "title": "Message",
+                "value": message_details['text'],
+                "short": False
+            }
+
+        ]
+    }]
+
+    return {
+        "text": message,
+        "channel": REPORT_CHANNEL,
+        "attachments": attachment
     }
 
 

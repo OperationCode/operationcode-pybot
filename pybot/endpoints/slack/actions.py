@@ -16,6 +16,37 @@ def create_endpoints(plugin):
     plugin.on_action("reset_claim_mentee", claim_mentee, wait=False)
     plugin.on_action("claimed", claimed, name='claimed', wait=False)
     plugin.on_action("claimed", reset_claim, name='reset_claim', wait=False)
+    plugin.on_action("report_message", open_report_dialog, wait=False)
+    plugin.on_action("report_dialog", send_report, wait=False)
+
+
+async def send_report(action: Action, app: SirBot):
+    """
+    Called when a user submits the report dialog.  Pulls the original message
+    info from the state and posts the details to the moderators channel
+    """
+    slack_id = action['user']['id']
+    details = action['submission']['details']
+    message_details = json.loads(action.action['state'])
+
+    response = build_report_message(slack_id, details, message_details)
+
+    await app["plugins"]["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
+
+
+async def open_report_dialog(action: Action, app: SirBot):
+    """
+    Opens the message reporting dialog for the user to provide details.
+
+    Adds the message that they're reporting to the dialog's hidden state
+    to be pulled out when submitted.
+    """
+    trigger_id = action['trigger_id']
+    response = {
+        'trigger_id': trigger_id,
+        'dialog': report_dialog(action),
+    }
+    await app.plugins["slack"].api.query(methods.DIALOG_OPEN, response)
 
 
 async def resource_buttons(action: Action, app: SirBot):
