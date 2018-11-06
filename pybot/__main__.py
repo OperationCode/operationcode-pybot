@@ -19,6 +19,13 @@ VERIFICATION_TOKEN = os.environ.get("VERIFICATION_TOKEN ", "verification token")
 VERSION = "0.1.0"
 logger = logging.getLogger(__name__)
 
+slack_configs = {
+    'token': os.environ.get('BOT_OATH_TOKEN'),
+    'verify': os.environ.get('VERIFICATION_TOKEN'),
+    'bot_id': os.environ.get('SLACK_BOT_ID'),
+    'bot_user_id': os.environ.get('SLACK_BOT_ID'),
+}
+
 
 def make_sentry_logger():
     client = raven.Client(
@@ -46,7 +53,7 @@ if __name__ == "__main__":
 
     bot = SirBot()
 
-    slack = SlackPlugin()
+    slack = SlackPlugin(**slack_configs)
     endpoints.slack.create_endpoints(slack)
     bot.load_plugin(slack)
 
