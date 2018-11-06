@@ -14,7 +14,7 @@ def create_endpoints(plugin):
     plugin.on_message(".*", message_deleted, subtype="message_deleted")
     plugin.on_message(".*\!tech", tech_tips)
     plugin.on_message(".*\<\!here\>", here_bad)
-    plugin.on_message(".*\<\!channel\>", here_bad)  
+    plugin.on_message(".*\<\!channel\>", here_bad)
     plugin.on_message(".*@here", here_bad)
     plugin.on_message(".*@channel", here_bad)
     plugin.on_message(".*codervets", not_named)
@@ -22,6 +22,7 @@ def create_endpoints(plugin):
 
 def not_bot_message(event: Message):
     return 'message' not in event or 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message'
+
 
 def not_bot_delete(event: Message):
     return 'previous_message' not in event or 'bot_id' not in event['previous_message']
@@ -44,7 +45,7 @@ async def tech_tips(event: Message, app: SirBot):
             f'tech logging: {event}')
         try:
             tech_terms: dict = await TechTerms(event['channel'], event['user'],
-                                           event.get('text'), app).grab_values()
+                                               event.get('text'), app).grab_values()
 
             await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, tech_terms['message'])
         except Exception as E:

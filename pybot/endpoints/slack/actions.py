@@ -111,30 +111,33 @@ async def claim_mentee(action: Action, app: SirBot):
     Attempts to update airtable with the new request status and updates the claim
     button allowing it to be reset if needed.
     """
-    update_airtable = True
-    clicker_id = action['user']['id']
-    request_record = action['actions'][0]['name']
-    click_type = action['actions'][0]['value']
+    try:
+        update_airtable = True
+        clicker_id = action['user']['id']
+        request_record = action['actions'][0]['name']
+        click_type = action['actions'][0]['value']
 
-    response = base_response(action)
+        response = base_response(action)
 
-    user_info = await app.plugins['slack'].api.query(methods.USERS_INFO, dict(user=clicker_id))
-    clicker_email = user_info['user']['profile']['email']
+        user_info = await app.plugins['slack'].api.query(methods.USERS_INFO, dict(user=clicker_id))
+        clicker_email = user_info['user']['profile']['email']
 
-    if click_type == 'mentee_claimed':
-        mentor_id = await app.plugins['airtable'].api.mentor_id_from_slack_email(clicker_email)
-        if mentor_id:
-            attachment = mentee_claimed_attachment(clicker_id, request_record)
+        if click_type == 'mentee_claimed':
+            mentor_id = await app.plugins['airtable'].api.mentor_id_from_slack_email(clicker_email)
+            if mentor_id:
+                attachment = mentee_claimed_attachment(clicker_id, request_record)
+            else:
+                update_airtable = False
+                attachment = action['original_message']['attachments']
+                attachment[0]['text'] = f":warning: <@{clicker_id}>'s slack Email not found in Mentor table. :warning:"
         else:
-            update_airtable = False
-            attachment = action['original_message']['attachments']
-            attachment[0]['text'] = f":warning: <@{clicker_id}>'s slack Email not found in Mentor table. :warning:"
-    else:
-        mentor_id = ''
-        attachment = mentee_unclaimed_attachment(clicker_id, request_record)
+            mentor_id = ''
+            attachment = mentee_unclaimed_attachment(clicker_id, request_record)
 
-    response['attachments'] = attachment
+        response['attachments'] = attachment
 
-    await app.plugins['slack'].api.query(methods.CHAT_UPDATE, response)
-    if update_airtable:
-        await app.plugins['airtable'].api.update_request(request_record, mentor_id)
+        await app.plugins['slack'].api.query(methods.CHAT_UPDATE, response)
+        if update_airtable:
+            await app.plugins['airtable'].api.update_request(request_record, mentor_id)
+    except Exception as ex:
+        print(ex)

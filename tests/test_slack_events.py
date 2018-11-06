@@ -1,48 +1,12 @@
 import asyncio
+import logging
 
-import pytest
 import asynctest
-from sirbot import SirBot
-from sirbot.plugins.slack import SlackPlugin
+from asynctest import CoroutineMock
 
 from pybot import endpoints
 from pybot.endpoints.slack.events import create_endpoints, team_join
-
-
-@pytest.fixture
-async def bot(loop):
-    b = SirBot(loop=loop)
-    slack = SlackPlugin(
-        token='token',
-        verify='supersecuretoken',
-        bot_user_id='bot_user_id',
-        bot_id='bot_id',
-    )
-    b.load_plugin(slack)
-    return b
-
-
-@pytest.fixture
-def team_join_event():
-    return {
-        "token": "supersecuretoken",
-        "team_id": "T000AAA0A",
-        "api_app_id": "A0AAAAAAA",
-        "event": {
-            "type": "team_join",
-            "channel": "C00000A00",
-            "user": {"id": "U0AAAA",
-                     "team_id": "T000AAA0A",
-                     "name": "test",
-                     "real_name": "test testerson",
-                     },
-            "event_ts": "123456789.000001",
-        },
-        "type": "event_callback",
-        "authed_teams": ["T000AAA0A"],
-        "event_id": "AAAAAAA",
-        "event_time": 123456789,
-    }
+from tests.data.events import MESSAGE_EDIT, MESSAGE_DELETE, PLAIN_MESSAGE, TEAM_JOIN
 
 
 async def test_team_join_handler_exists(bot):
@@ -53,12 +17,34 @@ async def test_team_join_handler_exists(bot):
     )
 
 
-async def test_slack_event_denies_on_missing_token(mocker, bot, test_client, team_join_event):
-    mocker.patch('asyncio.sleep', return_value=asyncio.sleep(0))
+async def test_team_join_waits_30_seconds(bot, test_client):
+    asyncio.sleep = CoroutineMock()
     create_endpoints(bot['plugins']['slack'])
-    spy = mocker.spy(bot['plugins']['slack'].api, 'query')
-    await team_join(team_join_event['event'], bot)
+    bot['plugins']['slack'] = CoroutineMock()
 
-    assert spy.called
+    await team_join(TEAM_JOIN['event'], bot)
+    asyncio.sleep.assert_awaited_with(30)
 
 
+async def test_edits_are_logged(bot, test_client, caplog):
+    client = await test_client(bot)
+
+    with caplog.at_level(logging.INFO):
+        await client.post('/slack/events', json=MESSAGE_EDIT)
+    assert any('CHANGE_LOGGING: edited' in record.message for record in caplog.records)
+
+
+async def test_deletes_are_logged(bot, test_client, caplog):
+    client = await test_client(bot)
+
+    with caplog.at_level(logging.INFO):
+        await client.post('/slack/events', json=MESSAGE_DELETE)
+    assert any('CHANGE_LOGGING: deleted' in record.message for record in caplog.records)
+
+
+async def test_no_other_messages_logged(bot, test_client, caplog):
+    client = await test_client(bot)
+
+    with caplog.at_level(logging.INFO):
+        await client.post('/slack/events', json=PLAIN_MESSAGE)
+    assert not any('CHANGE_LOGGING' in record.message for record in caplog.records)
