@@ -11,5 +11,5 @@ async def test_claim_mentee_response_attachment_is_list(action: dict, test_clien
 
     client = await test_client(bot)
     await client.post('/slack/actions', data=action)
-    assert isinstance(slack_mock.call_args[0][1].event['attachments'], list)
+    assert isinstance(slack_mock.call_args[0][1]['attachments'], list)
 
