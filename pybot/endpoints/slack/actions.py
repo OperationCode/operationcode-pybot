@@ -1,9 +1,14 @@
+import logging
+from pprint import pprint
+
 from sirbot import SirBot
 from slack import methods
 from slack.actions import Action
 
 from pybot.endpoints.slack.utils.action_messages import *
 from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
+
+logger = logging.getLogger(__name__)
 
 
 def create_endpoints(plugin):
@@ -18,6 +23,33 @@ def create_endpoints(plugin):
     plugin.on_action("claimed", reset_claim, name='reset_claim', wait=False)
     plugin.on_action("report_message", open_report_dialog, wait=False)
     plugin.on_action("report_dialog", send_report, wait=False)
+    plugin.on_action("open_ticket", open_ticket, wait=False)
+    plugin.on_action("ticket_status", ticket_status, wait=False)
+
+
+async def ticket_status(action: Action, app: SirBot):
+    """
+    Updates the ticket status dropdown. (I don't know why we need to manually
+    update the message for this..)
+    """
+    logger.info(action)
+    response = updated_ticket_status(action)
+    await app.plugins["slack"].api.query(methods.CHAT_UPDATE, response)
+
+
+async def open_ticket(action: Action, app: SirBot):
+    """
+    Called when a user submits the ticket dialog.  Parses the submission and posts
+    the new ticket details to the required channel
+    """
+    attachments = ticket_attachments(action)
+    response = {
+        'channel': MODERATOR_CHANNEL,
+        'attachments': attachments,
+        'text': 'New Ticket Submission',
+    }
+
+    await app["plugins"]["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
 
 
 async def send_report(action: Action, app: SirBot):
@@ -119,7 +151,13 @@ async def claimed(action: Action, app: SirBot):
     """
     response = base_response(action)
     user_id = action['user']['id']
-    response['attachments'] = claimed_attachment(user_id)
+
+    attachments = action['original_message']['attachments']
+
+    for index, attachment in enumerate(attachments):
+        if attachment['callback_id'] == 'claimed':
+            attachments[index] = claimed_attachment(user_id)
+    response['attachments'] = attachments
 
     await app.plugins['slack'].api.query(methods.CHAT_UPDATE, response)
 
@@ -131,7 +169,13 @@ async def reset_claim(action: Action, app: SirBot):
     Updates the button back to its initial state
     """
     response = base_response(action)
-    response['attachments'] = not_claimed_attachment()
+
+    attachments = action['original_message']['attachments']
+    for index, attachment in enumerate(attachments):
+        if attachment['callback_id'] == 'claimed':
+            attachments[index] = not_claimed_attachment()
+
+    response['attachments'] = attachments
     await app.plugins['slack'].api.query(methods.CHAT_UPDATE, response)
 
 

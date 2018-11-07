@@ -5,7 +5,8 @@ from sirbot.plugins.slack import SlackPlugin
 from slack import methods
 from slack.commands import Command
 
-from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, REPORT_CHANNEL, YELP_TOKEN
+from pybot.endpoints.slack.message_templates.commands import ticket_dialog
+from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, MODERATOR_CHANNEL, YELP_TOKEN
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages, response_type
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
@@ -24,6 +25,23 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command('/lunch', slash_lunch, wait=False)
     plugin.on_command('/repeat', slash_repeat, wait=False)
     plugin.on_command('/report', slash_report, wait=False)
+    plugin.on_command('/ticket', slash_ticket, wait=False)
+
+
+async def slash_ticket(command: Command, app: SirBot):
+    trigger_id = command['trigger_id']
+    user_id = command['user_id']
+    logger.warning(command['text'])
+
+    user_info = await app.plugins['slack'].api.query(methods.USERS_INFO, {'user': user_id})
+    clicker_email = user_info['user']['profile']['email']
+
+    response = {
+        "trigger_id": trigger_id,
+        "dialog": ticket_dialog(clicker_email, command['text'])
+    }
+
+    await app.plugins["slack"].api.query(methods.DIALOG_OPEN, response)
 
 
 async def slash_report(command: Command, app: SirBot):
@@ -40,8 +58,8 @@ async def slash_report(command: Command, app: SirBot):
 
     response = {
         'text': message,
-        'channel': REPORT_CHANNEL,
-        'attachments': not_claimed_attachment(),
+        'channel': MODERATOR_CHANNEL,
+        'attachments': [not_claimed_attachment()],
     }
 
     await slack.query(methods.CHAT_POST_MESSAGE, response)

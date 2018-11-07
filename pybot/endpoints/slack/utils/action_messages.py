@@ -2,9 +2,14 @@ import json
 from time import time
 from typing import List
 
-from slack.events import Message
+from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 
-from pybot.endpoints.slack.utils import REPORT_CHANNEL
+TICKET_OPTIONS = {
+    'notStarted': 'Not Started',
+    'inProgress': 'In-progress',
+    'waitingOnUser': 'Waiting on User',
+    'complete': 'Complete'
+}
 
 
 def now():
@@ -16,12 +21,55 @@ def now():
 
 
 def base_response(action):
-    response = Message()
-
-    response['text'] = action['original_message']['text']
-    response['channel'] = action['channel']['id']
-    response['ts'] = action['message_ts']
+    response = {
+        'text': action['original_message'].get('text', None),
+        'channel': action['channel']['id'],
+        'ts': action['message_ts'],
+    }
     return response
+
+
+def updated_ticket_status(action):
+    selected_option = action['actions'][0]['selected_options'][0]
+    selected_option['text'] = TICKET_OPTIONS[selected_option['value']]
+
+    updated_attachments = action['original_message']['attachments']
+    updated_attachments[0]['actions'][0]['selected_options'] = [selected_option]
+    response = {
+        **base_response(action),
+        'attachments': updated_attachments
+    }
+    return response
+
+
+def ticket_attachments(action):
+    user_id = action['user']['id']
+    request_type = action['submission']['type']
+    email = action['submission']['email']
+    details = action['submission']['details']
+    attachments = [
+        {
+            'text': '',
+            'callback_id': 'ticket_status',
+            "response_type": "in_channel",
+            "fallback": "request details should have been here",
+            "fields": [
+                {"title": "User", "value": f"<@{user_id}>", "short": True},
+                {"title": "Email", "value": f"{email}", "short": True},
+                {"title": "Request Type", "value": f"{request_type}", "short": True},
+                {"title": "Details", "value": f"{details}", "short": True},
+            ],
+            'actions': [
+                {
+                    'name': 'status', 'text': 'Current Status', 'type': 'select',
+                    'selected_options': [{'text': 'Not Started', 'value': 'notStarted'}],
+                    'options': [{'text': text, 'value': value} for value, text in TICKET_OPTIONS.items()]
+                }
+            ]
+        },
+        not_claimed_attachment()
+    ]
+    return attachments
 
 
 def greeted_attachment(user_id: str) -> List[dict]:
@@ -60,12 +108,13 @@ def not_greeted_attachment():
 
 
 def not_claimed_attachment():
-    return [{
+    return {
         'text': "",
-        "fallback": "",
+        "fallback": "not claimed attachment",
         "color": "#3AA3E3",
         "callback_id": "claimed",
         "attachment_type": "default",
+        'short': True,
         "actions": [{
             "name": "claimed",
             "text": "Claim",
@@ -73,11 +122,11 @@ def not_claimed_attachment():
             "style": "primary",
             "value": "claimed"
         }]
-    }]
+    }
 
 
 def claimed_attachment(user_id):
-    return [{
+    return {
         "text": f"Claimed by <@{user_id}>\n"
                 f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
         "fallback": "",
@@ -91,7 +140,7 @@ def claimed_attachment(user_id):
             "style": "danger",
             "value": "reset_claim",
         }]
-    }]
+    }
 
 
 def reset_greet_message(user_id):
@@ -165,7 +214,7 @@ def build_report_message(slack_id, details, message_details):
 
     return {
         "text": message,
-        "channel": REPORT_CHANNEL,
+        "channel": MODERATOR_CHANNEL,
         "attachments": attachment
     }
 
