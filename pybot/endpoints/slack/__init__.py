@@ -1,5 +1,4 @@
-from pybot.endpoints.slack import messages
-from . import events, actions, commands
+from . import events, actions, commands, messages
 
 
 def create_endpoints(plugin):

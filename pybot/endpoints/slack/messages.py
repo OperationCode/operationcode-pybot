@@ -4,7 +4,7 @@ from sirbot import SirBot
 from slack.events import Message
 from slack import methods
 
-from pybot.endpoints.slack.event_messages.tech import TechTerms
+from .message_templates.tech import TechTerms
 
 logger = logging.getLogger(__name__)
 
