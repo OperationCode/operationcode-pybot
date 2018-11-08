@@ -19,12 +19,15 @@ async def mentor_request(request: dict, app: SirBot) -> None:
     Queries Airtable to find mentors matching the requested skillsets and posts a message
     in the Mentor slack channel.
     """
+    slack = app.plugins['slack'].api
+    airtable = app.plugins['airtable'].api
+
     id_fallback = f" [couldn't find user - email provided: {request['email']} ]"
-    slack_id = await _slack_user_id_from_email(request['email'], app, fallback=id_fallback)
+    slack_id = await _slack_user_id_from_email(request['email'], slack, fallback=id_fallback)
 
     futures = [app.plugins['airtable'].api.translate_service_id(request['service']),
-               _get_requested_mentor(request.get('requested_mentor'), app),
-               _get_matching_skillset_mentors(request.get('skillsets'), app)]
+               _get_requested_mentor(request.get('requested_mentor'), slack, airtable),
+               _get_matching_skillset_mentors(request.get('skillsets'), slack, airtable)]
 
     service_translation, requested_mentor_message, mentors = await asyncio.gather(*futures)
 
