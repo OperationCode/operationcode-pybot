@@ -29,6 +29,17 @@ def base_response(action):
     return response
 
 
+def update_ticket_message(action, selected_value):
+    user = action["user"]["id"]
+    update_message = (f'<@{user}> updated status to {selected_value} at '
+                      f'<!date^{now()}^{{date_num}} {{time_secs}}|Failed to parse time>')
+    return {
+        'text': update_message,
+        'channel': action['channel']['id'],
+        'thread_ts': action['message_ts']
+    }
+
+
 def updated_ticket_status(action):
     selected_option = action['actions'][0]['selected_options'][0]
     selected_option['text'] = TICKET_OPTIONS[selected_option['value']]
@@ -39,7 +50,7 @@ def updated_ticket_status(action):
         **base_response(action),
         'attachments': updated_attachments
     }
-    return response
+    return response, selected_option
 
 
 def ticket_attachments(action):
