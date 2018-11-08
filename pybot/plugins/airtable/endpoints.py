@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 async def incoming_request(request):
     airtable = request.app.plugins['airtable']
     payload = await request.json()
-    logger.debug('Incoming event payload: %s', payload)
+    logger.debug('Incoming Airtable event payload: %s', payload)
 
     if payload['token'] != airtable.verify:
         return Response(status=401)

@@ -1,10 +1,10 @@
 import asyncio
 import logging
 import os
+from collections import defaultdict
 
 from pybot.plugins.airtable import endpoints
 from pybot.plugins.airtable.api import AirtableAPI
-from pybot.plugins.airtable.requests import RequestRouter
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +33,25 @@ class AirtablePlugin:
 
         sirbot.router.add_route('POST', '/airtable/request', endpoints.incoming_request)
 
-    def on_request(self, request, handler, wait=True):
+    def on_request(self, request, handler, **kwargs):
         if not asyncio.iscoroutinefunction(handler):
             handler = asyncio.coroutine(handler)
-        configuration = {'wait': wait}
-        self.routers['request'].register(request, (handler, configuration))
+        options = {**kwargs, 'wait': False}
+        self.routers['request'].register(request, (handler, options))
+
+
+class RequestRouter:
+    def __init__(self):
+        self._routes = defaultdict(list)
+
+    def register(self, request_type, handler, **detail):
+        logger.info("Registering %s, %s to %s", request_type, detail, handler)
+        self._routes[request_type].append(handler)
+
+    def dispatch(self, request):
+        logger.debug('Dispatching request "%s"', request.get("type"))
+        if request["type"] in self._routes:
+            for handler in self._routes.get(request['type']):
+                yield handler
+        else:
+            return
