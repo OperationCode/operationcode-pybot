@@ -7,9 +7,8 @@ from slack.events import Message
 from slack.exceptions import SlackAPIError
 from slack.io.aiohttp import SlackAPI
 from pybot.plugins.airtable.api import AirtableAPI
+from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 from .message_templates.messages import claim_mentee_attachment, mentor_request_text
-
-MENTORS_CHANNEL = os.environ.get("MENTORS_CHANNEL") or "G1DRT62UC"
 
 
 async def _get_requested_mentor(requested_mentor: Optional[str], slack: SlackAPI,
@@ -49,17 +48,17 @@ def _create_messages(mentors: List[str], request: dict, requested_mentor_message
         'text': mentor_request_text(slack_id, service_translation, request.get('skillsets', None),
                                     requested_mentor_message),
         'attachments': claim_mentee_attachment(request['record']),
-        'channel': MENTORS_CHANNEL
+        'channel': MENTOR_CHANNEL
     }
 
     details_message = {
         'text': f"Additional details: {request.get('details', 'None Given')}",
-        'channel': MENTORS_CHANNEL
+        'channel': MENTOR_CHANNEL
     }
 
     matching_mentors_message = {
         'text': "Mentors matching all or some of the requested skillsets: " + ' '.join(mentors),
-        'channel': MENTORS_CHANNEL
+        'channel': MENTOR_CHANNEL
     }
 
     return first_message, details_message, matching_mentors_message
