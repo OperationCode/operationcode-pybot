@@ -11,11 +11,9 @@ import raven
 
 from . import endpoints
 from .plugins import AirtablePlugin
+from pybot.endpoints.slack.utils import PORT, HOST
+from pybot.endpoints.slack.utils import slack_configs
 
-PORT = os.environ.get("SIRBOT_PORT", 5000)
-HOST = os.environ.get("SIRBOT_ADDR", "0.0.0.0")
-ACCESS_TOKEN = os.environ.get("OAUTH_ACCESS_TOKEN", "access token")
-VERIFICATION_TOKEN = os.environ.get("VERIFICATION_TOKEN ", "verification token")
 VERSION = "0.1.0"
 logger = logging.getLogger(__name__)
 
