@@ -10,7 +10,6 @@ from pybot.plugins.airtable.api import AirtableAPI
 from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 from .message_templates.messages import claim_mentee_attachment, mentor_request_text
 
-
 async def _get_requested_mentor(requested_mentor: Optional[str], slack: SlackAPI,
                                 airtable: AirtableAPI) -> Optional[str]:
     try:
