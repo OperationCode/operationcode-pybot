@@ -4,10 +4,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-VERIFICATION_TOKEN = os.environ.get("VERIFICATION_TOKEN ", "verification token")
 MENTOR_CHANNEL = os.environ.get("MENTOR_CHANNEL") or "G1DRT62UC"
 COMMUNITY_CHANNEL = os.environ.get("COMMUNITY_CHANNEL") or "G12343"
-MODERATOR_CHANNEL = os.environ.get('REPORT_CHANNEL') or 'G8NDRJJF9'
+MODERATOR_CHANNEL = os.environ.get('MODERATOR_CHANNEL') or 'G8NDRJJF9'
 TICKET_CHANNEL = os.environ.get('TICKET_CHANNEL') or 'G8NDRJJF9'
 APP_TOKEN = os.environ.get('APP_TOKEN') or "123"
 YELP_TOKEN = os.environ.get('YELP_TOKEN') or 'token'
