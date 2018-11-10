@@ -28,7 +28,7 @@ def not_bot_delete(event: Message):
     return 'previous_message' not in event or 'bot_id' not in event['previous_message']
 
 
-def advertise_pybot(event: Message, app: SirBot):
+async def advertise_pybot(event: Message, app: SirBot):
     BOT_URL = 'https://github.com/OperationCode/operationcode-pybot'
     response = {'channel': event['channel'],
                 'text': f'OC-Community-Bot is a communit led project to assist operation code.'
