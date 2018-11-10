@@ -6,7 +6,7 @@ from slack import methods
 from slack.actions import Action
 
 from pybot.endpoints.slack.utils.action_messages import *
-from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
+from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL, TICKET_CHANNEL
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ async def open_ticket(action: Action, app: SirBot):
     """
     attachments = ticket_attachments(action)
     response = {
-        'channel': MODERATOR_CHANNEL,
+        'channel': TICKET_CHANNEL,
         'attachments': attachments,
         'text': 'New Ticket Submission',
     }
