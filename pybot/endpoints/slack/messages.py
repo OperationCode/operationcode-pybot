@@ -32,7 +32,7 @@ async def advertise_pybot(event: Message, app: SirBot):
     BOT_URL = 'https://github.com/OperationCode/operationcode-pybot'
     response = {'channel': event['channel'],
                 'text': f'OC-Community-Bot is a community led project'
-                        f'\n <{BOT_URL}| source> '}
+                        f'\n <{BOT_URL}|source> '}
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
 
 
