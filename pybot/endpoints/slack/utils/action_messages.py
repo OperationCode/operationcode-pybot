@@ -230,6 +230,26 @@ def build_report_message(slack_id, details, message_details):
     }
 
 
+def mentor_details_dialog(action):
+    trigger_id = action['trigger_id']
+    ts = action['message_ts']
+
+    return {
+        "callback_id": "mentor_details_submit",
+        "state": json.dumps({'ts': ts, 'channel': action['channel']['id']}),
+        "title": "Additional Details",
+        "submit_label": "Submit",
+        "trigger_id": trigger_id,
+        "elements": [{
+            "type": "textarea",
+            "label": "Details",
+            "name": "details",
+            "placeholder": "",
+            "required": False
+        }]
+    }
+
+
 def mentee_claimed_attachment(user_id: str, record: str) -> List[dict]:
     return [{
         "text": f":100: Request claimed by <@{user_id}>:100:\n"

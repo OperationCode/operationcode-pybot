@@ -1,5 +1,5 @@
 import logging
-from functools import lru_cache
+from collections import defaultdict
 
 from multidict import MultiDict
 
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class AirtableAPI:
     API_ROOT = 'https://api.airtable.com/v0/'
-    services_id_to_service = None
+    record_id_to_name = defaultdict(dict)
 
     def __init__(self, session, api_key, base_key):
         self.session = session
@@ -19,7 +19,6 @@ class AirtableAPI:
         auth_header = {f'Authorization': f"Bearer {self.api_key}"}
 
         async with self.session.get(url, headers=auth_header, **kwargs) as r:
-            r.raise_for_status()
             return await r.json()
 
     async def patch(self, url, **kwargs):
@@ -28,30 +27,45 @@ class AirtableAPI:
             r.raise_for_status()
             return await r.json()
 
+    async def post(self, url, **kwargs):
+        auth_header = {f'authorization': f"Bearer {self.api_key}"}
+        async with self.session.post(url, headers=auth_header, **kwargs) as r:
+            return await r.json()
+
     def table_url(self, table_name, record_id=None):
         url = f'{self.API_ROOT}{self.base_key}/{table_name}'
         if record_id:
             url += f'/{record_id}'
         return url
 
-    async def translate_service_id(self, service_id):
-        if self.services_id_to_service:
-            return self.services_id_to_service[service_id]
+    async def get_name_from_record_id(self, table_name: str, record_id):
+        if self.record_id_to_name[table_name]:
+            return self.record_id_to_name[table_name][record_id]
 
         url = self.table_url("Services")
         params = {'fields[]': 'Name'}
         res_json = await self.get(url, params=params)
         records = res_json['records']
-        self.services_id_to_service = {record['id']: record['fields']['Name'] for record in records}
-        return self.services_id_to_service[service_id]
+        self.record_id_to_name[table_name] = {record['id']: record['fields']['Name'] for record in records}
+        return self.record_id_to_name[table_name][record_id]
 
-    async def get_mentor_from_record_id(self, record_id: str) -> dict:
-        url = self.table_url("Mentors", record_id)
+    async def get_row_from_record_id(self, table_name: str, record_id: str) -> dict:
+        url = self.table_url(table_name, record_id)
         try:
             res_json = await self.get(url)
             return res_json['fields']
         except Exception as ex:
             return {}
+
+    async def get_all_records(self, table_name, field=None):
+        url = self.table_url(table_name)
+        if field:
+            params = {'fields[]': field}
+            res_json = await self.get(url, params=params)
+            return [record['fields'][field] for record in res_json['records']]
+        else:
+            res_json = await self.get(url)
+            return res_json['records']
 
     async def find_mentors_with_matching_skillsets(self, skillsets):
         url = self.table_url("Mentors")
@@ -76,20 +90,17 @@ class AirtableAPI:
 
         return complete_match or partial_match
 
-    async def mentor_id_from_slack_email(self, email):
-        url = self.table_url("Mentors")
-        params = {"filterByFormula": f"FIND(LOWER('{email}'), LOWER({{Email}}))"}
+    async def find_records(self, table_name, field, value: str) -> list:
+        url = self.table_url(table_name)
+
+        params = {"filterByFormula": f"FIND(LOWER('{value}'), LOWER({{{field}}}))"}
 
         try:
             response = await self.get(url, params=params)
-            records = response['records']
-            if records:
-                return records[0]['id']
-            else:
-                return ''
+            return response['records']
         except Exception as ex:
             logger.exception('Exception when attempting to get mentor id from slack email.', ex)
-            return ''
+            return []
 
     async def update_request(self, request_record, mentor_id):
         url = self.table_url("Mentor Request", request_record)
@@ -98,3 +109,7 @@ class AirtableAPI:
                 "Mentor Assigned": [mentor_id] if mentor_id else None
             }}
         return await self.patch(url, json=data)
+
+    async def add_record(self, table, json):
+        url = self.table_url(table)
+        return await self.post(url, json=json)

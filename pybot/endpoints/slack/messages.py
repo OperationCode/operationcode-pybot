@@ -25,7 +25,7 @@ def not_bot_message(event: Message):
 
 
 def not_bot_delete(event: Message):
-    return 'previous_message' not in event or 'bot_id' not in event['previous_message']
+    return 'previous_message' in event and 'bot_id' not in event['previous_message']
 
 
 async def advertise_pybot(event: Message, app: SirBot):

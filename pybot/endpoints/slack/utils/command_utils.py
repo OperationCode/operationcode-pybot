@@ -25,3 +25,8 @@ def get_slash_repeat_messages(user_id, channel, text):
     return response_type[values_dict['type']], values_dict['message']
 
 
+def action_value(attachment):
+    action = attachment['actions'][0]
+    if 'selected_options' in action:
+        return action['selected_options'][0]['value']
+    return ''

@@ -5,8 +5,14 @@ claim_event = {
     'type': 'interactive_message',
     'user': {'id': 'U123'},
     'actions': [{'name': 'rec123', 'value': 'mentee_claimed'}],
-    'original_message': {'text': 'some text'},
-    'channel': {'id': 'abc'},
+    'original_message': {
+        'text': 'some text',
+        'attachments': [
+            {
+                'text': 'some text', 'actions': [{'name': 'rec123', 'value': 'mentee_unclaimed'}],
+            }
+        ],
+    }, 'channel': {'id': 'abc'},
     'message_ts': '123123.123',
     'callback_id': 'claim_mentee',
     "token": "supersecuretoken",
@@ -21,7 +27,14 @@ unclaim_event = {
     'type': 'interactive_message',
     'user': {'id': 'U123'},
     'actions': [{'name': 'rec123', 'value': 'mentee_unclaimed'}],
-    'original_message': {'text': 'some text'},
+    'original_message': {
+        'text': 'some text',
+        'attachments': [
+            {
+                'text': 'some text', 'actions': [{'name': 'rec123', 'value': 'mentee_unclaimed'}],
+            }
+        ],
+    },
     'channel': {'id': 'abc'},
     'message_ts': '123123.123',
     'callback_id': 'claim_mentee',
