@@ -110,7 +110,8 @@ class MentorRequest:
     async def submit_request(self, username, email, airtable: AirtableAPI):
         params = {
             'Slack User': username,
-            'Email': email
+            'Email': email,
+            'Status': 'Available'
         }
         if self.skillsets:
             params['Skillsets'] = self.skillsets

@@ -31,7 +31,7 @@ async def mentor_request_submit(action: Action, app: SirBot):
     # debugging
     await slack.query(methods.CHAT_POST_MESSAGE, {
         'channel': action['channel']['id'],
-        'text': f' Debugging: {json.dumps(airtable_response)}\nAirtable response: {json.dumps(airtable_response)}'
+        'text': f' Debugging: {json.dumps(airtable_response)}'
     })
 
 
