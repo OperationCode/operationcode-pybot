@@ -1,7 +1,10 @@
+from typing import MutableMapping, Optional
+
 from slack import methods
 from slack.actions import Action
 from slack.io.abc import SlackAPI
 
+from pybot.endpoints.slack.utils.action_messages import now
 from pybot.plugins.airtable.api import AirtableAPI
 
 SERVICE_INDEX = 0
@@ -18,6 +21,12 @@ class MentorRequest:
         self.action = action
         self.channel = channel
 
+    def __getitem__(self, item):
+        return self.action[item]
+
+    def __setitem__(self, key, value):
+        self.action[key] = value
+
     @classmethod
     def selected_option(cls, attachment):
         action = attachment['actions'][0]
@@ -27,7 +36,7 @@ class MentorRequest:
 
     @property
     def attachments(self):
-        return self.action['attachments']
+        return self['attachments']
 
     @property
     def service(self):
@@ -91,7 +100,7 @@ class MentorRequest:
     def update_params(self):
         return {
             'channel': self.channel,
-            'ts': self.action['ts'],
+            'ts': self['ts'],
             'attachments': self.attachments
         }
 
@@ -139,7 +148,7 @@ class MentorRequest:
         done_attachment['text'] = 'Request submitted successfully!'
         done_attachment['actions'] = [{'type': 'button', 'text': 'Dismiss', 'name': 'cancel', 'value': 'cancel'}]
 
-        self.action['attachments'] = [done_attachment]
+        self['attachments'] = [done_attachment]
         return self.update(slack)
 
     def clear_skillsets(self):
@@ -147,3 +156,100 @@ class MentorRequest:
 
     def update(self, slack: SlackAPI):
         return slack.query(methods.CHAT_UPDATE, self.update_params)
+
+
+class MentorRequestClaim(Action):
+
+    def __init__(self, raw_action: MutableMapping, slack: SlackAPI, airtable: AirtableAPI):
+        super().__init__(raw_action)
+        self.slack = slack
+        self.airtable = airtable
+        self.attachment = raw_action['original_message']['attachments'][0]
+        self.should_update = True
+
+    @property
+    def trigger(self) -> dict:
+        return self['actions'][0]
+
+    @property
+    def click_type(self) -> str:
+        return self.trigger['value']
+
+    def is_claim(self):
+        return self.click_type == 'mentee_claimed'
+
+    @property
+    def record(self) -> str:
+        """ Airtable record ID for the mentor request """
+        return self.trigger['name']
+
+    @property
+    def clicker(self):
+        return self['user']['id']
+
+    @property
+    def attachment(self):
+        return self['original_message']['attachments'][0]
+
+    @attachment.setter
+    def attachment(self, value):
+        self['original_message']['attachments'][0] = value
+
+    def claim_request(self, mentor_record):
+        if mentor_record:
+            self.attachment = self.mentee_claimed_attachment()
+        else:
+            self.attachment['text'] = f":warning: <@{self.clicker}>'s slack Email not found in Mentor table. :warning:"
+            self.should_update = False
+
+        return self.update_airtable(mentor_record)
+
+    def unclaim_request(self):
+        self.attachment = self.mentee_unclaimed_attachment()
+        return self.update_airtable('')
+
+    async def update_airtable(self, mentor_id: Optional[str]):
+        if mentor_id:
+            return self.airtable.update_request(self.record, mentor_id)
+
+    async def update_message(self):
+        response = {
+            'channel': self['channel']['id'],
+            'ts': self['message_ts'],
+            'attachments': self['original_message']['attachments']
+        }
+        await self.slack.query(methods.CHAT_UPDATE, response)
+
+    def mentee_claimed_attachment(self) -> dict:
+        return {
+            "text": f":100: Request claimed by <@{self.clicker}>:100:\n"
+                    f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
+            "fallback": "",
+            "color": "#3AA3E3",
+            "callback_id": "claim_mentee",
+            "attachment_type": "default",
+            "actions": [{
+                'name': f'{self.record}',
+                "text": f"Reset claim",
+                "type": "button",
+                "style": "danger",
+                "value": "reset_claim_mentee",
+            }]
+        }
+
+    def mentee_unclaimed_attachment(self) -> dict:
+        return {
+            'text': f"Reset by <@{self.clicker}> at"
+                    f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>",
+            'fallback': '',
+            'color': '#3AA3E3',
+            'callback_id': 'claim_mentee',
+            'attachment_type': 'default',
+            'actions': [{
+                'name': f'{self.record}',
+                'text': 'Claim Mentee',
+                'type': 'button',
+                'style': 'primary',
+                'value': 'mentee_claimed'
+            }]
+        }

@@ -250,42 +250,6 @@ def mentor_details_dialog(action):
     }
 
 
-def mentee_claimed_attachment(user_id: str, record: str) -> List[dict]:
-    return [{
-        "text": f":100: Request claimed by <@{user_id}>:100:\n"
-                f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
-        "fallback": "",
-        "color": "#3AA3E3",
-        "callback_id": "claim_mentee",
-        "attachment_type": "default",
-        "actions": [{
-            'name': f'{record}',
-            "text": f"Reset claim",
-            "type": "button",
-            "style": "danger",
-            "value": "reset_claim_mentee",
-        }]
-    }]
-
-
-def mentee_unclaimed_attachment(user_id: str, record: str) -> List[dict]:
-    return [{
-        'text': f"Reset by <@{user_id}> at"
-                f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>",
-        'fallback': '',
-        'color': '#3AA3E3',
-        'callback_id': 'claim_mentee',
-        'attachment_type': 'default',
-        'actions': [{
-            'name': f'{record}',
-            'text': 'Claim Mentee',
-            'type': 'button',
-            'style': 'primary',
-            'value': 'mentee_claimed'
-        }]
-    }]
-
-
 def new_suggestion_text(user_id: str, suggestion: str) -> str:
     return f":exclamation:<@{user_id}> just submitted a suggestion for a help topic:exclamation:\n-- {suggestion}"
 
