@@ -1,3 +1,4 @@
+from enum import IntEnum
 from typing import MutableMapping, Optional
 
 from slack import methods
@@ -7,25 +8,26 @@ from slack.io.abc import SlackAPI
 from pybot.endpoints.slack.utils.action_messages import now
 from pybot.plugins.airtable.api import AirtableAPI
 
-SERVICE_INDEX = 0
-SKILLSET_INDEX = 1
-MENTOR_INDEX = 2
-DETAILS_INDEX = 3
-GROUP_INDEX = 4
-SUBMIT_INDEX = 5
+
+class AttachmentIndex(IntEnum):
+    SERVICE = 0
+    SKILLSET = 1
+    MENTOR = 2
+    DETAILS = 3
+    GROUP = 4
+    SUBMIT = 5
 
 
-class MentorRequest:
+class MentorRequest(Action):
 
-    def __init__(self, action: Action, channel=None):
-        self.action = action
-        self.channel = channel
+    def __init__(self, raw_action: MutableMapping):
+        super().__init__(raw_action)
+        if 'original_message' not in self:
+            self['original_message'] = {}
 
-    def __getitem__(self, item):
-        return self.action[item]
-
-    def __setitem__(self, key, value):
-        self.action[key] = value
+    @property
+    def channel(self):
+        return self['channel']['id']
 
     @classmethod
     def selected_option(cls, attachment):
@@ -36,83 +38,90 @@ class MentorRequest:
 
     @property
     def attachments(self):
-        return self['attachments']
+        return self['original_message']['attachments']
+
+    @attachments.setter
+    def attachments(self, value):
+        self['original_message']['attachments'] = value
 
     @property
     def service(self):
-        attachment = self.attachments[SERVICE_INDEX]
+        attachment = self.attachments[AttachmentIndex.SERVICE]
         return self.selected_option(attachment)
 
     @service.setter
     def service(self, new_service):
-        action = self.attachments[SERVICE_INDEX]['actions'][0]
+        action = self.attachments[AttachmentIndex.SERVICE]['actions'][0]
         action['selected_options'] = [{'value': new_service, 'text': new_service}]
-        self.attachments[SERVICE_INDEX]['color'] = ''
+        self.attachments[AttachmentIndex.SERVICE]['color'] = ''
 
     @property
     def skillsets(self):
-        if 'text' in self.attachments[SKILLSET_INDEX]:
-            return self.attachments[SKILLSET_INDEX]['text'].split('\n')
+        if 'text' in self.attachments[AttachmentIndex.SKILLSET]:
+            return self.attachments[AttachmentIndex.SKILLSET]['text'].split('\n')
         return []
 
-    def add_skillset(self, skillset):
+    def add_skillset(self, skillset: str) -> None:
+        """
+        Appends the new skillset to the displayed skillsets
+        """
         if skillset not in self.skillsets:
             skills = self.skillsets
             skills.append(skillset)
         else:
             skills = self.skillsets
-        self.attachments[SKILLSET_INDEX]['text'] = '\n'.join(skills)
+        self.attachments[AttachmentIndex.SKILLSET]['text'] = '\n'.join(skills)
 
     @property
-    def mentor(self):
-        attachment = self.attachments[MENTOR_INDEX]
+    def mentor(self) -> str:
+        attachment = self.attachments[AttachmentIndex.MENTOR]
         return self.selected_option(attachment)
 
     @mentor.setter
-    def mentor(self, new_mentor):
-        action = self.attachments[MENTOR_INDEX]['actions'][0]
+    def mentor(self, new_mentor: str) -> None:
+        action = self.attachments[AttachmentIndex.MENTOR]['actions'][0]
         action['selected_options'] = [{'value': new_mentor, 'text': new_mentor}]
         action['color'] = ''
 
     @property
-    def certify_group(self):
-        attachment = self.attachments[GROUP_INDEX]
+    def certify_group(self) -> str:
+        attachment = self.attachments[AttachmentIndex.GROUP]
         return self.selected_option(attachment)
 
     @certify_group.setter
-    def certify_group(self, group):
-        action = self.attachments[GROUP_INDEX]['actions'][0]
+    def certify_group(self, group: str) -> None:
+        action = self.attachments[AttachmentIndex.GROUP]['actions'][0]
         action['selected_options'] = [{'value': group, 'text': group}]
-        self.attachments[GROUP_INDEX]['color'] = ''
+        self.attachments[AttachmentIndex.GROUP]['color'] = ''
 
     @property
     def details(self):
-        attachment = self.attachments[DETAILS_INDEX]
+        attachment = self.attachments[AttachmentIndex.DETAILS]
         if 'text' in attachment:
             return attachment['text']
         return ''
 
     @details.setter
     def details(self, new_details):
-        self.attachments[DETAILS_INDEX]['text'] = new_details
+        self.attachments[AttachmentIndex.DETAILS]['text'] = new_details
 
     @property
     def update_params(self):
         return {
             'channel': self.channel,
-            'ts': self['ts'],
+            'ts': self['original_message'].get('ts'),
             'attachments': self.attachments
         }
 
     def validate_self(self):
         if not self.service or not self.certify_group:
-            submit_attachment = self.attachments[SUBMIT_INDEX]
+            submit_attachment = self.attachments[AttachmentIndex.SUBMIT]
             submit_attachment['text'] = ':warning: Service and group certification are required. :warning:'
             submit_attachment['color'] = 'danger'
             if not self.service:
-                self.attachments[SERVICE_INDEX]['color'] = 'danger'
+                self.attachments[AttachmentIndex.SERVICE]['color'] = 'danger'
             if not self.certify_group:
-                self.attachments[GROUP_INDEX]['color'] = 'danger'
+                self.attachments[AttachmentIndex.GROUP]['color'] = 'danger'
             return False
         return True
 
@@ -135,26 +144,26 @@ class MentorRequest:
         return await airtable.add_record('Mentor Request', {'fields': params})
 
     def submission_error(self, airtable_response, slack: SlackAPI):
-        self.attachments[SUBMIT_INDEX]['text'] = (
+        self.attachments[AttachmentIndex.SUBMIT]['text'] = (
             f'Something went wrong.\n'
             f'Error Type:{airtable_response["error"]["type"]}\n'
             f'Error Message: {airtable_response["error"]["message"]}'
         )
-        self.attachments[SUBMIT_INDEX]['color'] = 'danger'
-        return self.update(slack)
+        self.attachments[AttachmentIndex.SUBMIT]['color'] = 'danger'
+        return self.update_message(slack)
 
     def submission_complete(self, slack: SlackAPI):
-        done_attachment = self.attachments[SUBMIT_INDEX]
+        done_attachment = self.attachments[AttachmentIndex.SUBMIT]
         done_attachment['text'] = 'Request submitted successfully!'
         done_attachment['actions'] = [{'type': 'button', 'text': 'Dismiss', 'name': 'cancel', 'value': 'cancel'}]
 
-        self['attachments'] = [done_attachment]
-        return self.update(slack)
+        self['original_message']['attachments'] = [done_attachment]
+        return self.update_message(slack)
 
     def clear_skillsets(self):
-        self.attachments[SKILLSET_INDEX]['text'] = ''
+        self.attachments[AttachmentIndex.SKILLSET]['text'] = ''
 
-    def update(self, slack: SlackAPI):
+    def update_message(self, slack: SlackAPI):
         return slack.query(methods.CHAT_UPDATE, self.update_params)
 
 
@@ -173,29 +182,46 @@ class MentorRequestClaim(Action):
 
     @property
     def click_type(self) -> str:
+        """
+        Value of the button clicked.
+        """
         return self.trigger['value']
 
-    def is_claim(self):
+    def is_claim(self) -> bool:
+        """
+        Returns true if the Claim button was clicked
+        """
         return self.click_type == 'mentee_claimed'
 
     @property
     def record(self) -> str:
-        """ Airtable record ID for the mentor request """
+        """
+        Airtable record ID for the mentor request
+        """
         return self.trigger['name']
 
     @property
-    def clicker(self):
+    def clicker(self) -> str:
+        """
+        The Slack User ID of the button clicker
+        """
         return self['user']['id']
 
     @property
-    def attachment(self):
+    def attachment(self) -> dict:
         return self['original_message']['attachments'][0]
 
     @attachment.setter
-    def attachment(self, value):
+    def attachment(self, value: dict) -> None:
         self['original_message']['attachments'][0] = value
 
     def claim_request(self, mentor_record):
+        """
+        Updates the airtable entry with the given record.
+
+        If record couldn't be found this object's text field is changed
+        to an error message to be displayed when update_message is called
+        """
         if mentor_record:
             self.attachment = self.mentee_claimed_attachment()
         else:
@@ -205,6 +231,10 @@ class MentorRequestClaim(Action):
         return self.update_airtable(mentor_record)
 
     def unclaim_request(self):
+        """
+        Changes the attachment to the un-claimed version and deletes the mentor from the
+        Airtable record
+        """
         self.attachment = self.mentee_unclaimed_attachment()
         return self.update_airtable('')
 
@@ -213,6 +243,9 @@ class MentorRequestClaim(Action):
             return self.airtable.update_request(self.record, mentor_id)
 
     async def update_message(self):
+        """
+        Builds the slack API call to update the original message
+        """
         response = {
             'channel': self['channel']['id'],
             'ts': self['message_ts'],

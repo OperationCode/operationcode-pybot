@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 async def mentor_request_submit(action: Action, app: SirBot):
     slack = app.plugins['slack'].api
     airtable = app.plugins['airtable'].api
-    request = MentorRequest(action['original_message'], action['channel']['id'])
+    request = MentorRequest(action)
 
     if not request.validate_self():
-        await request.update(slack)
+        await request.update_message(slack)
         return
 
     username = action['user']['name']
@@ -30,12 +30,6 @@ async def mentor_request_submit(action: Action, app: SirBot):
     else:
         await request.submission_complete(slack)
 
-    # debugging
-    await slack.query(methods.CHAT_POST_MESSAGE, {
-        'channel': action['channel']['id'],
-        'text': f' Debugging: {json.dumps(airtable_response)}'
-    })
-
 
 async def cancel_mentor_request(action: Action, app: SirBot):
     response = {'ts': action['message_ts'], 'channel': action['channel']['id']}
@@ -44,6 +38,7 @@ async def cancel_mentor_request(action: Action, app: SirBot):
 
 async def mentor_details_submit(action: Action, app: SirBot):
     slack = app.plugins['slack'].api
+    request = MentorRequest(action)
 
     state = json.loads(action['state'])
     channel = state['channel']
@@ -54,11 +49,10 @@ async def mentor_details_submit(action: Action, app: SirBot):
     }
 
     history = await slack.query(methods.IM_HISTORY, search)
-
-    request = MentorRequest(history['messages'][0], channel)
+    request['original_message'] = history['messages'][0]
     request.details = action['submission']['details']
 
-    await request.update(slack)
+    await request.update_message(slack)
 
 
 async def open_details_dialog(action: Action, app: SirBot):
@@ -71,47 +65,48 @@ async def open_details_dialog(action: Action, app: SirBot):
 
 
 async def clear_skillsets(action: Action, app: SirBot):
-    request = MentorRequest(action['original_message'], action['channel']['id'])
+    request = MentorRequest(action)
     request.clear_skillsets()
 
     slack = app.plugins['slack'].api
-    await request.update(slack)
+    await request.update_message(slack)
 
 
 async def set_group(action: Action, app: SirBot):
     group = MentorRequest.selected_option(action)
-    request = MentorRequest(action['original_message'], action['channel']['id'])
+    request = MentorRequest(action)
     request.certify_group = group
 
     slack = app.plugins['slack'].api
-    await request.update(slack)
+    await request.update_message(slack)
 
 
 async def set_requested_service(action: Action, app: SirBot):
+    request = MentorRequest(action)
+
     service = MentorRequest.selected_option(action)
-    request = MentorRequest(action['original_message'], action['channel']['id'])
     request.service = service
 
     slack = app.plugins['slack'].api
-    await request.update(slack)
+    await request.update_message(slack)
 
 
 async def set_requested_mentor(action: Action, app: SirBot):
     mentor = MentorRequest.selected_option(action)
-    request = MentorRequest(action['original_message'], action['channel']['id'])
+    request = MentorRequest(action)
     request.mentor = mentor
 
     slack = app.plugins['slack'].api
-    await request.update(slack)
+    await request.update_message(slack)
 
 
 async def add_skillset(action: Action, app: SirBot):
     selected_skill = MentorRequest.selected_option(action)
-    request = MentorRequest(action['original_message'], action['channel']['id'])
+    request = MentorRequest(action)
     request.add_skillset(selected_skill)
 
     slack = app.plugins['slack'].api
-    await request.update(slack)
+    await request.update_message(slack)
 
 
 async def claim_mentee(action: Action, app: SirBot):
