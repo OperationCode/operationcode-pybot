@@ -239,8 +239,8 @@ class MentorRequestClaim(Action):
         return self.update_airtable('')
 
     async def update_airtable(self, mentor_id: Optional[str]):
-        if mentor_id:
-            return self.airtable.update_request(self.record, mentor_id)
+        if mentor_id is not None:
+            return await self.airtable.update_request(self.record, mentor_id)
 
     async def update_message(self):
         """
@@ -256,7 +256,7 @@ class MentorRequestClaim(Action):
     def mentee_claimed_attachment(self) -> dict:
         return {
             "text": f":100: Request claimed by <@{self.clicker}>:100:\n"
-                    f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
+            f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
             "fallback": "",
             "color": "#3AA3E3",
             "callback_id": "claim_mentee",
@@ -273,7 +273,7 @@ class MentorRequestClaim(Action):
     def mentee_unclaimed_attachment(self) -> dict:
         return {
             'text': f"Reset by <@{self.clicker}> at"
-                    f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>",
+            f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>",
             'fallback': '',
             'color': '#3AA3E3',
             'callback_id': 'claim_mentee',
