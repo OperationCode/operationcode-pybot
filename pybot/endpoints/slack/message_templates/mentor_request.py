@@ -73,9 +73,10 @@ class MentorRequest(Action):
         self.attachments[AttachmentIndex.SKILLSET]['text'] = '\n'.join(skills)
 
     @property
-    def mentor(self) -> str:
+    def mentor(self) -> Optional[str]:
         attachment = self.attachments[AttachmentIndex.MENTOR]
-        return self.selected_option(attachment)
+        option = self.selected_option(attachment)
+        return None if option == 'None' else option
 
     @mentor.setter
     def mentor(self, new_mentor: str) -> None:

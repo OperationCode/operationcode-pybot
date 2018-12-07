@@ -62,7 +62,10 @@ def mentor_request_attachments(services, mentors, skillsets):
             'fallback': 'Mentor Request',
             'actions': [{
                 'type': 'select', 'text': 'Specific Mentor', 'name': 'mentor',
-                'options': [{'text': mentor, 'value': mentor} for mentor in mentors]
+                'options': [
+                    {'text': 'None', 'value': 'None'},
+                    *[{'text': mentor, 'value': mentor} for mentor in mentors],
+                ]
             }]
         },
         {
