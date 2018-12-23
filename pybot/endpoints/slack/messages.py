@@ -21,7 +21,9 @@ def create_endpoints(plugin):
 
 
 def not_bot_message(event: Message):
-    return 'message' not in event or 'subtype' not in event['message'] or event['message']['subtype'] != 'bot_message'
+    return ('message' not in event or
+            'subtype' not in event['message'] or
+            event['message']['subtype'] != 'bot_message')
 
 
 def not_bot_delete(event: Message):
@@ -32,7 +34,7 @@ async def advertise_pybot(event: Message, app: SirBot):
     BOT_URL = 'https://github.com/OperationCode/operationcode-pybot'
     response = {'channel': event['channel'],
                 'text': f'OC-Community-Bot is a community led project'
-                        f'\n <{BOT_URL}|source> '}
+                f'\n <{BOT_URL}|source> '}
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
 
 
@@ -59,7 +61,8 @@ async def message_changed(event: Message, app: SirBot):
     """
     Logs all message edits not made by a bot.
     """
-    if not_bot_message(event):
+    # need to check for bot_delete as deletes with replies that result in a "tombstone" also send as edits
+    if not_bot_message(event) and not_bot_delete(event):
         try:
             logger.info(
                 f'CHANGE_LOGGING: edited: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
