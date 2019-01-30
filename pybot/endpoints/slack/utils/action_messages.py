@@ -86,7 +86,7 @@ def ticket_attachments(action):
 def greeted_attachment(user_id: str) -> List[dict]:
     return [{
         "text": f":100:<@{user_id}> has greeted the new user!:100:\n"
-                f"<!date^{now()}^Greeted at {{date_num}} {{time_secs}}|Failed to parse time>",
+        f"<!date^{now()}^Greeted at {{date_num}} {{time_secs}}|Failed to parse time>",
         "fallback": "",
         "color": "#3AA3E3",
         "callback_id": "greeted",
@@ -139,7 +139,7 @@ def not_claimed_attachment():
 def claimed_attachment(user_id):
     return {
         "text": f"Claimed by <@{user_id}>\n"
-                f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
+        f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
         "fallback": "",
         "color": "#3AA3E3",
         "callback_id": "claimed",
@@ -221,7 +221,7 @@ def build_report_message(slack_id, details, message_details):
             }
 
         ]
-    }]
+    }, not_claimed_attachment()]
 
     return {
         "text": message,
@@ -233,7 +233,7 @@ def build_report_message(slack_id, details, message_details):
 def mentee_claimed_attachment(user_id: str, record: str) -> List[dict]:
     return [{
         "text": f":100: Request claimed by <@{user_id}>:100:\n"
-                f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
+        f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
         "fallback": "",
         "color": "#3AA3E3",
         "callback_id": "claim_mentee",
@@ -251,7 +251,7 @@ def mentee_claimed_attachment(user_id: str, record: str) -> List[dict]:
 def mentee_unclaimed_attachment(user_id: str, record: str) -> List[dict]:
     return [{
         'text': f"Reset by <@{user_id}> at"
-                f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>",
+        f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>",
         'fallback': '',
         'color': '#3AA3E3',
         'callback_id': 'claim_mentee',

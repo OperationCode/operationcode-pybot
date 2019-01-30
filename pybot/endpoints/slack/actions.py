@@ -159,7 +159,7 @@ async def claimed(action: Action, app: SirBot):
     attachments = action['original_message']['attachments']
 
     for index, attachment in enumerate(attachments):
-        if attachment['callback_id'] == 'claimed':
+        if 'callback_id' in attachment and attachment['callback_id'] == 'claimed':
             attachments[index] = claimed_attachment(user_id)
     response['attachments'] = attachments
 
@@ -176,7 +176,7 @@ async def reset_claim(action: Action, app: SirBot):
 
     attachments = action['original_message']['attachments']
     for index, attachment in enumerate(attachments):
-        if attachment['callback_id'] == 'claimed':
+        if 'callback_id' in attachment and attachment['callback_id'] == 'claimed':
             attachments[index] = not_claimed_attachment()
 
     response['attachments'] = attachments
