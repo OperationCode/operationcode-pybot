@@ -18,6 +18,7 @@ def create_endpoints(plugin):
     plugin.on_message(".*@here", here_bad)
     plugin.on_message(".*@channel", here_bad)
     plugin.on_message(".*\!pybot", advertise_pybot)
+    plugin.on_message("=== .* Daily Programmer ===.*", daily_challenge)
 
 
 def not_bot_message(event: Message):
@@ -32,7 +33,7 @@ async def advertise_pybot(event: Message, app: SirBot):
     BOT_URL = 'https://github.com/OperationCode/operationcode-pybot'
     response = {'channel': event['channel'],
                 'text': f'OC-Community-Bot is a community led project'
-                        f'\n <{BOT_URL}|source> '}
+                f'\n <{BOT_URL}|source> '}
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
 
 
@@ -81,3 +82,27 @@ async def message_deleted(event: Message, app: SirBot):
         except Exception as E:
             logger.exception(E)
             logger.debug(event)
+
+
+async def daily_challenge(event: Message, app: SirBot):
+    """
+    Pings general with the new Daily Challenge as well as saves it to a text file.
+    """
+    new_message = event["text"]
+    f = open("DailyChallenges.txt", "w+")
+    f.write(new_message + "\n")
+    f.close()
+    link = permlink(event["ts"], event["channel"])
+    response = {'channel': 'general',
+                'text': 'New Daily Challenge',
+                'attachments': [
+                    {
+                        "fallback": "Check out today's Daily Challenge!",
+                        "color": "#36a64f",
+                        "title": "Daily Challenge",
+                        "title_link": link,
+                        "text": new_message,
+                    }
+                ]
+                }
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
