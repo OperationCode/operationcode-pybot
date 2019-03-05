@@ -87,22 +87,14 @@ async def message_deleted(event: Message, app: SirBot):
 async def daily_challenge(event: Message, app: SirBot):
     """
     Pings general with the new Daily Challenge as well as saves it to a text file.
+    Planning on adding a link to the new challenge but this will come later.
     """
     new_message = event["text"]
     f = open("DailyChallenges.txt", "w+")
     f.write(new_message + "\n")
     f.close()
-    link = permlink(event["ts"], event["channel"])
-    response = {'channel': 'general',
-                'text': 'New Daily Challenge',
-                'attachments': [
-                    {
-                        "fallback": "Check out today's Daily Challenge!",
-                        "color": "#36a64f",
-                        "title": "Daily Challenge",
-                        "title_link": link,
-                        "text": new_message,
-                    }
-                ]
-                }
+    response = {
+        'channel': 'general',
+        'text': 'New Daily Programmer challenge check out #Daily-programmer'
+    }
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
