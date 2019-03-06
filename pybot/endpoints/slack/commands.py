@@ -1,4 +1,4 @@
-import logging
+import logging, random
 
 from sirbot import SirBot
 from sirbot.plugins.slack import SlackPlugin
@@ -26,6 +26,7 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command('/repeat', slash_repeat, wait=False)
     plugin.on_command('/report', slash_report, wait=False)
     plugin.on_command('/ticket', slash_ticket, wait=False)
+    plugin.on_command('/roll', slash_roll, wait=False)
 
 
 async def slash_ticket(command: Command, app: SirBot):
@@ -123,3 +124,37 @@ async def slash_repeat(command: Command, app: SirBot):
 
     method_type, message = get_slash_repeat_messages(slack_id, channel_id, command['text'])
     await slack.query(method_type, message)
+
+async def slash_roll(command: Command, app: SirBot):
+    """
+    Sends text supplied with the /report command to the moderators channel along
+    with a button to claim the issue
+    """
+    slack_id = command['user_id']
+    channel_id = command['channel_id']
+    text = command['text']
+
+    slack = app["plugins"]["slack"].api
+
+    #parse the type of die and number to roll
+    try:
+        text = text.lower()
+        numdice, typedice = text.split('d')
+        numdice = int(numdice)
+        typedice = int(typedice)
+        if numdice <= 0 or numdice > 10:
+            raise ValueError
+        if typedice <= 0 or typedice > 20:
+            raise ValueError
+    except ValueError:
+        logger.debug("invalid input to roll: %s", text)
+        await slack.query(methods.CHAT_POST_EPHEMERAL, 
+                          {'user': slack_id, 'channel': channel_id,
+                           'text': "Sorry, I didn't understand your input. Should be XDYY where X is the number of dice, and YY is the number of sides"})
+        return
+    dice = []
+    for _ in range(0,numdice):
+        dice.append(random.randint(1,typedice+1))
+
+    message = f'<@{slack_id}> Rolled {numdice} D{typedice}: {dice}'    
+    await slack.query(methods.CHAT_POST_MESSAGE, {'channel': channel_id, 'text': message})
