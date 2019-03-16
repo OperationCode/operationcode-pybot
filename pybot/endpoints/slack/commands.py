@@ -142,6 +142,7 @@ async def slash_repeat(command: Command, app: SirBot):
     method_type, message = get_slash_repeat_messages(slack_id, channel_id, command['text'])
     await slack.query(method_type, message)
 
+
 async def slash_roll(command: Command, app: SirBot):
     """
     Sends text supplied with the /report command to the moderators channel along
@@ -153,7 +154,7 @@ async def slash_roll(command: Command, app: SirBot):
 
     slack = app["plugins"]["slack"].api
 
-    #parse the type of die and number to roll
+    # parse the type of die and number to roll
     try:
         text = text.lower()
         numdice, typedice = text.split('d')
@@ -165,13 +166,13 @@ async def slash_roll(command: Command, app: SirBot):
             raise ValueError
     except ValueError:
         logger.debug("invalid input to roll: %s", text)
-        await slack.query(methods.CHAT_POST_EPHEMERAL, 
+        await slack.query(methods.CHAT_POST_EPHEMERAL,
                           {'user': slack_id, 'channel': channel_id,
                            'text': "Sorry, I didn't understand your input. Should be XDYY where X is the number of dice, and YY is the number of sides"})
         return
     dice = []
-    for _ in range(0,numdice):
-        dice.append(random.randint(1,typedice+1))
+    for _ in range(0, numdice):
+        dice.append(random.randint(1, typedice + 1))
 
-    message = f'<@{slack_id}> Rolled {numdice} D{typedice}: {dice}'    
+    message = f'<@{slack_id}> Rolled {numdice} D{typedice}: {dice}'
     await slack.query(methods.CHAT_POST_MESSAGE, {'channel': channel_id, 'text': message})

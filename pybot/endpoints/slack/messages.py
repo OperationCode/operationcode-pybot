@@ -39,9 +39,10 @@ async def advertise_pybot(event: Message, app: SirBot):
 
 
 async def here_bad(event: Message, app: SirBot):
-    response = {'channel': event['channel'],
-                'text': f'<@{event["user"]}> - you are a very bad person for using that command'}
-    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
+    if 'channel_type' in event and event['channel_type'] != 'im':
+        response = {'channel': event['channel'],
+                    'text': f'<@{event["user"]}> - you are a very bad person for using that command'}
+        await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
 
 
 async def tech_tips(event: Message, app: SirBot):
