@@ -25,7 +25,7 @@ async def mentor_request(request: dict, app: SirBot) -> None:
     id_fallback = f" [couldn't find user - email provided: {request['email']} ]"
     slack_id = await _slack_user_id_from_email(request['email'], slack, fallback=id_fallback)
 
-    futures = [app.plugins['airtable'].api.translate_service_id(request['service']),
+    futures = [airtable.get_name_from_record_id('Services', request['service']),
                _get_requested_mentor(request.get('requested_mentor'), slack, airtable),
                _get_matching_skillset_mentors(request.get('skillsets'), slack, airtable)]
 

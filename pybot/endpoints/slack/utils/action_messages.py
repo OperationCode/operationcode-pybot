@@ -230,40 +230,24 @@ def build_report_message(slack_id, details, message_details):
     }
 
 
-def mentee_claimed_attachment(user_id: str, record: str) -> List[dict]:
-    return [{
-        "text": f":100: Request claimed by <@{user_id}>:100:\n"
-        f"<!date^{now()}^Claimed at {{date_num}} {{time_secs}}|Failed to parse time>",
-        "fallback": "",
-        "color": "#3AA3E3",
-        "callback_id": "claim_mentee",
-        "attachment_type": "default",
-        "actions": [{
-            'name': f'{record}',
-            "text": f"Reset claim",
-            "type": "button",
-            "style": "danger",
-            "value": "reset_claim_mentee",
-        }]
-    }]
+def mentor_details_dialog(action):
+    trigger_id = action['trigger_id']
+    ts = action['message_ts']
 
-
-def mentee_unclaimed_attachment(user_id: str, record: str) -> List[dict]:
-    return [{
-        'text': f"Reset by <@{user_id}> at"
-        f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>",
-        'fallback': '',
-        'color': '#3AA3E3',
-        'callback_id': 'claim_mentee',
-        'attachment_type': 'default',
-        'actions': [{
-            'name': f'{record}',
-            'text': 'Claim Mentee',
-            'type': 'button',
-            'style': 'primary',
-            'value': 'mentee_claimed'
+    return {
+        "callback_id": "mentor_details_submit",
+        "state": json.dumps({'ts': ts, 'channel': action['channel']['id']}),
+        "title": "Additional Details",
+        "submit_label": "Submit",
+        "trigger_id": trigger_id,
+        "elements": [{
+            "type": "textarea",
+            "label": "Details",
+            "name": "details",
+            "placeholder": "",
+            "required": False
         }]
-    }]
+    }
 
 
 def new_suggestion_text(user_id: str, suggestion: str) -> str:

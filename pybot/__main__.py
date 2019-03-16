@@ -14,15 +14,8 @@ from .plugins import AirtablePlugin
 from pybot.endpoints.slack.utils import PORT, HOST
 from pybot.endpoints.slack.utils import slack_configs
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 logger = logging.getLogger(__name__)
-
-slack_configs = {
-    'token': os.environ.get('BOT_OATH_TOKEN'),
-    'verify': os.environ.get('VERIFICATION_TOKEN'),
-    'bot_id': os.environ.get('SLACK_BOT_ID'),
-    'bot_user_id': os.environ.get('SLACK_BOT_ID'),
-}
 
 
 def make_sentry_logger():
