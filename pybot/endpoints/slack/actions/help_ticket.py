@@ -1,5 +1,3 @@
-import json
-
 from sirbot import SirBot
 from slack import methods
 from slack.actions import Action
