@@ -80,7 +80,7 @@ async def message_deleted(event: Message, app: SirBot):
     if not_bot_delete(event):
         try:
             logger.info(
-                f'CHANGE_LOGGING: deleted: {event["ts"]} for user: {event["previous_message"]["user"]}\n{event}')
+                f'CHANGE_LOGGING: deleted: {event["ts"]}\nEvent: {event}')
 
         except Exception as E:
             logger.exception(E)
