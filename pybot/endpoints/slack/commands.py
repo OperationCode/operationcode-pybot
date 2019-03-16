@@ -5,10 +5,10 @@ from sirbot.plugins.slack import SlackPlugin
 from slack import methods
 from slack.commands import Command
 
-from pybot.endpoints.slack.message_templates.commands import ticket_dialog
-from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, MODERATOR_CHANNEL, YELP_TOKEN
+from pybot.endpoints.slack.message_templates.commands import ticket_dialog, mentor_request_attachments
+from pybot.endpoints.slack.utils import PYBACK_HOST, PYBACK_PORT, PYBACK_TOKEN, MODERATOR_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
-from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages, response_type
+from pybot.endpoints.slack.utils.command_utils import get_slash_here_messages, get_slash_repeat_messages
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,23 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command('/report', slash_report, wait=False)
     plugin.on_command('/ticket', slash_ticket, wait=False)
     plugin.on_command('/roll', slash_roll, wait=False)
+    # plugin.on_command('/mentor', slash_mentor, wait=False)
+
+
+async def slash_mentor(command: Command, app: SirBot):
+    airtable = app.plugins['airtable'].api
+    services = await airtable.get_all_records('Services', 'Name')
+    mentors = await airtable.get_all_records('Mentors', 'Full Name')
+    skillsets = await airtable.get_all_records('Skillsets', 'Skillset')
+
+    dialog = mentor_request_attachments(services, mentors, skillsets)
+
+    response = {
+        'attachments': dialog,
+        'channel': command['user_id'],
+        'as_user': True,
+    }
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
 
 
 async def slash_ticket(command: Command, app: SirBot):

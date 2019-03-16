@@ -1,4 +1,3 @@
-import os
 from typing import List, Optional, Tuple
 
 from sirbot import SirBot
@@ -10,12 +9,13 @@ from pybot.plugins.airtable.api import AirtableAPI
 from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 from .message_templates.messages import claim_mentee_attachment, mentor_request_text
 
+
 async def _get_requested_mentor(requested_mentor: Optional[str], slack: SlackAPI,
                                 airtable: AirtableAPI) -> Optional[str]:
     try:
         if not requested_mentor:
             return None
-        mentor = await airtable.get_mentor_from_record_id(requested_mentor)
+        mentor = await airtable.get_row_from_record_id('Mentors', requested_mentor)
         email = mentor['Email']
         slack_user_id = await _slack_user_id_from_email(email, slack)
         return f" Requested mentor: <@{slack_user_id}>"
