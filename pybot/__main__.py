@@ -14,7 +14,7 @@ from .plugins import AirtablePlugin
 from pybot.endpoints.slack.utils import PORT, HOST
 from pybot.endpoints.slack.utils import slack_configs
 
-VERSION = "0.2.0"
+VERSION = "1.0"
 logger = logging.getLogger(__name__)
 
 
@@ -56,4 +56,4 @@ if __name__ == "__main__":
     bot.router.add_get("/health", lambda request: Response(status=200))
     logging.getLogger('aiohttp.access').setLevel(logging.WARNING)
 
-    bot.start(host=HOST, port=PORT, print=False)
+    bot.start(host=HOST, port=PORT, print=logger.info)
