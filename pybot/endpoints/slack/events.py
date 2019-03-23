@@ -33,5 +33,5 @@ async def team_join(event: Event, app: SirBot) -> None:
     ]
 
     logger.info(f"New team join event: {event}")
-    # await asyncio.sleep(30)
+    await asyncio.sleep(30)
     await asyncio.wait(futures)
