@@ -73,6 +73,15 @@ async def clear_skillsets(action: Action, app: SirBot):
     await request.update_message(slack)
 
 
+async def clear_mentor(action: Action, app: SirBot):
+    slack = app.plugins["slack"].api
+
+    request = MentorRequest(action)
+    request.mentor = ""
+
+    await request.update_message(slack)
+
+
 async def set_group(action: Action, app: SirBot):
     group = MentorRequest.selected_option(action)
     request = MentorRequest(action)

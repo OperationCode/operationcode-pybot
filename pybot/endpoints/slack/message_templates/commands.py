@@ -65,10 +65,15 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "text": "Specific Mentor",
                     "name": "mentor",
                     "options": [
-                        {"text": "None", "value": "None"},
                         *[{"text": mentor, "value": mentor} for mentor in mentors],
                     ],
-                }
+                },
+                {
+                    "type": "button",
+                    "text": "Clear Mentor",
+                    "name": "clearMentor",
+                    "value": "clearMentor",
+                },
             ],
         },
         {

@@ -12,6 +12,7 @@ from .mentor_request import (
     set_requested_mentor,
     set_requested_service,
     set_group,
+    clear_mentor,
 )
 from .new_member import (
     member_greeted,
@@ -50,10 +51,12 @@ def create_endpoints(plugin):
         "mentor_request_submit", cancel_mentor_request, name="cancel", wait=False
     )
 
-    # plugin.on_action("mentor_request_update", mentor_request_update, wait=False)
     plugin.on_action("mentor_request_update", add_skillset, name="skillset", wait=False)
     plugin.on_action(
         "mentor_request_update", clear_skillsets, name="clearSkills", wait=False
+    )
+    plugin.on_action(
+        "mentor_request_update", clear_mentor, name="clearMentor", wait=False
     )
     plugin.on_action(
         "mentor_request_update", open_details_dialog, name="addDetails", wait=False
