@@ -121,21 +121,3 @@ class LunchCommand:
     @classmethod
     def _convert_to_meters(cls, distance):
         return int(distance * 1609.34)
-
-
-if __name__ == "__main__":
-    channel_id = "AAAAAAAA"
-    user_id = "BBBBBBB"
-    user_name = "DDDDDDDD"
-
-    single_valid = "80020"
-    single_invalid = "12"
-    double_valid = "27051 12"
-    double_invalid_zip = "12 12"
-    double_invalid_distance = "27545 100000"
-    double_invalid_both = "20 1000000"
-    double_invalid_both_again = "abc abc"
-    double_invalid_both_again_again = "abc 01210"
-    float_valid = "80020 0.5"
-    float_invalid = "80020 0.3"
-    lunch = LunchCommand(channel_id, user_id, float_valid, user_name)
