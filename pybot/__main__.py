@@ -32,7 +32,7 @@ def make_sentry_logger():
 if __name__ == "__main__":
     try:
         with open(
-                os.path.join(os.path.dirname(os.path.realpath(__file__)), "../logging.yml")
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), "../logging.yml")
         ) as log_configfile:
             logging.config.dictConfig(yaml.load(log_configfile.read()))
     except Exception as e:
@@ -54,6 +54,6 @@ if __name__ == "__main__":
 
     # Add route to respond to AWS health check
     bot.router.add_get("/health", lambda request: Response(status=200))
-    logging.getLogger('aiohttp.access').setLevel(logging.WARNING)
+    logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
 
     bot.start(host=HOST, port=PORT, print=logger.info)

@@ -7,14 +7,14 @@ logger = logging.getLogger(__name__)
 
 
 async def incoming_request(request):
-    airtable = request.app.plugins['airtable']
+    airtable = request.app.plugins["airtable"]
     payload = await request.json()
-    logger.debug('Incoming Airtable event payload: %s', payload)
+    logger.debug("Incoming Airtable event payload: %s", payload)
 
-    if payload['token'] != airtable.verify:
+    if payload["token"] != airtable.verify:
         return Response(status=401)
 
-    futures = list(_dispatch(airtable.routers['request'], payload, request.app))
+    futures = list(_dispatch(airtable.routers["request"], payload, request.app))
     if futures:
         return await _wait_and_check_result(futures)
     return Response(status=200)
@@ -23,7 +23,7 @@ async def incoming_request(request):
 def _dispatch(router, event, app):
     for handler, configuration in router.dispatch(event):
         f = asyncio.ensure_future(handler(event, app))
-        if configuration['wait']:
+        if configuration["wait"]:
             yield f
         else:
             f.add_done_callback(_callback)
@@ -46,7 +46,7 @@ async def _wait_and_check_result(futures):
 
     results = [result for result in results if isinstance(result, Response)]
     if len(results) > 1:
-        logger.warning('Multiple web.Response for handler, returning none')
+        logger.warning("Multiple web.Response for handler, returning none")
     elif results:
         return results[0]
 

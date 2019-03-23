@@ -2,14 +2,19 @@ from sirbot import SirBot
 import asyncio
 import logging
 
-from pybot.endpoints.airtable.utils import (_create_messages, _get_matching_skillset_mentors, _get_requested_mentor,
-                                            _post_messages, _slack_user_id_from_email)
+from pybot.endpoints.airtable.utils import (
+    _create_messages,
+    _get_matching_skillset_mentors,
+    _get_requested_mentor,
+    _post_messages,
+    _slack_user_id_from_email,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def create_endpoints(plugin):
-    plugin.on_request('mentor_request', mentor_request)
+    plugin.on_request("mentor_request", mentor_request)
 
 
 async def mentor_request(request: dict, app: SirBot) -> None:
@@ -19,19 +24,26 @@ async def mentor_request(request: dict, app: SirBot) -> None:
     Queries Airtable to find mentors matching the requested skillsets and posts a message
     in the Mentor slack channel.
     """
-    slack = app.plugins['slack'].api
-    airtable = app.plugins['airtable'].api
+    slack = app.plugins["slack"].api
+    airtable = app.plugins["airtable"].api
 
     id_fallback = f" [couldn't find user - email provided: {request['email']} ]"
-    slack_id = await _slack_user_id_from_email(request['email'], slack, fallback=id_fallback)
+    slack_id = await _slack_user_id_from_email(
+        request["email"], slack, fallback=id_fallback
+    )
 
-    futures = [airtable.get_name_from_record_id('Services', request['service']),
-               _get_requested_mentor(request.get('requested_mentor'), slack, airtable),
-               _get_matching_skillset_mentors(request.get('skillsets'), slack, airtable)]
+    futures = [
+        airtable.get_name_from_record_id("Services", request["service"]),
+        _get_requested_mentor(request.get("requested_mentor"), slack, airtable),
+        _get_matching_skillset_mentors(request.get("skillsets"), slack, airtable),
+    ]
 
-    service_translation, requested_mentor_message, mentors = await asyncio.gather(*futures)
+    service_translation, requested_mentor_message, mentors = await asyncio.gather(
+        *futures
+    )
 
-    first_message, *children = _create_messages(mentors, request, requested_mentor_message, service_translation,
-                                                slack_id)
+    first_message, *children = _create_messages(
+        mentors, request, requested_mentor_message, service_translation, slack_id
+    )
 
     await _post_messages(first_message, children, app)

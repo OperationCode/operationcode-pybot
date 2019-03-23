@@ -1,7 +1,7 @@
 from typing import List
 import logging
 from random import randint
-from zipcodes import is_valid
+from zipcodes import is_real
 
 from pybot.endpoints.slack.utils import YELP_TOKEN
 
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class LunchCommand:
     DEFAULT_LUNCH_DISTANCE = 20
     MIN_LUNCH_RANGE = 1
-    AUTH_HEADER = {f'Authorization': f"Bearer {YELP_TOKEN}"}
+    AUTH_HEADER = {f"Authorization": f"Bearer {YELP_TOKEN}"}
 
     def __init__(self, channel: str, user: str, input_text: str, user_name: str):
 
@@ -24,16 +24,16 @@ class LunchCommand:
 
     def get_yelp_request(self):
         return {
-            'url': 'https://api.yelp.com/v3/businesses/search',
-            'params': self.lunch_api_params,
-            'headers': self.AUTH_HEADER
+            "url": "https://api.yelp.com/v3/businesses/search",
+            "params": self.lunch_api_params,
+            "headers": self.AUTH_HEADER,
         }
 
     def select_random_lunch(self, lunch_response: dict) -> dict:
-        location_count = len(lunch_response['businesses'])
+        location_count = len(lunch_response["businesses"])
 
         selected_location = randint(0, location_count - 1)
-        location = lunch_response['businesses'][selected_location]
+        location = lunch_response["businesses"][selected_location]
 
         logger.info(f"location selected for {self.user_name}: {location}")
 
@@ -44,20 +44,16 @@ class LunchCommand:
     def _parse_input(self) -> dict:
         if not self.input_text:
             return {
-                'location': self._random_zip(),
-                'range': self._convert_to_meters(self.DEFAULT_LUNCH_DISTANCE),
-                'term': 'lunch'
+                "location": self._random_zip(),
+                "range": self._convert_to_meters(self.DEFAULT_LUNCH_DISTANCE),
+                "term": "lunch",
             }
 
         else:
             split_items = self.input_text.split()
             zipcode = self._get_zipcode(split_items[0])
             distance = self._get_distance(split_items)
-            return {
-                'location': zipcode,
-                'range': distance,
-                'term': 'lunch'
-            }
+            return {"location": zipcode, "range": distance, "term": "lunch"}
 
     def _get_distance(self, split_items: List[str]):
         distance_index = min(len(split_items), 2) - 1
@@ -71,15 +67,20 @@ class LunchCommand:
         return self._convert_to_meters(distance)
 
     def _build_response_text(self, loc_dict: dict) -> dict:
-        return {'user': self.user_id, 'channel': self.channel_id,
-                'text': (f'The Wheel of Lunch has selected {loc_dict["name"]} ' +
-                         f'at {" ".join(loc_dict["location"]["display_address"])}')}
+        return {
+            "user": self.user_id,
+            "channel": self.channel_id,
+            "text": (
+                    f'The Wheel of Lunch has selected {loc_dict["name"]} '
+                    + f'at {" ".join(loc_dict["location"]["display_address"])}'
+            ),
+        }
 
     @classmethod
     def _get_zipcode(cls, zipcode: str) -> int:
         try:
 
-            if is_valid(zipcode):
+            if is_real(zipcode):
                 return int(zipcode)
         except TypeError:
             pass
@@ -94,7 +95,7 @@ class LunchCommand:
         :rtype: str
         """
         random_zip = 0
-        while not is_valid(str(random_zip)):
+        while not is_real(str(random_zip)):
             range_start = 10 ** 4
             range_end = (10 ** 5) - 1
             random_zip = randint(range_start, range_end)
@@ -122,19 +123,19 @@ class LunchCommand:
         return int(distance * 1609.34)
 
 
-if __name__ == '__main__':
-    channel_id = 'AAAAAAAA'
-    user_id = 'BBBBBBB'
-    user_name = 'DDDDDDDD'
+if __name__ == "__main__":
+    channel_id = "AAAAAAAA"
+    user_id = "BBBBBBB"
+    user_name = "DDDDDDDD"
 
-    single_valid = '80020'
-    single_invalid = '12'
-    double_valid = '27051 12'
-    double_invalid_zip = '12 12'
-    double_invalid_distance = '27545 100000'
-    double_invalid_both = '20 1000000'
-    double_invalid_both_again = 'abc abc'
-    double_invalid_both_again_again = 'abc 01210'
-    float_valid = '80020 0.5'
-    float_invalid = '80020 0.3'
+    single_valid = "80020"
+    single_invalid = "12"
+    double_valid = "27051 12"
+    double_invalid_zip = "12 12"
+    double_invalid_distance = "27545 100000"
+    double_invalid_both = "20 1000000"
+    double_invalid_both_again = "abc abc"
+    double_invalid_both_again_again = "abc 01210"
+    float_valid = "80020 0.5"
+    float_invalid = "80020 0.3"
     lunch = LunchCommand(channel_id, user_id, float_valid, user_name)

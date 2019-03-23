@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class AirtableAPI:
-    API_ROOT = 'https://api.airtable.com/v0/'
+    API_ROOT = "https://api.airtable.com/v0/"
     record_id_to_name = defaultdict(dict)
 
     def __init__(self, session, api_key, base_key):
@@ -16,26 +16,26 @@ class AirtableAPI:
         self.base_key = base_key
 
     async def get(self, url, **kwargs):
-        auth_header = {f'Authorization': f"Bearer {self.api_key}"}
+        auth_header = {f"Authorization": f"Bearer {self.api_key}"}
 
         async with self.session.get(url, headers=auth_header, **kwargs) as r:
             return await r.json()
 
     async def patch(self, url, **kwargs):
-        auth_header = {f'authorization': f"Bearer {self.api_key}"}
+        auth_header = {f"authorization": f"Bearer {self.api_key}"}
         async with self.session.patch(url, headers=auth_header, **kwargs) as r:
             r.raise_for_status()
             return await r.json()
 
     async def post(self, url, **kwargs):
-        auth_header = {f'authorization': f"Bearer {self.api_key}"}
+        auth_header = {f"authorization": f"Bearer {self.api_key}"}
         async with self.session.post(url, headers=auth_header, **kwargs) as r:
             return await r.json()
 
     def table_url(self, table_name, record_id=None):
-        url = f'{self.API_ROOT}{self.base_key}/{table_name}'
+        url = f"{self.API_ROOT}{self.base_key}/{table_name}"
         if record_id:
-            url += f'/{record_id}'
+            url += f"/{record_id}"
         return url
 
     async def get_name_from_record_id(self, table_name: str, record_id):
@@ -43,45 +43,54 @@ class AirtableAPI:
             return self.record_id_to_name[table_name][record_id]
 
         url = self.table_url("Services")
-        params = {'fields[]': 'Name'}
+        params = {"fields[]": "Name"}
         res_json = await self.get(url, params=params)
-        records = res_json['records']
-        self.record_id_to_name[table_name] = {record['id']: record['fields']['Name'] for record in records}
+        records = res_json["records"]
+        self.record_id_to_name[table_name] = {
+            record["id"]: record["fields"]["Name"] for record in records
+        }
         return self.record_id_to_name[table_name][record_id]
 
     async def get_row_from_record_id(self, table_name: str, record_id: str) -> dict:
         url = self.table_url(table_name, record_id)
         try:
             res_json = await self.get(url)
-            return res_json['fields']
+            return res_json["fields"]
         except Exception as ex:
             return {}
 
     async def get_all_records(self, table_name, field=None):
         url = self.table_url(table_name)
         if field:
-            params = {'fields[]': field}
+            params = {"fields[]": field}
             res_json = await self.get(url, params=params)
-            return [record['fields'][field] for record in res_json['records']]
+            return [record["fields"][field] for record in res_json["records"]]
         else:
             res_json = await self.get(url)
-            return res_json['records']
+            return res_json["records"]
 
     async def find_mentors_with_matching_skillsets(self, skillsets):
         url = self.table_url("Mentors")
-        params = MultiDict([('fields', 'Email'), ('fields', 'Skillsets'), ('fields', 'Slack Name')])
-        skillsets = skillsets.split(',')
+        params = MultiDict(
+            [("fields", "Email"), ("fields", "Skillsets"), ("fields", "Slack Name")]
+        )
+        skillsets = skillsets.split(",")
         response = await self.get(url, params=params)
-        mentors = response['records']
+        mentors = response["records"]
         partial_match = []
         complete_match = []
         try:
             for mentor in mentors:
-                if all(skillset in mentor['fields']['Skillsets'] for skillset in skillsets):
-                    complete_match.append(mentor['fields'])
-                if any(mentor['fields'] not in complete_match and
-                       skillset in mentor['fields']['Skillsets'] for skillset in skillsets):
-                    partial_match.append(mentor['fields'])
+                if all(
+                    skillset in mentor["fields"]["Skillsets"] for skillset in skillsets
+                ):
+                    complete_match.append(mentor["fields"])
+                if any(
+                    mentor["fields"] not in complete_match
+                    and skillset in mentor["fields"]["Skillsets"]
+                    for skillset in skillsets
+                ):
+                    partial_match.append(mentor["fields"])
         except Exception as e:
             return []
 
@@ -97,17 +106,16 @@ class AirtableAPI:
 
         try:
             response = await self.get(url, params=params)
-            return response['records']
+            return response["records"]
         except Exception as ex:
-            logger.exception('Exception when attempting to get mentor id from slack email.', ex)
+            logger.exception(
+                "Exception when attempting to get mentor id from slack email.", ex
+            )
             return []
 
     async def update_request(self, request_record, mentor_id):
         url = self.table_url("Mentor Request", request_record)
-        data = {
-            "fields": {
-                "Mentor Assigned": [mentor_id] if mentor_id else None
-            }}
+        data = {"fields": {"Mentor Assigned": [mentor_id] if mentor_id else None}}
         return await self.patch(url, json=data)
 
     async def add_record(self, table, json):

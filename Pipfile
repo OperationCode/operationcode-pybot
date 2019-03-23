@@ -15,8 +15,6 @@ cchardet = "*"
 zipcodes = "*"
 
 [dev-packages]
-flake8 = "*"
-flake8-quotes = "*"
 requests = "*"
 pytest = "*"
 pytest-mock = "*"

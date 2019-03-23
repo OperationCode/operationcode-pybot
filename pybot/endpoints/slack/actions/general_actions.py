@@ -2,7 +2,11 @@ from sirbot import SirBot
 from slack import methods
 from slack.actions import Action
 
-from pybot.endpoints.slack.utils.action_messages import claimed_attachment, base_response, not_claimed_attachment
+from pybot.endpoints.slack.utils.action_messages import (
+    claimed_attachment,
+    base_response,
+    not_claimed_attachment,
+)
 
 
 async def claimed(action: Action, app: SirBot):
@@ -12,16 +16,16 @@ async def claimed(action: Action, app: SirBot):
     Simply updates the button to allow resets and displays the user and time it was clicked.
     """
     response = base_response(action)
-    user_id = action['user']['id']
+    user_id = action["user"]["id"]
 
-    attachments = action['original_message']['attachments']
+    attachments = action["original_message"]["attachments"]
 
     for index, attachment in enumerate(attachments):
-        if 'callback_id' in attachment and attachment['callback_id'] == 'claimed':
+        if "callback_id" in attachment and attachment["callback_id"] == "claimed":
             attachments[index] = claimed_attachment(user_id)
-    response['attachments'] = attachments
+    response["attachments"] = attachments
 
-    await app.plugins['slack'].api.query(methods.CHAT_UPDATE, response)
+    await app.plugins["slack"].api.query(methods.CHAT_UPDATE, response)
 
 
 async def reset_claim(action: Action, app: SirBot):
@@ -32,10 +36,10 @@ async def reset_claim(action: Action, app: SirBot):
     """
     response = base_response(action)
 
-    attachments = action['original_message']['attachments']
+    attachments = action["original_message"]["attachments"]
     for index, attachment in enumerate(attachments):
-        if 'callback_id' in attachment and attachment['callback_id'] == 'claimed':
+        if "callback_id" in attachment and attachment["callback_id"] == "claimed":
             attachments[index] = not_claimed_attachment()
 
-    response['attachments'] = attachments
-    await app.plugins['slack'].api.query(methods.CHAT_UPDATE, response)
+    response["attachments"] = attachments
+    await app.plugins["slack"].api.query(methods.CHAT_UPDATE, response)
