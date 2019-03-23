@@ -34,7 +34,7 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command("/report", slash_report, wait=False)
     plugin.on_command("/ticket", slash_ticket, wait=False)
     plugin.on_command("/roll", slash_roll, wait=False)
-    plugin.on_command('/mentor', slash_mentor, wait=False)
+    plugin.on_command("/mentor", slash_mentor, wait=False)
 
 
 @catch_command_slack_error
@@ -106,7 +106,7 @@ async def slash_here(command: Command, app: SirBot):
 
     logger.debug(f"/here params: {params}, /here headers {headers}")
     async with app.http_session.get(
-            f"http://{PYBACK_HOST}:{PYBACK_PORT}/api/mods/", params=params, headers=headers
+        f"http://{PYBACK_HOST}:{PYBACK_PORT}/api/mods/", params=params, headers=headers
     ) as r:
 
         logger.debug(f"pyback response status: {r.status}")

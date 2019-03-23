@@ -103,6 +103,7 @@ def mentor_request_attachments(services, mentors, skillsets):
         },
         {
             "callback_id": "mentor_request_submit",
+            "pretext": ":warning: This is only a test.  Please use the current request form :warning:",
             "fallback": "Mentor Request",
             "actions": [
                 {

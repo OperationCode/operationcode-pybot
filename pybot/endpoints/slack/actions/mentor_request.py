@@ -35,6 +35,7 @@ async def mentor_request_submit(action: Action, app: SirBot):
     #     await request.submission_error(airtable_response, slack)
     # else:
     #     await request.submission_complete(slack)
+    await request.submission_complete(slack)
 
 
 async def cancel_mentor_request(action: Action, app: SirBot):
