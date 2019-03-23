@@ -1,7 +1,6 @@
 import os
 import yaml
 import logging.config
-from aiohttp.web_response import Response
 from raven.conf import setup_logging
 from raven.handlers.logging import SentryHandler
 from raven.processors import SanitizePasswordsProcessor
@@ -9,6 +8,7 @@ from sirbot.plugins.slack import SlackPlugin
 from sirbot import SirBot
 import raven
 
+from pybot.endpoints import handle_health_check
 from . import endpoints
 from .plugins import AirtablePlugin
 from pybot.endpoints.slack.utils import PORT, HOST
@@ -34,7 +34,9 @@ if __name__ == "__main__":
         with open(
             os.path.join(os.path.dirname(os.path.realpath(__file__)), "../logging.yml")
         ) as log_configfile:
-            logging.config.dictConfig(yaml.load(log_configfile.read()))
+            logging.config.dictConfig(
+                yaml.load(log_configfile.read(), Loader=yaml.SafeLoader)
+            )
     except Exception as e:
         logging.basicConfig(level=logging.DEBUG)
         logger.exception(e)
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     bot.load_plugin(airtable)
 
     # Add route to respond to AWS health check
-    bot.router.add_get("/health", lambda request: Response(status=200))
+    bot.router.add_get("/health", handle_health_check)
     logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
 
     bot.start(host=HOST, port=PORT, print=logger.info)

@@ -1,3 +1,4 @@
+import functools
 import logging
 from collections import defaultdict
 
@@ -99,7 +100,7 @@ class AirtableAPI:
 
         return complete_match or partial_match
 
-    async def find_records(self, table_name, field, value: str) -> list:
+    async def find_records(self, table_name: str, field: str, value: str) -> list:
         url = self.table_url(table_name)
 
         params = {"filterByFormula": f"FIND(LOWER('{value}'), LOWER({{{field}}}))"}
@@ -109,7 +110,7 @@ class AirtableAPI:
             return response["records"]
         except Exception as ex:
             logger.exception(
-                "Exception when attempting to get mentor id from slack email.", ex
+                f"Exception when attempting to get {field} from {table_name}.", ex
             )
             return []
 

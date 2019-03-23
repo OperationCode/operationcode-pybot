@@ -65,7 +65,7 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "text": "Specific Mentor",
                     "name": "mentor",
                     "options": [
-                        *[{"text": mentor, "value": mentor} for mentor in mentors],
+                        {"text": mentor, "value": mentor} for mentor in mentors
                     ],
                 },
                 {

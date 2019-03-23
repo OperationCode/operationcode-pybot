@@ -15,7 +15,6 @@ cchardet = "*"
 zipcodes = "*"
 
 [dev-packages]
-requests = "*"
 pytest = "*"
 pytest-mock = "*"
 pytest-asyncio = "*"
