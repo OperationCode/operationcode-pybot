@@ -1,4 +1,3 @@
-import functools
 import logging
 import random
 
@@ -6,7 +5,6 @@ from sirbot import SirBot
 from sirbot.plugins.slack import SlackPlugin
 from slack import methods
 from slack.commands import Command
-from slack.exceptions import SlackAPIError
 
 from pybot.endpoints.slack.message_templates.commands import (
     ticket_dialog,
@@ -23,6 +21,7 @@ from pybot.endpoints.slack.utils.command_utils import (
     get_slash_here_messages,
     get_slash_repeat_messages,
 )
+from pybot.endpoints.slack.utils.general_utils import catch_command_slack_error
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
 
 logger = logging.getLogger(__name__)
@@ -38,43 +37,7 @@ def create_endpoints(plugin: SlackPlugin):
     # plugin.on_command('/mentor', slash_mentor, wait=False)
 
 
-def catch_slack_error(func):
-    """
-    Decorator for wrapping/catching exceptions thrown by
-    the slack client and displaying an error to the user.
-
-    Only necessary (for now) for functions that post messages to
-    slack channels
-    """
-
-    @functools.wraps(func)
-    async def handler(command: Command, app: SirBot, *args, **kwargs):
-        try:
-            await func(command, app, *args, **kwargs)
-
-        except SlackAPIError:
-            channel_id = command["channel_id"]
-            slash_command = command["command"]
-            slack_id = command["user_id"]
-            slack = app["plugins"]["slack"]
-
-            await slack.api.query(
-                methods.CHAT_POST_EPHEMERAL,
-                dict(
-                    user=slack_id,
-                    channel=slack_id,
-                    as_user=True,
-                    text=(
-                        f"Could not post result of `{slash_command}` "
-                        f"to channel <#{channel_id}>"
-                    ),
-                ),
-            )
-
-    return handler
-
-
-@catch_slack_error
+@catch_command_slack_error
 async def slash_mentor(command: Command, app: SirBot):
     airtable = app.plugins["airtable"].api
     services = await airtable.get_all_records("Services", "Name")
@@ -87,7 +50,7 @@ async def slash_mentor(command: Command, app: SirBot):
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
 
 
-@catch_slack_error
+@catch_command_slack_error
 async def slash_ticket(command: Command, app: SirBot):
     trigger_id = command["trigger_id"]
     user_id = command["user_id"]
@@ -106,7 +69,7 @@ async def slash_ticket(command: Command, app: SirBot):
     await app.plugins["slack"].api.query(methods.DIALOG_OPEN, response)
 
 
-@catch_slack_error
+@catch_command_slack_error
 async def slash_report(command: Command, app: SirBot):
     """
     Sends text supplied with the /report command to the moderators channel along
@@ -128,7 +91,7 @@ async def slash_report(command: Command, app: SirBot):
     await slack.query(methods.CHAT_POST_MESSAGE, response)
 
 
-@catch_slack_error
+@catch_command_slack_error
 async def slash_here(command: Command, app: SirBot):
     """
     /here allows admins to give non-admins the ability to use @here-esque functionality for specific channels.
@@ -143,7 +106,7 @@ async def slash_here(command: Command, app: SirBot):
 
     logger.debug(f"/here params: {params}, /here headers {headers}")
     async with app.http_session.get(
-        f"http://{PYBACK_HOST}:{PYBACK_PORT}/api/mods/", params=params, headers=headers
+            f"http://{PYBACK_HOST}:{PYBACK_PORT}/api/mods/", params=params, headers=headers
     ) as r:
 
         logger.debug(f"pyback response status: {r.status}")
@@ -169,7 +132,7 @@ async def slash_here(command: Command, app: SirBot):
     )
 
 
-@catch_slack_error
+@catch_command_slack_error
 async def slash_lunch(command: Command, app: SirBot):
     """
     Provides the user with a random restaurant in their area.
@@ -192,7 +155,7 @@ async def slash_lunch(command: Command, app: SirBot):
         await slack.query(methods.CHAT_POST_EPHEMERAL, message_params)
 
 
-@catch_slack_error
+@catch_command_slack_error
 async def slash_repeat(command: Command, app: SirBot):
     logger.info(f"repeat command data incoming {command}")
     channel_id = command["channel_id"]
@@ -206,23 +169,23 @@ async def slash_repeat(command: Command, app: SirBot):
     await slack.query(method_type, message)
 
 
-@catch_slack_error
+@catch_command_slack_error
 async def slash_roll(command: Command, app: SirBot):
+    """
+    Invoked via the command /roll XdY, where X is an integer between 1 and 10,
+    and y is an integer between 1 and 20.
+
+    Parses the number of dice and the type from the command
+    """
+    slack = app["plugins"]["slack"].api
     slack_id = command["user_id"]
     channel_id = command["channel_id"]
     text = command["text"]
 
-    slack = app["plugins"]["slack"].api
-
-    # parse the type of die and number to roll
     try:
         text = text.lower()
-        numdice, typedice = text.split("d")
-        numdice = int(numdice)
-        typedice = int(typedice)
-        if numdice <= 0 or numdice > 10:
-            raise ValueError
-        if typedice <= 0 or typedice > 20:
+        numdice, typedice = [int(num) for num in text.split("d")]
+        if numdice <= 0 or numdice > 10 or typedice <= 0 or typedice > 20:
             raise ValueError
     except ValueError:
         logger.debug("invalid input to roll: %s", text)
@@ -234,14 +197,9 @@ async def slash_roll(command: Command, app: SirBot):
                 "Should be XDYY where X is the number of dice, and YY is the number of sides"
             ),
         )
-        await slack.query(methods.CHAT_POST_EPHEMERAL, response)
+        return await slack.query(methods.CHAT_POST_EPHEMERAL, response)
 
-        return
-    dice = []
-    for _ in range(0, numdice):
-        dice.append(random.randint(1, typedice + 1))
-
+    dice = [random.randint(1, typedice + 1) for _ in range(numdice)]
     message = f"<@{slack_id}> Rolled {numdice} D{typedice}: {dice}"
-    await slack.query(
-        methods.CHAT_POST_MESSAGE, {"channel": channel_id, "text": message}
-    )
+    response = dict(channel=channel_id, text=message)
+    await slack.query(methods.CHAT_POST_MESSAGE, response)

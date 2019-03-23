@@ -71,8 +71,8 @@ class LunchCommand:
             "user": self.user_id,
             "channel": self.channel_id,
             "text": (
-                    f'The Wheel of Lunch has selected {loc_dict["name"]} '
-                    + f'at {" ".join(loc_dict["location"]["display_address"])}'
+                f'The Wheel of Lunch has selected {loc_dict["name"]} '
+                + f'at {" ".join(loc_dict["location"]["display_address"])}'
             ),
         }
 
