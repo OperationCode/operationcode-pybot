@@ -34,7 +34,7 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command("/report", slash_report, wait=False)
     plugin.on_command("/ticket", slash_ticket, wait=False)
     plugin.on_command("/roll", slash_roll, wait=False)
-    # plugin.on_command('/mentor', slash_mentor, wait=False)
+    plugin.on_command('/mentor', slash_mentor, wait=False)
 
 
 @catch_command_slack_error
