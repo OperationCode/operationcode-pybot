@@ -42,7 +42,7 @@ async def slash_mentor(command: Command, app: SirBot):
     airtable = app.plugins["airtable"].api
     services = await airtable.get_all_records("Services", "Name")
     mentors = await airtable.get_all_records("Mentors", "Full Name")
-    skillsets = await airtable.get_all_records("Skillsets", "Skillset")
+    skillsets = await airtable.get_all_records("Skillsets", "Name")
 
     dialog = mentor_request_attachments(services, mentors, skillsets)
 
