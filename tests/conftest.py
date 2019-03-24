@@ -22,8 +22,8 @@ def action(request):
 
 
 @pytest.fixture
-async def bot(loop):
-    b = SirBot(loop=loop)
+async def bot(loop) -> SirBot:
+    b = SirBot()
     slack = SlackPlugin(
         token='token',
         verify='supersecuretoken',
@@ -37,8 +37,9 @@ async def bot(loop):
 
     return b
 
+
 @pytest.fixture
-async def slack_bot(bot):
+async def slack_bot(bot: SirBot):
     slack = SlackPlugin(
         token='token',
         verify='supersecuretoken',
@@ -47,3 +48,4 @@ async def slack_bot(bot):
     )
     endpoints.slack.create_endpoints(slack)
     bot.load_plugin(slack)
+    return bot

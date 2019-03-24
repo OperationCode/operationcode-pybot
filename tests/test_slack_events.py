@@ -17,7 +17,7 @@ async def test_team_join_handler_exists(bot):
     )
 
 
-async def test_team_join_waits_30_seconds(bot, test_client):
+async def test_team_join_waits_30_seconds(bot, aiohttp_client):
     asyncio.sleep = CoroutineMock()
     create_endpoints(bot['plugins']['slack'])
     bot['plugins']['slack'] = CoroutineMock()
@@ -26,24 +26,24 @@ async def test_team_join_waits_30_seconds(bot, test_client):
     asyncio.sleep.assert_awaited_with(30)
 
 
-async def test_edits_are_logged(bot, test_client, caplog):
-    client = await test_client(bot)
+async def test_edits_are_logged(bot, aiohttp_client, caplog):
+    client = await aiohttp_client(bot)
 
     with caplog.at_level(logging.INFO):
         await client.post('/slack/events', json=MESSAGE_EDIT)
     assert any('CHANGE_LOGGING: edited' in record.message for record in caplog.records)
 
 
-async def test_deletes_are_logged(bot, test_client, caplog):
-    client = await test_client(bot)
+async def test_deletes_are_logged(bot, aiohttp_client, caplog):
+    client = await aiohttp_client(bot)
 
     with caplog.at_level(logging.INFO):
         await client.post('/slack/events', json=MESSAGE_DELETE)
     assert any('CHANGE_LOGGING: deleted' in record.message for record in caplog.records)
 
 
-async def test_no_other_messages_logged(bot, test_client, caplog):
-    client = await test_client(bot)
+async def test_no_other_messages_logged(bot, aiohttp_client, caplog):
+    client = await aiohttp_client(bot)
 
     with caplog.at_level(logging.INFO):
         await client.post('/slack/events', json=PLAIN_MESSAGE)
