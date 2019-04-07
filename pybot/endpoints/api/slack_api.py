@@ -55,10 +55,9 @@ async def invite(request: SlackApiRequest, app: SirBot):
 
     except SlackAPIError as e:
         logger.info("Slack invite resulted in SlackAPIError: " + e.error)
-        if e.data["error"] == "already_invited":
-            return e.data
-        else:
+        if e.error != "already_invited" and e.error != "already_in_team":
             await handle_slack_invite_error(email, e, slack)
+        return e.data
 
     except Exception as e:
         logger.exception(e)
