@@ -178,6 +178,7 @@ class MentorRequestClaim(Action):
         super().__init__(raw_action)
         self.slack = slack
         self.airtable = airtable
+        self.text = raw_action["original_message"]["text"]
         self.attachment = raw_action["original_message"]["attachments"][0]
         self.should_update = True
 
@@ -256,6 +257,7 @@ class MentorRequestClaim(Action):
         response = {
             "channel": self["channel"]["id"],
             "ts": self["message_ts"],
+            "text": self.text,
             "attachments": self["original_message"]["attachments"],
         }
         await self.slack.query(methods.CHAT_UPDATE, response)
