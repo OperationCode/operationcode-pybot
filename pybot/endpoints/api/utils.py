@@ -12,8 +12,8 @@ from pybot.endpoints.slack.utils.action_messages import (
 
 
 async def _slack_info_from_email(
-    email: str, slack: SlackAPI, fallback: Optional[str] = None
-):
+    email: str, slack: SlackAPI, fallback: Optional[dict] = None
+) -> dict:
     try:
         response = await slack.query(
             url=ROOT_URL + "users.lookupByEmail", data={"email": email}
@@ -55,7 +55,21 @@ def invite_failure_attachments(email: str, error: str) -> list:
 
 
 async def handle_slack_invite_error(email, error, slack):
+    if error.error == "already_invited":
+        return error.data
+
     attachments = invite_failure_attachments(email, error)
+
+    if error.error == "already_in_team":
+        slack_user = await _slack_info_from_email(email, slack)
+        attachments[0]["fields"].append(
+            {
+                "title": "Slack Username",
+                "value": f"<@{slack_user['id']}>",
+                "short": True,
+            }
+        )
+
     response = {
         "channel": TICKET_CHANNEL,
         "attachments": attachments,
