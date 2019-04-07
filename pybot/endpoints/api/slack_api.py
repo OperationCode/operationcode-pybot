@@ -39,7 +39,8 @@ async def invite(request: SlackApiRequest, app: SirBot):
 
     :return: The request response from slack
     """
-    slack = app.plugins["admin_slack"].api
+    admin_slack = app.plugins["admin_slack"].api
+    slack = app.plugins["slack"].api
     body = await request.json()
 
     if "email" not in body:
@@ -47,7 +48,7 @@ async def invite(request: SlackApiRequest, app: SirBot):
     email = body["email"]
 
     try:
-        response = await slack.query(
+        response = await admin_slack.query(
             url=ROOT_URL + "users.admin.invite", data={"email": email}
         )
         return response
