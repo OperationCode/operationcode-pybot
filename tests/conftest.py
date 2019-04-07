@@ -11,8 +11,7 @@ from tests import data
 pytest_plugins = ("slack.tests.plugin",)
 
 
-@pytest.fixture(
-    params={**data.Action.__members__})
+@pytest.fixture(params={**data.Action.__members__})
 def action(request):
     if isinstance(request.param, str):
         payload = copy.deepcopy(data.Action[request.param].value)
@@ -22,13 +21,13 @@ def action(request):
 
 
 @pytest.fixture
-async def bot(loop) -> SirBot:
+def bot(loop) -> SirBot:
     b = SirBot()
     slack = SlackPlugin(
-        token='token',
-        verify='supersecuretoken',
-        bot_user_id='bot_user_id',
-        bot_id='bot_id',
+        token="token",
+        verify="supersecuretoken",
+        bot_user_id="bot_user_id",
+        bot_id="bot_id",
     )
     airtable = AirtablePlugin()
     endpoints.slack.create_endpoints(slack)
@@ -39,12 +38,12 @@ async def bot(loop) -> SirBot:
 
 
 @pytest.fixture
-async def slack_bot(bot: SirBot):
+def slack_bot(bot: SirBot):
     slack = SlackPlugin(
-        token='token',
-        verify='supersecuretoken',
-        bot_user_id='bot_user_id',
-        bot_id='bot_id',
+        token="token",
+        verify="supersecuretoken",
+        bot_user_id="bot_user_id",
+        bot_id="bot_id",
     )
     endpoints.slack.create_endpoints(slack)
     bot.load_plugin(slack)

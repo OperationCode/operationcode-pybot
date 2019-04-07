@@ -10,7 +10,7 @@ import raven
 
 from pybot.endpoints import handle_health_check
 from . import endpoints
-from .plugins import AirtablePlugin
+from .plugins import AirtablePlugin, APIPlugin
 from pybot.endpoints.slack.utils import PORT, HOST
 from pybot.endpoints.slack.utils import slack_configs
 
@@ -50,9 +50,18 @@ if __name__ == "__main__":
     endpoints.slack.create_endpoints(slack)
     bot.load_plugin(slack)
 
+    admin_configs = dict(**slack_configs)
+    admin_configs["token"] = os.environ.get("APP_ADMIN_OAUTH_TOKEN")
+    admin_slack = SlackPlugin(**admin_configs)
+    bot.load_plugin(admin_slack, name="admin_slack")
+
     airtable = AirtablePlugin()
     endpoints.airtable.create_endpoints(airtable)
     bot.load_plugin(airtable)
+
+    api_plugin = APIPlugin()
+    endpoints.api.create_endpoints(api_plugin)
+    bot.load_plugin(api_plugin)
 
     # Add route to respond to AWS health check
     bot.router.add_get("/health", handle_health_check)
