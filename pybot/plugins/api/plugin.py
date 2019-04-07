@@ -17,7 +17,12 @@ class APIPlugin:
     def load(self, sirbot):
         self.session = sirbot.http_session
 
-        sirbot.router.add_route("GET", "/pybot/api/v1/slack/{resource}", endpoints.slack_api)
+        sirbot.router.add_route(
+            "GET", "/pybot/api/v1/slack/{resource}", endpoints.slack_api
+        )
+        sirbot.router.add_route(
+            "POST", "/pybot/api/v1/slack/{resource}", endpoints.slack_api
+        )
 
     def on_get(self, request, handler, **kwargs):
         if not asyncio.iscoroutinefunction(handler):

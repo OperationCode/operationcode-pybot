@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 from typing import MutableMapping
 
@@ -29,13 +30,11 @@ class SlackApiRequest(MutableMapping):
     def authorized(self):
         return self.token is not None and self.token in self.auth_tokens
 
-    @staticmethod
-    def __get_token(raw_request):
-        if "Authorization" in raw_request.headers:
-            auth_header = raw_request.headers["Authorization"]
-            if auth_header.startswith("Bearer "):
-                return auth_header[7:]
-        return None
+    async def json(self):
+        if self.request.can_read_body:
+            return await self.request.json()
+        else:
+            return {}
 
     @classmethod
     def from_request(cls, raw_request):
@@ -43,6 +42,14 @@ class SlackApiRequest(MutableMapping):
         query = raw_request.query
 
         return cls(raw_request, resource, query)
+
+    @staticmethod
+    def __get_token(raw_request):
+        if "Authorization" in raw_request.headers:
+            auth_header = raw_request.headers["Authorization"]
+            if auth_header.startswith("Bearer "):
+                return auth_header[7:]
+        return None
 
     def __getitem__(self, item):
         return self.request[item]

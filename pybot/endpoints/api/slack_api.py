@@ -1,20 +1,22 @@
 import logging
+
 from sirbot import SirBot
 from slack import ROOT_URL
 from slack.exceptions import SlackAPIError
-from aiohttp.web_request import Request
 
-from pybot.endpoints.api.utils import _slack_info_from_email
+from pybot.endpoints.api.utils import _slack_info_from_email, handle_slack_invite_error
+from pybot.plugins import APIPlugin
+from pybot.plugins.api.request import SlackApiRequest
 
 logger = logging.getLogger(__name__)
 
 
-def create_endpoints(plugin):
+def create_endpoints(plugin: APIPlugin):
     plugin.on_get("verify", verify, wait=True)
     plugin.on_get("invite", invite, wait=True)
 
 
-async def verify(request: Request, app: SirBot) -> any:
+async def verify(request: SlackApiRequest, app: SirBot) -> dict:
     """
     Verifies whether a user exists in the configured slack group with
     the given email
@@ -30,23 +32,34 @@ async def verify(request: Request, app: SirBot) -> any:
     return {"exists": False}
 
 
-async def invite(request: Request, app: SirBot):
+async def invite(request: SlackApiRequest, app: SirBot):
     """
     Pulls an email out of the querystring and sends it an invite
     to the slack team
 
     :return: The request response from slack
     """
-    try:
-        slack = app.plugins["admin_slack"].api
-        email = request.query["email"]
+    slack = app.plugins["admin_slack"].api
+    body = await request.json()
 
+    if "email" not in body:
+        return {"error": "Must contain `email` JSON value"}
+    email = body["email"]
+
+    try:
         response = await slack.query(
             url=ROOT_URL + "users.admin.invite", data={"email": email}
         )
-        # logger.info("Response from slack: ", response)
         return response
 
     except SlackAPIError as e:
-        logger.info(e)
-        return e.data
+        logger.info("Slack invite resulted in SlackAPIError: " + e.error)
+        if e.data["error"] == "already_invited":
+            return e.data
+        else:
+            await handle_slack_invite_error(email, e, slack)
+
+    except Exception as e:
+        logger.exception(e)
+        await handle_slack_invite_error(email, e, slack)
+        return e
