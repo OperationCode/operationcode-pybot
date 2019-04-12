@@ -19,6 +19,7 @@ BOT_URL = "https://github.com/OperationCode/operationcode-pybot"
 
 slack_configs = {
     "token": os.environ.get("BOT_OATH_TOKEN"),
+    "signing_secret": os.environ.get("SLACK_SIGNING_SECRET"),
     "verify": os.environ.get("VERIFICATION_TOKEN"),
     "bot_id": os.environ.get("SLACK_BOT_ID"),
     "bot_user_id": os.environ.get("SLACK_BOT_ID"),
