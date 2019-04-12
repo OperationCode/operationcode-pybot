@@ -4,20 +4,18 @@ import logging
 
 from aiohttp.web_response import Response
 
-from pybot.plugins.api.request import SlackApiRequest
+from pybot.plugins.api.request import SlackApiRequest, FailedVerification
 
 logger = logging.getLogger(__name__)
 
 
 async def slack_api(request):
     api_plugin = request.app.plugins["api"]
-    slack_request = SlackApiRequest.from_request(request)
 
-    if not slack_request.authorized:
-        logger.info(
-            f"Received unauthorized request Request: {slack_request} Token: {slack_request.token}"
-        )
-        return Response(status=403)
+    try:
+        slack_request = SlackApiRequest.from_request(request)
+    except FailedVerification:
+        return Response(status=401)
 
     futures = list(_dispatch(api_plugin.routers["slack"], slack_request, request.app))
 

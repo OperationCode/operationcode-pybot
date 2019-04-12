@@ -17,8 +17,8 @@ VALID_SLACK_RESPONSE = CoroutineMock(
     "headers, status",
     [
         ({"Authorization": "Bearer devBackendToken"}, 200),
-        ({"Authorization": "Bearer abc"}, 403),
-        (None, 403),
+        ({"Authorization": "Bearer abc"}, 401),
+        (None, 401),
     ],
 )
 async def test_detect_credentials(bot: SirBot, aiohttp_client, headers, status):

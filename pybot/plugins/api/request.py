@@ -1,5 +1,4 @@
 import copy
-import json
 import os
 from typing import MutableMapping
 
@@ -25,6 +24,9 @@ class SlackApiRequest(MutableMapping):
         self.resource = resource
         self.query = query
         self.token = self.__get_token(raw_request)
+
+        if not self.authorized:
+            raise FailedVerification(self.token)
 
     @property
     def authorized(self):
@@ -75,3 +77,12 @@ class SlackApiRequest(MutableMapping):
             copy.deepcopy(self.resource),
             copy.deepcopy(self.query),
         )
+
+
+class FailedVerification(Exception):
+    """
+    Raised when incoming API request fails verification
+    """
+
+    def __init__(self, token: str) -> None:
+        self.token = token
