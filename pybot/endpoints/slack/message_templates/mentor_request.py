@@ -155,8 +155,7 @@ class MentorRequest(Action):
     def submission_complete(self, slack: SlackAPI):
         done_attachment = self.attachments[AttachmentIndex.SUBMIT]
 
-        # done_attachment["text"] = "Request submitted successfully!"
-        done_attachment["text"] = "Request submitted successfully! (not really)"
+        done_attachment["text"] = "Request submitted successfully!"
         done_attachment["actions"] = [
             {"type": "button", "text": "Dismiss", "name": "cancel", "value": "cancel"}
         ]

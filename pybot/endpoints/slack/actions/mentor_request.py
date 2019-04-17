@@ -27,15 +27,12 @@ async def mentor_request_submit(action: Action, app: SirBot):
     user_info = await slack.query(methods.USERS_INFO, {"user": action["user"]["id"]})
     email = user_info["user"]["profile"]["email"]
 
-    # Submission disabled for testing the rest of the workflow in prod
+    airtable_response = await request.submit_request(username, email, airtable)
 
-    # airtable_response = await request.submit_request(username, email, airtable)
-    #
-    # if "error" in airtable_response:
-    #     await request.submission_error(airtable_response, slack)
-    # else:
-    #     await request.submission_complete(slack)
-    await request.submission_complete(slack)
+    if "error" in airtable_response:
+        await request.submission_error(airtable_response, slack)
+    else:
+        await request.submission_complete(slack)
 
 
 async def cancel_mentor_request(action: Action, app: SirBot):
