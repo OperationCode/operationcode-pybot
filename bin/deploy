@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 TRAVIS_BRANCH_UPPERCASE=$(echo $TRAVIS_BRANCH | awk '{print toupper($0)}')
 
 CLUSTER_NAME=ECS_CLUSTER_${TRAVIS_BRANCH_UPPERCASE}
