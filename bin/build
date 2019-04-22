@@ -4,14 +4,7 @@ set -eu
 # import util functions
 source "${SCRIPTDIR}/../lib/util.sh"
 
-if [ "$?" = "0" ]; then
-  echo "Building Docker image..."
-  runCommand "docker build -t $IMAGE_NAME -f docker/Dockerfile ." || exit $?
-  echo "Pushing image $IMAGE_NAME:$TRAVIS_BRANCH"
-  runCommand publish
-  echo "Successfully built and pushed $IMAGE_NAME"
-else
-  echo "Failed to log in to AWS, exiting"
-  exit 1
-fi
+echo "Building Docker image..."
+runCommand "docker build -t $IMAGE_NAME -f docker/Dockerfile ." || exit $?
+echo "Pushing image $IMAGE_NAME:$TRAVIS_BRANCH"
 
