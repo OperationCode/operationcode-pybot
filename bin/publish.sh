@@ -23,7 +23,7 @@ if [[ -n "$DOCKER_USERNAME" ]] && [[ -n "$DOCKER_PASSWORD" ]]; then
 fi
 
 echo "Pushing image $IMAGE_NAME:$TRAVIS_BRANCH"
-docker tag ${IMAGE_ID} ${DOCKER_REPO}
+#docker tag ${IMAGE_ID} ${DOCKER_REPO}
 docker tag ${IMAGE_ID} ${DOCKER_REPO}:${TRAVIS_BUILD_NUMBER}
 #docker push ${DOCKER_REPO}
 docker push ${DOCKER_REPO}:${TRAVIS_BUILD_NUMBER}
