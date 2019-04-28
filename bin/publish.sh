@@ -6,7 +6,7 @@
 
 set -eu
 
-DOCKER_REPO="operationcode/pybot"
+DOCKER_REPO="operationcodetest/pybot"
 
 IMAGE_ID=$(docker images $IMAGE_NAME:latest --format "{{.ID}}")
 
