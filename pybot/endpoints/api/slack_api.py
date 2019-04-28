@@ -4,7 +4,11 @@ from sirbot import SirBot
 from slack import ROOT_URL
 from slack.exceptions import SlackAPIError
 
-from pybot.endpoints.api.utils import _slack_info_from_email, handle_slack_invite_error
+from pybot.endpoints.api.utils import (
+    _slack_info_from_email,
+    handle_slack_invite_error,
+    production_only,
+)
 from pybot.plugins import APIPlugin
 from pybot.plugins.api.request import SlackApiRequest
 
@@ -32,6 +36,7 @@ async def verify(request: SlackApiRequest, app: SirBot) -> dict:
     return {"exists": False}
 
 
+@production_only
 async def invite(request: SlackApiRequest, app: SirBot):
     """
     Pulls an email out of the querystring and sends it an invite
@@ -39,6 +44,7 @@ async def invite(request: SlackApiRequest, app: SirBot):
 
     :return: The request response from slack
     """
+
     admin_slack = app.plugins["admin_slack"].api
     slack = app.plugins["slack"].api
     body = await request.json()

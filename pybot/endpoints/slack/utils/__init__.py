@@ -15,6 +15,7 @@ PYBACK_PORT = os.environ.get("PYBACK_PORT") or 8000
 PYBACK_TOKEN = os.environ.get("PYBACK_TOKEN") or "token"
 PORT = os.environ.get("SIRBOT_PORT", 5000)
 HOST = os.environ.get("SIRBOT_ADDR", "0.0.0.0")
+PYBOT_ENV = os.environ.get("PYBOT_ENV", "dev")
 BOT_URL = "https://github.com/OperationCode/operationcode-pybot"
 
 slack_configs = {
