@@ -15,7 +15,9 @@ async def slack_api(request):
     try:
         slack_request = SlackApiRequest.from_request(request)
     except FailedVerification:
-        logger.info(f"Failed verification to API route {request.url} from {request.remote}")
+        logger.info(
+            f"Failed verification to API route {request.url} from {request.remote}"
+        )
         return Response(status=401)
 
     futures = list(_dispatch(api_plugin.routers["slack"], slack_request, request.app))

@@ -4,7 +4,7 @@ from slack.io.abc import SlackAPI
 from slack import ROOT_URL
 from typing import Optional
 
-from pybot.endpoints.slack.utils import TICKET_CHANNEL
+from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import (
     TICKET_OPTIONS,
     not_claimed_attachment,
@@ -71,7 +71,7 @@ async def handle_slack_invite_error(email, error, slack):
         )
 
     response = {
-        "channel": TICKET_CHANNEL,
+        "channel": MODERATOR_CHANNEL,
         "attachments": attachments,
         "text": "User Slack Invite Error",
     }
