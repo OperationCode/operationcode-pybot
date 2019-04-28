@@ -7,7 +7,7 @@ BACKEND_AUTH_TOKEN = os.environ.get("BACKEND_AUTH_TOKEN", "devBackendToken")
 
 class SlackApiRequest(MutableMapping):
     """
-    MutableMapping representing an api query request.  Shameless stolen from pyslackers/slack-sansio
+    MutableMapping representing an api query request.  Shamelessly stolen from pyslackers/slack-sansio
 
     Attributes:
         resource: The resource the request was made for (i.e. the last part of the request url)
