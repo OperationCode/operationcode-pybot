@@ -7,9 +7,9 @@ workflows:
   build_test_deploy:
     jobs:
       - build_test
-#      - docker_hub_build_push_image:
-#          requires:
-#            - build_test
+      - docker_hub_build_push_image:
+          requires:
+            - build_test
 #      - aws-ecr/build_and_push_image:
 #          region: ${AWS_REGION}
 #          account-url: ${AWS_ECR_ACCOUNT_URL}
