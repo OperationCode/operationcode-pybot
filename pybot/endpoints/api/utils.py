@@ -93,7 +93,7 @@ def production_only(func):
     staging environments.
     """
 
-    def not_prod(request: SlackApiRequest, app):
+    async def not_prod(request: SlackApiRequest, app):
         logger.info(
             f"Received request on staging to {request.request.raw_path}.  Returning 200"
         )
