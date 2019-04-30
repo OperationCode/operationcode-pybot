@@ -24,6 +24,6 @@ fi
 
 echo "Pushing image $IMAGE_NAME:$TRAVIS_BRANCH"
 #docker tag ${IMAGE_ID} ${DOCKER_REPO}
-docker tag ${IMAGE_ID} ${DOCKER_REPO}:${TRAVIS_BUILD_NUMBER}
+docker tag ${IMAGE_ID} ${DOCKER_REPO}:${TRAVIS_BRANCH}
 #docker push ${DOCKER_REPO}
 docker push ${DOCKER_REPO}:${TRAVIS_BUILD_NUMBER}
