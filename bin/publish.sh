@@ -16,7 +16,7 @@ fi
 
 if [[ -n "$DOCKER_USERNAME" ]] && [[ -n "$DOCKER_PASSWORD" ]]; then
     echo "Logging in using ENV creds"
-    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+    echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
 fi
 
 echo "Pushing image $IMAGE_NAME:$TRAVIS_BRANCH"

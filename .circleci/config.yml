@@ -1,0 +1,67 @@
+version: 2.1
+
+#orbs:
+#  aws-ecr: circleci/aws-ecr@4.0.1
+
+workflows:
+  build_test_deploy:
+    jobs:
+      - build_test
+#      - docker_hub_build_push_image:
+#          requires:
+#            - build_test
+#      - aws-ecr/build_and_push_image:
+#          region: ${AWS_REGION}
+#          account-url: ${AWS_ECR_ACCOUNT_URL}
+#          repo: ${CIRCLE_PROJECT_REPONAME}
+#          tag: ${CIRCLE_BUILD_NUM}
+#          requires:
+#            - build_test
+
+jobs:
+  build_test:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          command: | # use pipenv to install dependencies
+            sudo pip install pipenv
+            pipenv install
+
+      - save_cache:
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
+
+      # Run tests
+      - run: pipenv run pytest
+
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: tr1
+
+  docker_hub_build_push_image:
+    docker:
+      - image: circleci/python:3.7.1
+
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build and push Docker image to Docker Hub
+          command: |
+            echo "todo"
