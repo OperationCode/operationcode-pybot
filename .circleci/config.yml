@@ -1,67 +1,81 @@
 version: 2.1
 
-#orbs:
-#  aws-ecr: circleci/aws-ecr@4.0.1
+orbs:
+  aws-ecr: circleci/aws-ecr@4.0.1
+  aws-ecs: circleci/aws-ecs@0.0.8
+
 
 workflows:
   build_test_deploy:
     jobs:
       - build_test
-#      - docker_hub_build_push_image:
-#          requires:
-#            - build_test
-#      - aws-ecr/build_and_push_image:
-#          region: ${AWS_REGION}
-#          account-url: ${AWS_ECR_ACCOUNT_URL}
-#          repo: ${CIRCLE_PROJECT_REPONAME}
-#          tag: ${CIRCLE_BUILD_NUM}
-#          requires:
-#            - build_test
+
+      # push new Docker image to ECS
+      - aws-ecr/build_and_push_image:
+          repo: pybot
+          tag: staging
+          dockerfile: docker/Dockerfile
+          requires:
+            - build_test
+          filters:
+            branches:
+              only:
+                - master
+                - staging
+
+      # Update ECS task and service, then replace the current one
+      - aws-ecs/deploy-service-update:
+          family: 'pybot-${CIRCLE_BRANCH}'
+          service-name: 'pybot-svc-${CIRCLE_BRANCH}'
+          cluster-name: 'python-oc-services'
+          container-image-name-updates: 'container=pybot,tag=${CIRCLE_BRANCH}'
+          verify-revision-is-deployed: true
+          requires:
+            - aws-ecr/build_and_push_image
+          filters:
+            branches:
+              only:
+                - master
+                - staging
 
 jobs:
   build_test:
     docker:
       - image: circleci/python:3.7.1
+        environment: # environment variables for primary container
+          PIPENV_VENV_IN_PROJECT: true
+
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
 
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
 
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: v1-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
       - run:
-          command: | # use pipenv to install dependencies
+          name: Installing dependencies
+          command: |
             sudo pip install pipenv
-            pipenv install
+            pipenv install --dev
 
       - save_cache:
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: v1-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
             - ".venv"
             - "/usr/local/bin"
-            - "/usr/local/lib/python3.6/site-packages"
+            - "/usr/local/lib/python3.7/site-packages"
 
       # Run tests
-      - run: pipenv run pytest
+      - run:
+          name: Run Tests
+          command: |
+            mkdir test-results
+            pipenv run pytest --junitxml=test-reports/junit.xml
 
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
           destination: tr1
-
-  docker_hub_build_push_image:
-    docker:
-      - image: circleci/python:3.7.1
-
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-
-      - run:
-          name: Build and push Docker image to Docker Hub
-          command: |
-            echo "todo"
