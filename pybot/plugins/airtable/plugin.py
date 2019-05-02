@@ -23,9 +23,9 @@ class AirtablePlugin:
 
     def load(self, sirbot, api_key=None, base_key=None, verify=None):
         self.session = sirbot.http_session
-        self.api_key = api_key or os.environ["AIRTABLE_API_KEY"]
-        self.base_key = base_key or os.environ["AIRTABLE_BASE_KEY"]
-        self.verify = verify or os.environ["AIRTABLE_VERIFY"]
+        self.api_key = api_key or os.environ.get("AIRTABLE_API_KEY", "")
+        self.base_key = base_key or os.environ.get("AIRTABLE_BASE_KEY", "")
+        self.verify = verify or os.environ.get("AIRTABLE_VERIFY", "")
 
         self.api = AirtableAPI(self.session, self.api_key, self.base_key)
 
