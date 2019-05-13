@@ -5,7 +5,7 @@ formatters:
     format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 filters:
   messages:
-    (): 'pybot.logging.SlackMessageFilter'
+    (): 'pybot.customLogging.SlackMessageFilter'
 
 handlers:
   console:
