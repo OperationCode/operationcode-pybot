@@ -13,15 +13,15 @@ workflows:
       # push new Docker image to ECS
       - aws-ecr/build_and_push_image:
           repo: pybot
-          tag: staging
+          tag: '${CIRCLE_BRANCH}'
           dockerfile: docker/Dockerfile
           requires:
             - build_test
           filters:
             branches:
               only:
-                - master
                 - staging
+                - master
 
       # Update ECS task and service, then replace the current one
       - aws-ecs/deploy-service-update:
