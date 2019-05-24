@@ -46,7 +46,13 @@ async def slash_mentor(command: Command, app: SirBot):
 
     dialog = mentor_request_attachments(services, mentors, skillsets)
 
-    response = {"attachments": dialog, "channel": command["user_id"], "as_user": True}
+    response = {
+        "attachments": dialog,
+        "channel": command["user_id"],
+        "as_user": True,
+        "text": "Thank you for signing up for a 30 minute mentoring session. Please fill out the form below:"
+    }
+
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
 
 
