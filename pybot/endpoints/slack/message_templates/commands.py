@@ -29,7 +29,7 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "text": "Service",
                     "name": "service",
                     "options": [
-                        {"text": service, "value": service} for service in services
+                        {"text": service, "value": service} for service in sorted(services)
                     ],
                 }
             ],
@@ -44,7 +44,7 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "text": "Skillset",
                     "name": "skillset",
                     "options": [
-                        {"text": skillset, "value": skillset} for skillset in skillsets
+                        {"text": skillset, "value": skillset} for skillset in sorted(skillsets)
                     ],
                 },
                 {
@@ -65,7 +65,7 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "text": "Specific Mentor",
                     "name": "mentor",
                     "options": [
-                        {"text": mentor, "value": mentor} for mentor in mentors
+                        {"text": mentor, "value": mentor} for mentor in sorted(mentors)
                     ],
                 },
                 {
@@ -99,9 +99,9 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "name": "group",
                     "value": "",
                     "options": [
-                        {"text": "Veteran", "value": "Veteran"},
                         {"text": "Active Duty", "value": "Active Duty"},
                         {"text": "Military Spouse", "value": "Military Spouse"},
+                        {"text": "Veteran", "value": "Veteran"},
                     ],
                 }
             ],
