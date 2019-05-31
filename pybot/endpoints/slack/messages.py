@@ -1,8 +1,9 @@
 import logging
 
 from sirbot import SirBot
-from slack.events import Message
+
 from slack import methods
+from slack.events import Message
 
 from .message_templates.tech import TechTerms
 from .utils import BOT_URL

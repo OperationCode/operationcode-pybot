@@ -29,7 +29,8 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "text": "Service",
                     "name": "service",
                     "options": [
-                        {"text": service, "value": service} for service in sorted(services)
+                        {"text": service, "value": service}
+                        for service in sorted(services)
                     ],
                 }
             ],
@@ -44,7 +45,8 @@ def mentor_request_attachments(services, mentors, skillsets):
                     "text": "Skillset",
                     "name": "skillset",
                     "options": [
-                        {"text": skillset, "value": skillset} for skillset in sorted(skillsets)
+                        {"text": skillset, "value": skillset}
+                        for skillset in sorted(skillsets)
                     ],
                 },
                 {

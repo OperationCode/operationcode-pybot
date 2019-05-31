@@ -1,6 +1,5 @@
-from slack import methods
-
 from pybot.endpoints.slack.utils.slash_repeat import repeat_items
+from slack import methods
 
 
 async def get_slash_here_messages(mod_id, channel, slack, text):

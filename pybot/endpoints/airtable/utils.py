@@ -1,12 +1,14 @@
 from typing import List, Optional, Tuple
 
 from sirbot import SirBot
+
+from pybot.endpoints.slack.utils import MENTOR_CHANNEL
+from pybot.plugins.airtable.api import AirtableAPI
 from slack import ROOT_URL, methods
 from slack.events import Message
 from slack.exceptions import SlackAPIError
 from slack.io.aiohttp import SlackAPI
-from pybot.plugins.airtable.api import AirtableAPI
-from pybot.endpoints.slack.utils import MENTOR_CHANNEL
+
 from .message_templates.messages import claim_mentee_attachment, mentor_request_text
 
 

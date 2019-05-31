@@ -1,8 +1,8 @@
 import logging
 import re
 from datetime import datetime, timedelta
-from random import random, choice
-from typing import Dict, List, Pattern, Generator
+from random import choice, random
+from typing import Dict, Generator, List, Pattern
 
 logger = logging.getLogger(__name__)
 

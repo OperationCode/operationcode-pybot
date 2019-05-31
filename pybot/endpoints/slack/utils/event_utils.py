@@ -1,17 +1,16 @@
 from typing import List
 
-from slack.events import Message
-from slack.io.abc import SlackAPI
-from slack import methods
-
 from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import not_greeted_attachment
 from pybot.endpoints.slack.utils.event_messages import (
-    team_join_initial_message,
-    second_team_join_message,
-    external_button_attachments,
     base_resources,
+    external_button_attachments,
+    second_team_join_message,
+    team_join_initial_message,
 )
+from slack import methods
+from slack.events import Message
+from slack.io.abc import SlackAPI
 
 
 def build_messages(user_id):

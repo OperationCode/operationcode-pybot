@@ -6,7 +6,7 @@ from asynctest import CoroutineMock
 
 from pybot import endpoints
 from pybot.endpoints.slack.events import create_endpoints, team_join
-from tests.data.events import MESSAGE_EDIT, MESSAGE_DELETE, PLAIN_MESSAGE, TEAM_JOIN
+from tests.data.events import MESSAGE_DELETE, MESSAGE_EDIT, PLAIN_MESSAGE, TEAM_JOIN
 
 
 async def test_team_join_handler_exists(bot):

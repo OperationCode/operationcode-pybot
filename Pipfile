@@ -21,6 +21,11 @@ pytest-mock = "*"
 pytest-asyncio = "*"
 pytest-aiohttp = "*"
 asynctest = "*"
+isort = "*"
+black = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true

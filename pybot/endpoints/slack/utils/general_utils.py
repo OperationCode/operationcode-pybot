@@ -1,9 +1,10 @@
 import functools
 
 from sirbot import SirBot
-from slack.methods import Methods
+
 from slack.commands import Command
 from slack.exceptions import SlackAPIError
+from slack.methods import Methods
 
 
 def catch_command_slack_error(func):

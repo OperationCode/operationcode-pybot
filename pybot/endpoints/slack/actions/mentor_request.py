@@ -2,14 +2,14 @@ import json
 import logging
 
 from sirbot import SirBot
-from slack import methods
-from slack.actions import Action
 
 from pybot.endpoints.slack.message_templates.mentor_request import (
     MentorRequest,
     MentorRequestClaim,
 )
 from pybot.endpoints.slack.utils.action_messages import mentor_details_dialog
+from slack import methods
+from slack.actions import Action
 
 logger = logging.getLogger(__name__)
 

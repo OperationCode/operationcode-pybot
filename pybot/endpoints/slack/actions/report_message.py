@@ -1,13 +1,13 @@
 import json
 
 from sirbot import SirBot
-from slack import methods
-from slack.actions import Action
 
 from pybot.endpoints.slack.utils.action_messages import (
     build_report_message,
     report_dialog,
 )
+from slack import methods
+from slack.actions import Action
 
 
 async def send_report(action: Action, app: SirBot):

@@ -1,6 +1,6 @@
 from aiohttp.web_response import Response
 
-from . import slack, airtable, api
+from . import airtable, api, slack
 
 
 async def handle_health_check(request):

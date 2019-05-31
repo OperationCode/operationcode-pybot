@@ -1,13 +1,13 @@
 from sirbot import SirBot
-from slack import methods
-from slack.actions import Action
 
 from pybot.endpoints.slack.utils import TICKET_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import (
     ticket_attachments,
-    updated_ticket_status,
     update_ticket_message,
+    updated_ticket_status,
 )
+from slack import methods
+from slack.actions import Action
 
 
 async def ticket_status(action: Action, app: SirBot):

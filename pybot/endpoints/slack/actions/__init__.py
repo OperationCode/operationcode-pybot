@@ -1,18 +1,17 @@
 from .general_actions import claimed, reset_claim
 from .help_ticket import open_ticket, ticket_status
-from .report_message import open_report_dialog, send_report
 from .mentor_request import (
-    mentor_request_submit,
-    cancel_mentor_request,
     add_skillset,
-    clear_skillsets,
-    open_details_dialog,
-    mentor_details_submit,
+    cancel_mentor_request,
     claim_mentee,
+    clear_mentor,
+    clear_skillsets,
+    mentor_details_submit,
+    mentor_request_submit,
+    open_details_dialog,
+    set_group,
     set_requested_mentor,
     set_requested_service,
-    set_group,
-    clear_mentor,
 )
 from .new_member import (
     member_greeted,
@@ -21,6 +20,7 @@ from .new_member import (
     reset_greet,
     resource_buttons,
 )
+from .report_message import open_report_dialog, send_report
 
 
 def create_endpoints(plugin):

@@ -3,18 +3,16 @@ import random
 
 from sirbot import SirBot
 from sirbot.plugins.slack import SlackPlugin
-from slack import methods
-from slack.commands import Command
 
 from pybot.endpoints.slack.message_templates.commands import (
-    ticket_dialog,
     mentor_request_attachments,
+    ticket_dialog,
 )
 from pybot.endpoints.slack.utils import (
+    MODERATOR_CHANNEL,
     PYBACK_HOST,
     PYBACK_PORT,
     PYBACK_TOKEN,
-    MODERATOR_CHANNEL,
 )
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import (
@@ -23,6 +21,8 @@ from pybot.endpoints.slack.utils.command_utils import (
 )
 from pybot.endpoints.slack.utils.general_utils import catch_command_slack_error
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
+from slack import methods
+from slack.commands import Command
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ async def slash_mentor(command: Command, app: SirBot):
         "attachments": dialog,
         "channel": command["user_id"],
         "as_user": True,
-        "text": "Thank you for signing up for a 30 minute mentoring session. Please fill out the form below:"
+        "text": "Thank you for signing up for a 30 minute mentoring session. Please fill out the form below:",
     }
 
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)

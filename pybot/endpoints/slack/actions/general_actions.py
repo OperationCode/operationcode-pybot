@@ -1,12 +1,12 @@
 from sirbot import SirBot
-from slack import methods
-from slack.actions import Action
 
 from pybot.endpoints.slack.utils.action_messages import (
-    claimed_attachment,
     base_response,
+    claimed_attachment,
     not_claimed_attachment,
 )
+from slack import methods
+from slack.actions import Action
 
 
 async def claimed(action: Action, app: SirBot):

@@ -4,7 +4,7 @@ import logging
 
 from aiohttp.web_response import Response
 
-from pybot.plugins.api.request import SlackApiRequest, FailedVerification
+from pybot.plugins.api.request import FailedVerification, SlackApiRequest
 
 logger = logging.getLogger(__name__)
 
