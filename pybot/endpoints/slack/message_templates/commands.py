@@ -135,7 +135,13 @@ def new_mentor_request_attachment(services, mentors, skillsets):
     return [
         {
             "type": "section",
-            "text": {"type": "mrkdwn", "text": "👨‍🏫 Mentor Request Form 👩‍🏫"},
+            "text": {
+                "type": "mrkdwn",
+                "text": (
+                    "👨‍🏫 Mentor Request Form 👩‍🏫\n"
+                    "Thank you for signing up for a 30 minute mentoring session. Please fill out the form below"
+                ),
+            },
         },
         {"type": "divider"},
         {

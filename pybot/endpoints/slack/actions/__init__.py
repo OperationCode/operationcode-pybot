@@ -56,10 +56,16 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_block(
         "clear_skillsets", clear_skillsets, action_id="clear_skillsets_btn", wait=False
     )
-    plugin.on_block("mentor", set_requested_mentor, action_id="mentor_select", wait=False)
-    plugin.on_block("comments", open_details_dialog, action_id="comments_btn", wait=False)
+    plugin.on_block(
+        "mentor", set_requested_mentor, action_id="mentor_select", wait=False
+    )
+    plugin.on_block(
+        "comments", open_details_dialog, action_id="comments_btn", wait=False
+    )
     plugin.on_block("mentor_details_submit", mentor_details_submit, wait=False)
-    plugin.on_block("affiliation", set_group, action_id="affiliation_select", wait=False)
+    plugin.on_block(
+        "affiliation", set_group, action_id="affiliation_select", wait=False
+    )
     plugin.on_block(
         "submission", mentor_request_submit, action_id="submit_btn", wait=False
     )

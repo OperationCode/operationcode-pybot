@@ -8,7 +8,6 @@ from slack.actions import Action
 from slack.io.abc import SlackAPI
 
 
-
 class BlockIndex(IntEnum):
     SERVICE = 2
     SKILLSET = 3
@@ -180,7 +179,7 @@ class MentorRequest(Action):
         return await airtable.add_record("Mentor Request", {"fields": params})
 
     def submission_error(
-            self, airtable_response, slack: SlackAPI
+        self, airtable_response, slack: SlackAPI
     ) -> Coroutine[Any, Any, dict]:
         error_attachment = {
             "text": (
@@ -227,7 +226,7 @@ class MentorRequest(Action):
 
 class MentorRequestClaim(Action):
     def __init__(
-            self, raw_action: MutableMapping, slack: SlackAPI, airtable: AirtableAPI
+        self, raw_action: MutableMapping, slack: SlackAPI, airtable: AirtableAPI
     ):
         super().__init__(raw_action)
         self.slack = slack
