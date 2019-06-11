@@ -1,3 +1,5 @@
+from sirbot.plugins.slack import SlackPlugin
+
 from .general_actions import claimed, reset_claim
 from .help_ticket import open_ticket, ticket_status
 from .mentor_request import (
@@ -23,7 +25,7 @@ from .new_member import (
 from .report_message import open_report_dialog, send_report
 
 
-def create_endpoints(plugin):
+def create_endpoints(plugin: SlackPlugin):
     # simple actions that can be used in multiple scenarios
     plugin.on_action("claimed", claimed, name="claimed", wait=False)
     plugin.on_action("claimed", reset_claim, name="reset_claim", wait=False)
@@ -44,31 +46,27 @@ def create_endpoints(plugin):
     plugin.on_action("ticket_status", ticket_status, wait=False)
 
     # mentorship related interactive actions
-    plugin.on_action(
-        "mentor_request_submit", mentor_request_submit, name="submit", wait=False
+    plugin.on_block(
+        "mentor_service",
+        set_requested_service,
+        wait=False,
+        action_id="mentor_service_select",
     )
-    plugin.on_action(
-        "mentor_request_submit", cancel_mentor_request, name="cancel", wait=False
+    plugin.on_block("skillset", add_skillset, action_id="skillset_select", wait=False)
+    plugin.on_block(
+        "clear_skillsets", clear_skillsets, action_id="clear_skillsets_btn", wait=False
+    )
+    plugin.on_block("mentor", set_requested_mentor, action_id="mentor_select", wait=False)
+    plugin.on_block("comments", open_details_dialog, action_id="comments_btn", wait=False)
+    plugin.on_block("mentor_details_submit", mentor_details_submit, wait=False)
+    plugin.on_block("affiliation", set_group, action_id="affiliation_select", wait=False)
+    plugin.on_block(
+        "submission", mentor_request_submit, action_id="submit_btn", wait=False
+    )
+    plugin.on_block(
+        "submission", cancel_mentor_request, action_id="cancel_btn", wait=False
     )
 
-    plugin.on_action("mentor_request_update", add_skillset, name="skillset", wait=False)
-    plugin.on_action(
-        "mentor_request_update", clear_skillsets, name="clearSkills", wait=False
-    )
-    plugin.on_action(
-        "mentor_request_update", clear_mentor, name="clearMentor", wait=False
-    )
-    plugin.on_action(
-        "mentor_request_update", open_details_dialog, name="addDetails", wait=False
-    )
-    plugin.on_action(
-        "mentor_request_update", set_requested_mentor, name="mentor", wait=False
-    )
-    plugin.on_action(
-        "mentor_request_update", set_requested_service, name="service", wait=False
-    )
-    plugin.on_action("mentor_request_update", set_group, name="group", wait=False)
-
-    plugin.on_action("mentor_details_submit", mentor_details_submit, wait=False)
+    # mentorship claims
     plugin.on_action("claim_mentee", claim_mentee, wait=False)
     plugin.on_action("reset_claim_mentee", claim_mentee, wait=False)

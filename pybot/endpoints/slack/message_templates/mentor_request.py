@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import MutableMapping, Optional
+from typing import MutableMapping, Optional, Any, Coroutine
 
 from pybot.endpoints.slack.utils.action_messages import now
 from pybot.plugins.airtable.api import AirtableAPI
@@ -8,18 +8,21 @@ from slack.actions import Action
 from slack.io.abc import SlackAPI
 
 
-class AttachmentIndex(IntEnum):
-    SERVICE = 0
-    SKILLSET = 1
-    MENTOR = 2
-    DETAILS = 3
-    GROUP = 4
-    SUBMIT = 5
+
+class BlockIndex(IntEnum):
+    SERVICE = 2
+    SKILLSET = 3
+    SELECTED_SKILLSETS = 4
+    MENTOR = 5
+    COMMENTS = 6
+    AFFILIATION = 7
+    SUBMIT = 9
 
 
 class MentorRequest(Action):
     def __init__(self, raw_action: MutableMapping):
         super().__init__(raw_action)
+
         if "original_message" not in self:
             self["original_message"] = {}
 
@@ -27,106 +30,140 @@ class MentorRequest(Action):
     def channel(self):
         return self["channel"]["id"]
 
-    @classmethod
-    def selected_option(cls, attachment):
-        action = attachment["actions"][0]
-        if "selected_options" in action:
-            return action["selected_options"][0]["value"]
-        return ""
+    @property
+    def original_message(self):
+        return self["message"]
+
+    @property
+    def blocks(self):
+        return self.original_message["blocks"]
+
+    @blocks.setter
+    def blocks(self, value):
+        self.original_message["blocks"] = value
 
     @property
     def attachments(self):
-        return self["original_message"]["attachments"]
+        return self.original_message.get("attachments", [])
 
     @attachments.setter
     def attachments(self, value):
-        self["original_message"]["attachments"] = value
+        self.original_message["attachments"] = value
+
+    @property
+    def ts(self):
+        return self.original_message["ts"]
+
+    @property
+    def actions(self):
+        return self["actions"]
+
+    @property
+    def selected_option(self):
+        if "selected_option" in self.actions[0]:
+            return self.actions[0]["selected_option"]
+        return None
+
+    def initial_option(self, index: BlockIndex) -> str:
+        """
+        Each section uses the `initial_option` key to store the latest
+        option selected by the user
+        """
+        accessory = self.blocks[index]["accessory"]
+        if "initial_option" in accessory:
+            return accessory["initial_option"]["value"]
+        return ""
 
     @property
     def service(self):
-        attachment = self.attachments[AttachmentIndex.SERVICE]
-        return self.selected_option(attachment)
+        return self.initial_option(BlockIndex.SERVICE)
 
     @service.setter
     def service(self, new_service):
-        action = self.attachments[AttachmentIndex.SERVICE]["actions"][0]
-        action["selected_options"] = [{"value": new_service, "text": new_service}]
-        self.attachments[AttachmentIndex.SERVICE]["color"] = ""
+        block = self.blocks[BlockIndex.SERVICE]
+        block["accessory"]["initial_option"] = new_service
+        if self.validate_self():
+            self.clear_errors()
 
     @property
-    def skillsets(self):
-        if "text" in self.attachments[AttachmentIndex.SKILLSET]:
-            return self.attachments[AttachmentIndex.SKILLSET]["text"].split("\n")
+    def skillsets(self) -> [str]:
+        if self.skillset_fields:
+            return [field["text"] for field in self.skillset_fields]
         return []
+
+    @property
+    def skillset_fields(self) -> list:
+        return self.blocks[BlockIndex.SELECTED_SKILLSETS].get("fields", [])
 
     def add_skillset(self, skillset: str) -> None:
         """
         Appends the new skillset to the displayed skillsets
         """
         if skillset not in self.skillsets:
-            skills = self.skillsets
-            skills.append(skillset)
-        else:
-            skills = self.skillsets
-        self.attachments[AttachmentIndex.SKILLSET]["text"] = "\n".join(skills)
+            new_field = {"type": "plain_text", "text": skillset, "emoji": True}
+            self.blocks[BlockIndex.SELECTED_SKILLSETS].setdefault("fields", []).append(
+                new_field
+            )
 
     @property
     def mentor(self) -> Optional[str]:
-        attachment = self.attachments[AttachmentIndex.MENTOR]
-        option = self.selected_option(attachment)
-        return None if option == "None" else option
+        option = self.initial_option(BlockIndex.MENTOR)
+        if option == "None":
+            return None
+        return option
 
     @mentor.setter
     def mentor(self, new_mentor: str) -> None:
-        action = self.attachments[AttachmentIndex.MENTOR]["actions"][0]
-        action["selected_options"] = [{"value": new_mentor, "text": new_mentor}]
-        action["color"] = ""
+        self.blocks[BlockIndex.MENTOR]["accessory"]["initial_option"] = new_mentor
 
     @property
-    def certify_group(self) -> str:
-        attachment = self.attachments[AttachmentIndex.GROUP]
-        return self.selected_option(attachment)
-
-    @certify_group.setter
-    def certify_group(self, group: str) -> None:
-        action = self.attachments[AttachmentIndex.GROUP]["actions"][0]
-        action["selected_options"] = [{"value": group, "text": group}]
-        self.attachments[AttachmentIndex.GROUP]["color"] = ""
-
-    @property
-    def details(self):
-        attachment = self.attachments[AttachmentIndex.DETAILS]
-        if "text" in attachment:
-            return attachment["text"]
+    def details(self) -> str:
+        block = self.blocks[BlockIndex.COMMENTS]
+        if "fields" in block:
+            return block["fields"][0]["text"]
         return ""
 
     @details.setter
-    def details(self, new_details):
-        self.attachments[AttachmentIndex.DETAILS]["text"] = new_details
+    def details(self, new_details: str) -> None:
+        field = {"type": "plain_text", "text": new_details}
+        self.blocks[BlockIndex.COMMENTS]["fields"] = [field]
 
     @property
-    def update_params(self):
+    def affiliation(self) -> str:
+        return self.initial_option(BlockIndex.AFFILIATION)
+
+    @affiliation.setter
+    def affiliation(self, new_affiliation: str) -> None:
+        self.blocks[BlockIndex.AFFILIATION]["accessory"][
+            "initial_option"
+        ] = new_affiliation
+
+        if self.validate_self():
+            self.clear_errors()
+
+    @property
+    def update_params(self) -> dict:
         return {
             "channel": self.channel,
-            "ts": self["original_message"].get("ts"),
+            "ts": self.ts,
+            "blocks": self.blocks,
             "attachments": self.attachments,
         }
 
-    def validate_self(self):
-        if not self.service or not self.certify_group:
-            submit_attachment = self.attachments[AttachmentIndex.SUBMIT]
-            submit_attachment[
-                "text"
-            ] = ":warning: Service and group certification are required. :warning:"
-            submit_attachment["color"] = "danger"
-            if not self.service:
-                self.attachments[AttachmentIndex.SERVICE]["color"] = "danger"
-            if not self.certify_group:
-                self.attachments[AttachmentIndex.GROUP]["color"] = "danger"
+    def validate_self(self) -> bool:
+        if not self.service or not self.affiliation:
             return False
+        self.clear_errors()
         return True
 
-    async def submit_request(self, username, email, airtable: AirtableAPI):
+    def add_errors(self) -> None:
+        submit_attachment = {
+            "text": ":warning: Service and group certification are required. :warning:",
+            "color": "danger",
+        }
+        self.attachments = [submit_attachment]
+
+    async def submit_request(self, username: str, email: str, airtable: AirtableAPI):
         params = {"Slack User": username, "Email": email, "Status": "Available"}
         if self.skillsets:
             params["Skillsets"] = self.skillsets
@@ -142,36 +179,55 @@ class MentorRequest(Action):
         params["Service"] = [service_records[0]["id"]]
         return await airtable.add_record("Mentor Request", {"fields": params})
 
-    def submission_error(self, airtable_response, slack: SlackAPI):
-        self.attachments[AttachmentIndex.SUBMIT]["text"] = (
-            f"Something went wrong.\n"
-            f'Error Type:{airtable_response["error"]["type"]}\n'
-            f'Error Message: {airtable_response["error"]["message"]}'
-        )
-        self.attachments[AttachmentIndex.SUBMIT]["color"] = "danger"
+    def submission_error(
+            self, airtable_response, slack: SlackAPI
+    ) -> Coroutine[Any, Any, dict]:
+        error_attachment = {
+            "text": (
+                f"Something went wrong.\n"
+                f'Error Type:{airtable_response["error"]["type"]}\n'
+                f'Error Message: {airtable_response["error"]["message"]}'
+            ),
+            "color": "danger",
+        }
+        self.attachments = [error_attachment]
         return self.update_message(slack)
 
-    def submission_complete(self, slack: SlackAPI):
-        done_attachment = self.attachments[AttachmentIndex.SUBMIT]
+    def submission_complete(self, slack: SlackAPI) -> Coroutine[Any, Any, dict]:
+        done_block = {
+            "type": "section",
+            "block_id": "submission",
+            "text": {"type": "mrkdwn", "text": "Request Submitted Successfully!"},
+            "accessory": {
+                "type": "button",
+                "action_id": "cancel_btn",
+                "text": {"type": "plain_text", "text": "Dimiss", "emoji": True},
+                "value": "dismiss",
+            },
+        }
 
-        done_attachment["text"] = "Request submitted successfully!"
-        done_attachment["actions"] = [
-            {"type": "button", "text": "Dismiss", "name": "cancel", "value": "cancel"}
-        ]
+        self.blocks = [done_block]
 
-        self["original_message"]["attachments"] = [done_attachment]
         return self.update_message(slack)
 
-    def clear_skillsets(self):
-        self.attachments[AttachmentIndex.SKILLSET]["text"] = ""
+    def clear_skillsets(self) -> None:
+        if self.skillset_fields:
+            del self.blocks[BlockIndex.SELECTED_SKILLSETS]["fields"]
 
-    def update_message(self, slack: SlackAPI):
+    def clear_errors(self) -> None:
+        self.attachments = []
+
+    async def delete_self(self, slack: SlackAPI) -> None:
+        params = {"ts": self.ts, "channel": self.channel}
+        await slack.query(methods.CHAT_DELETE, params)
+
+    def update_message(self, slack: SlackAPI) -> Coroutine[Any, Any, dict]:
         return slack.query(methods.CHAT_UPDATE, self.update_params)
 
 
 class MentorRequestClaim(Action):
     def __init__(
-        self, raw_action: MutableMapping, slack: SlackAPI, airtable: AirtableAPI
+            self, raw_action: MutableMapping, slack: SlackAPI, airtable: AirtableAPI
     ):
         super().__init__(raw_action)
         self.slack = slack

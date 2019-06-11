@@ -254,7 +254,7 @@ def build_report_message(slack_id, details, message_details):
 
 def mentor_details_dialog(action):
     trigger_id = action["trigger_id"]
-    ts = action["message_ts"]
+    ts = action["message"]["ts"]
 
     return {
         "callback_id": "mentor_details_submit",
