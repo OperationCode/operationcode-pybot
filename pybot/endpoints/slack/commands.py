@@ -6,7 +6,7 @@ from sirbot.plugins.slack import SlackPlugin
 
 from pybot.endpoints.slack.message_templates.commands import (
     ticket_dialog,
-    new_mentor_request_attachment,
+    mentor_reques_blocks,
 )
 from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
@@ -35,7 +35,7 @@ async def slash_mentor(command: Command, app: SirBot):
     mentors = await airtable.get_all_records("Mentors", "Full Name")
     skillsets = await airtable.get_all_records("Skillsets", "Name")
 
-    blocks = new_mentor_request_attachment(services, mentors, skillsets)
+    blocks = mentor_reques_blocks(services, mentors, skillsets)
 
     response = {
         "text": "Mentor Request Form",
