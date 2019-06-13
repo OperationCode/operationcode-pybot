@@ -1,7 +1,6 @@
 import functools
 
 from sirbot import SirBot
-
 from slack.commands import Command
 from slack.exceptions import SlackAPIError
 from slack.methods import Methods

@@ -1,4 +1,6 @@
 from sirbot import SirBot
+from slack import methods
+from slack.actions import Action
 
 from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import (
@@ -10,8 +12,6 @@ from pybot.endpoints.slack.utils.action_messages import (
     reset_greet_message,
     suggestion_dialog,
 )
-from slack import methods
-from slack.actions import Action
 
 
 async def resource_buttons(action: Action, app: SirBot):

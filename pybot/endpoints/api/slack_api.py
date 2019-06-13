@@ -1,6 +1,8 @@
 import logging
 
 from sirbot import SirBot
+from slack import ROOT_URL
+from slack.exceptions import SlackAPIError
 
 from pybot.endpoints.api.utils import (
     _slack_info_from_email,
@@ -9,8 +11,6 @@ from pybot.endpoints.api.utils import (
 )
 from pybot.plugins import APIPlugin
 from pybot.plugins.api.request import SlackApiRequest
-from slack import ROOT_URL
-from slack.exceptions import SlackAPIError
 
 logger = logging.getLogger(__name__)
 

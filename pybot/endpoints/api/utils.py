@@ -1,16 +1,17 @@
 import logging
 from typing import Optional
 
+from slack import ROOT_URL
+from slack.exceptions import SlackAPIError
+from slack.io.abc import SlackAPI
+from slack.methods import Methods
+
 from pybot.endpoints.slack.utils import MODERATOR_CHANNEL, PYBOT_ENV
 from pybot.endpoints.slack.utils.action_messages import (
     TICKET_OPTIONS,
     not_claimed_attachment,
 )
 from pybot.plugins.api.request import SlackApiRequest
-from slack import ROOT_URL
-from slack.exceptions import SlackAPIError
-from slack.io.abc import SlackAPI
-from slack.methods import Methods
 
 logger = logging.getLogger(__name__)
 

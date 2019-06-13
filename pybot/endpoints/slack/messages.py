@@ -1,7 +1,6 @@
 import logging
 
 from sirbot import SirBot
-
 from slack import methods
 from slack.events import Message
 
@@ -12,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 def create_endpoints(plugin):
-    plugin.on_message(".*", message_changed, subtype="message_changed")
-    plugin.on_message(".*", message_deleted, subtype="message_deleted")
-    plugin.on_message(".*\!tech", tech_tips)
-    plugin.on_message(".*\<\!here\>", here_bad)
-    plugin.on_message(".*\<\!channel\>", here_bad)
-    plugin.on_message(".*\!pybot", advertise_pybot)
+    plugin.on_message(r".*", message_changed, subtype="message_changed")
+    plugin.on_message(r".*", message_deleted, subtype="message_deleted")
+    plugin.on_message(r".*\!tech", tech_tips)
+    plugin.on_message(r".*\<\!here\>", here_bad)
+    plugin.on_message(r".*\<\!channel\>", here_bad)
+    plugin.on_message(r".*\!pybot", advertise_pybot)
 
 
 def not_bot_message(event: Message):

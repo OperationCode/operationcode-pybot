@@ -23,6 +23,7 @@ pytest-aiohttp = "*"
 asynctest = "*"
 isort = "*"
 black = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.7"

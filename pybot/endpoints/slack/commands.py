@@ -3,18 +3,18 @@ import random
 
 from sirbot import SirBot
 from sirbot.plugins.slack import SlackPlugin
+from slack import methods
+from slack.commands import Command
 
 from pybot.endpoints.slack.message_templates.commands import (
-    ticket_dialog,
     mentor_reques_blocks,
+    ticket_dialog,
 )
 from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import get_slash_repeat_messages
 from pybot.endpoints.slack.utils.general_utils import catch_command_slack_error
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
-from slack import methods
-from slack.commands import Command
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,12 @@
 from enum import IntEnum
-from typing import MutableMapping, Optional, Any, Coroutine
+from typing import Any, Coroutine, MutableMapping, Optional
 
-from pybot.endpoints.slack.utils.action_messages import now
-from pybot.plugins.airtable.api import AirtableAPI
 from slack import methods
 from slack.actions import Action
 from slack.io.abc import SlackAPI
+
+from pybot.endpoints.slack.utils.action_messages import now
+from pybot.plugins.airtable.api import AirtableAPI
 
 
 class BlockIndex(IntEnum):
