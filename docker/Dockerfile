@@ -4,15 +4,16 @@ FROM python:3.7-slim
 WORKDIR /pybot
 
 # Copy the pipfile into the pybot directory
-COPY Pipfile* /pybot/
+COPY poetry.lock pyproject.toml ./
 
 # Install anything missing from the slim image, install dependnecies, remove anything only needed for building
 # This is run as one line so docker caches it as a single layer.
 RUN apt-get update \
     && apt-get install -y gcc  \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install pipenv \
-    && pipenv install --system --deploy --dev \
+    && pip install poetry \
+    && poetry config settings.virtualenvs.create false \
+    && poetry install \
     && apt-get purge -y --auto-remove gcc
 
 # Copy the rest of our app into the container

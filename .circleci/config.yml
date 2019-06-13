@@ -52,30 +52,29 @@ jobs:
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
 
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: v1-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          keys:
+            - v1-dependencies-{{ checksum "poetry.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       - run:
           name: Installing dependencies
           command: |
-            sudo pip install pipenv
-            pipenv install --dev
+            sudo pip install poetry
+            poetry install
 
       - save_cache:
-          key: v1-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: v1-dependencies-{{ checksum "poetry.lock" }}
           paths:
+            - "/home/circleci/.cache/pypoetry/virtualenvs"
             - ".venv"
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.7/site-packages"
 
       # Run tests
       - run:
           name: Run Tests
           command: |
             mkdir test-results
-            pipenv run pytest --junitxml=test-reports/junit.xml
+            poetry run pytest --junitxml=test-results/pytest/results.xml
 
       - store_test_results:
           path: test-results
-      - store_artifacts:
-          path: test-results
-          destination: tr1
