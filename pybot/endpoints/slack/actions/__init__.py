@@ -1,10 +1,9 @@
 from sirbot.plugins.slack import SlackPlugin
 
-from .general_actions import claimed, reset_claim
+from .general_actions import claimed, delete_message, reset_claim
 from .help_ticket import open_ticket, ticket_status
 from .mentor_request import (
     add_skillset,
-    cancel_mentor_request,
     claim_mentee,
     clear_mentor,
     clear_skillsets,
@@ -29,6 +28,7 @@ def create_endpoints(plugin: SlackPlugin):
     # simple actions that can be used in multiple scenarios
     plugin.on_action("claimed", claimed, name="claimed", wait=False)
     plugin.on_action("claimed", reset_claim, name="reset_claim", wait=False)
+    plugin.on_block("submission", delete_message, action_id="cancel_btn", wait=False)
 
     # new member interactive actions
     plugin.on_action("resource_buttons", resource_buttons, wait=False)
@@ -68,9 +68,6 @@ def create_endpoints(plugin: SlackPlugin):
     )
     plugin.on_block(
         "submission", mentor_request_submit, action_id="submit_btn", wait=False
-    )
-    plugin.on_block(
-        "submission", cancel_mentor_request, action_id="cancel_btn", wait=False
     )
 
     # mentorship claims

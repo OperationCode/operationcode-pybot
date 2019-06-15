@@ -43,3 +43,10 @@ async def reset_claim(action: Action, app: SirBot):
 
     response["attachments"] = attachments
     await app.plugins["slack"].api.query(methods.CHAT_UPDATE, response)
+
+
+async def delete_message(action: Action, app: SirBot):
+    slack = app.plugins["slack"].api
+    params = {"ts": action["message"]["ts"], "channel": action["channel"]["id"]}
+
+    await slack.query(methods.CHAT_DELETE, params)

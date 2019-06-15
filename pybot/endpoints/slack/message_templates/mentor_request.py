@@ -217,10 +217,6 @@ class MentorRequest(Action):
     def clear_errors(self) -> None:
         self.attachments = []
 
-    async def delete_self(self, slack: SlackAPI) -> None:
-        params = {"ts": self.ts, "channel": self.channel}
-        await slack.query(methods.CHAT_DELETE, params)
-
     def update_message(self, slack: SlackAPI) -> Coroutine[Any, Any, dict]:
         return slack.query(methods.CHAT_UPDATE, self.update_params)
 
