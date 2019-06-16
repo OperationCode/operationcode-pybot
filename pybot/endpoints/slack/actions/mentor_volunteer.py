@@ -1,17 +1,14 @@
-from enum import IntEnum
+import logging
 
 from sirbot import SirBot
 from slack import methods
 from slack.actions import Action
+from slack.exceptions import SlackAPIError
 
 from pybot.endpoints.slack.message_templates.mentor_volunteer import MentorVolunteer
 from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 
-
-class VolunteerBlockIndex(IntEnum):
-    SKILLSET_OPTIONS = 2
-    SELECTED_SKILLSETS = 3
-    SUBMIT = 5
+logger = logging.getLogger(__name__)
 
 
 async def add_volunteer_skillset(action: Action, app: SirBot) -> None:
@@ -37,7 +34,6 @@ async def submit_mentor_volunteer(action: Action, app: SirBot) -> None:
     slack = app.plugins["slack"].api
     admin_slack = app.plugins["admin_slack"].api
     airtable = app.plugins["airtable"].api
-    bot_user_id = action["user"]["id"]
 
     request = MentorVolunteer(action)
 
@@ -58,13 +54,14 @@ async def submit_mentor_volunteer(action: Action, app: SirBot) -> None:
         request.airtable_error(airtable_response)
     else:
 
-        # checks if the user submitting the form owns the admin token used for the bot
-        # stops an exception being being raised if a user tries to invite themselves to a channel
-        if bot_user_id != user_id:
+        try:
             await admin_slack.query(
                 methods.CONVERSATIONS_INVITE,
                 {"channel": MENTOR_CHANNEL, "users": [user_id]},
             )
+        except SlackAPIError as error:
+            logger.debug("Error during mentor channel invite %s", error.data["errors"])
+
         request.on_submit_success()
 
     await request.update_message(slack)
