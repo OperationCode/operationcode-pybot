@@ -8,6 +8,8 @@ from slack.io.abc import SlackAPI
 from pybot.endpoints.slack.utils.action_messages import now
 from pybot.plugins.airtable.api import AirtableAPI
 
+from .block_action import BlockAction
+
 
 class BlockIndex(IntEnum):
     SERVICE = 2
@@ -19,60 +21,9 @@ class BlockIndex(IntEnum):
     SUBMIT = 9
 
 
-class MentorRequest(Action):
+class MentorRequest(BlockAction):
     def __init__(self, raw_action: MutableMapping):
         super().__init__(raw_action)
-
-        if "original_message" not in self:
-            self["original_message"] = {}
-
-    @property
-    def channel(self):
-        return self["channel"]["id"]
-
-    @property
-    def original_message(self):
-        return self["message"]
-
-    @property
-    def blocks(self):
-        return self.original_message["blocks"]
-
-    @blocks.setter
-    def blocks(self, value):
-        self.original_message["blocks"] = value
-
-    @property
-    def attachments(self):
-        return self.original_message.get("attachments", [])
-
-    @attachments.setter
-    def attachments(self, value):
-        self.original_message["attachments"] = value
-
-    @property
-    def ts(self):
-        return self.original_message["ts"]
-
-    @property
-    def actions(self):
-        return self["actions"]
-
-    @property
-    def selected_option(self):
-        if "selected_option" in self.actions[0]:
-            return self.actions[0]["selected_option"]
-        return None
-
-    def initial_option(self, index: BlockIndex) -> str:
-        """
-        Each section uses the `initial_option` key to store the latest
-        option selected by the user
-        """
-        accessory = self.blocks[index]["accessory"]
-        if "initial_option" in accessory:
-            return accessory["initial_option"]["value"]
-        return ""
 
     @property
     def service(self):
@@ -141,15 +92,6 @@ class MentorRequest(Action):
         if self.validate_self():
             self.clear_errors()
 
-    @property
-    def update_params(self) -> dict:
-        return {
-            "channel": self.channel,
-            "ts": self.ts,
-            "blocks": self.blocks,
-            "attachments": self.attachments,
-        }
-
     def validate_self(self) -> bool:
         if not self.service or not self.affiliation:
             return False
@@ -201,7 +143,7 @@ class MentorRequest(Action):
             "accessory": {
                 "type": "button",
                 "action_id": "cancel_btn",
-                "text": {"type": "plain_text", "text": "Dimiss", "emoji": True},
+                "text": {"type": "plain_text", "text": "Dismiss", "emoji": True},
                 "value": "dismiss",
             },
         }
@@ -216,9 +158,6 @@ class MentorRequest(Action):
 
     def clear_errors(self) -> None:
         self.attachments = []
-
-    def update_message(self, slack: SlackAPI) -> Coroutine[Any, Any, dict]:
-        return slack.query(methods.CHAT_UPDATE, self.update_params)
 
 
 class MentorRequestClaim(Action):
