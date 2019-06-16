@@ -7,7 +7,8 @@ from slack import methods
 from slack.commands import Command
 
 from pybot.endpoints.slack.message_templates.commands import (
-    mentor_reques_blocks,
+    mentor_request_blocks,
+    mentor_volunteer_blocks,
     ticket_dialog,
 )
 from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
@@ -26,6 +27,7 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command("/ticket", slash_ticket, wait=False)
     plugin.on_command("/roll", slash_roll, wait=False)
     plugin.on_command("/mentor", slash_mentor, wait=False)
+    plugin.on_command("/mentorvolunteer", slash_mentor_volunteer, wait=False)
 
 
 @catch_command_slack_error
@@ -35,7 +37,7 @@ async def slash_mentor(command: Command, app: SirBot):
     mentors = await airtable.get_all_records("Mentors", "Full Name")
     skillsets = await airtable.get_all_records("Skillsets", "Name")
 
-    blocks = mentor_reques_blocks(services, mentors, skillsets)
+    blocks = mentor_request_blocks(services, mentors, skillsets)
 
     response = {
         "text": "Mentor Request Form",
@@ -43,6 +45,22 @@ async def slash_mentor(command: Command, app: SirBot):
         "channel": command["user_id"],
         "as_user": True,
     }
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
+
+
+@catch_command_slack_error
+async def slash_mentor_volunteer(command: Command, app: SirBot) -> None:
+    airtable = app.plugins["airtable"].api
+    skillsets = await airtable.get_all_records("Skillsets", "Name")
+
+    blocks = mentor_volunteer_blocks(skillsets)
+    response = {
+        "text": "Mentor Sign up Form",
+        "blocks": blocks,
+        "channel": command["user_id"],
+        "as_user": True,
+    }
+
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
 
 

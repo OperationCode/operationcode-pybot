@@ -1,3 +1,6 @@
+from typing import List
+
+
 def ticket_dialog(clicker_email, text):
     return {
         "callback_id": "open_ticket",
@@ -17,7 +20,7 @@ def ticket_dialog(clicker_email, text):
     }
 
 
-def mentor_reques_blocks(services, mentors, skillsets):
+def mentor_request_blocks(services, mentors, skillsets):
     return [
         {
             "type": "section",
@@ -132,7 +135,75 @@ def mentor_reques_blocks(services, mentors, skillsets):
             "elements": [
                 {
                     "type": "button",
-                    "action_id": "submit_btn",
+                    "action_id": "submit_mentor_btn",
+                    "text": {"type": "plain_text", "text": "Submit"},
+                    "style": "primary",
+                    "value": "submit",
+                },
+                {
+                    "type": "button",
+                    "action_id": "cancel_btn",
+                    "text": {"type": "plain_text", "text": "Cancel"},
+                    "style": "danger",
+                    "value": "cancel",
+                },
+            ],
+        },
+    ]
+
+
+def mentor_volunteer_blocks(skillsets: List[str]) -> List[dict]:
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": (
+                    "Thank you for volunteering to be a mentor for the Operation Code community!  If you're looking "
+                    "for the mentor request form, please use `/mentor` instead."
+                ),
+            },
+        },
+        {"type": "divider"},
+        {
+            "type": "section",
+            "block_id": "volunteer_skillset",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*What area(s) are you interested in mentoring in?*",
+            },
+            "accessory": {
+                "type": "static_select",
+                "action_id": "skillset_select",
+                "placeholder": {"type": "plain_text", "text": "Skillset"},
+                "options": [
+                    {
+                        "text": {"type": "plain_text", "text": skillset},
+                        "value": skillset,
+                    }
+                    for skillset in skillsets
+                ],
+            },
+        },
+        {
+            "type": "section",
+            "block_id": "clear_volunteer_skillsets",
+            "text": {"type": "mrkdwn", "text": "*Selected Skillsets*"},
+            "accessory": {
+                "type": "button",
+                "action_id": "clear_skillsets_btn",
+                "text": {"type": "plain_text", "text": "Reset Skillsets"},
+                "value": "reset_skillsets",
+            },
+        },
+        {"type": "divider"},
+        {
+            "type": "actions",
+            "block_id": "submission",
+            "elements": [
+                {
+                    "type": "button",
+                    "action_id": "submit_mentor_volunteer_btn",
                     "text": {"type": "plain_text", "text": "Submit"},
                     "style": "primary",
                     "value": "submit",

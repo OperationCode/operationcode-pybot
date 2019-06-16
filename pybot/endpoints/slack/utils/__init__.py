@@ -1,9 +1,5 @@
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 MENTOR_CHANNEL = os.environ.get("MENTOR_CHANNEL") or "G1DRT62UC"
 COMMUNITY_CHANNEL = os.environ.get("COMMUNITY_CHANNEL") or "G12343"
 MODERATOR_CHANNEL = os.environ.get("MODERATOR_CHANNEL") or "G8NDRJJF9"
@@ -23,5 +19,5 @@ slack_configs = {
     "signing_secret": os.environ.get("SLACK_BOT_SIGNING_SECRET"),
     "verify": os.environ.get("VERIFICATION_TOKEN"),
     "bot_id": os.environ.get("SLACK_BOT_ID"),
-    "bot_user_id": os.environ.get("SLACK_BOT_ID"),
+    "bot_user_id": os.environ.get("SLACK_BOT_USER_ID"),
 }

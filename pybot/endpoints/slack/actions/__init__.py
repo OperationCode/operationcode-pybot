@@ -14,6 +14,11 @@ from .mentor_request import (
     set_requested_mentor,
     set_requested_service,
 )
+from .mentor_volunteer import (
+    add_volunteer_skillset,
+    clear_volunteer_skillsets,
+    submit_mentor_volunteer,
+)
 from .new_member import (
     member_greeted,
     open_suggestion,
@@ -67,7 +72,17 @@ def create_endpoints(plugin: SlackPlugin):
         "affiliation", set_group, action_id="affiliation_select", wait=False
     )
     plugin.on_block(
-        "submission", mentor_request_submit, action_id="submit_btn", wait=False
+        "submission", mentor_request_submit, action_id="submit_mentor_btn", wait=False
+    )
+
+    # mentor volunteer actions
+    plugin.on_block("volunteer_skillset", add_volunteer_skillset, wait=False)
+    plugin.on_block("clear_volunteer_skillsets", clear_volunteer_skillsets, wait=False)
+    plugin.on_block(
+        "submission",
+        submit_mentor_volunteer,
+        action_id="submit_mentor_volunteer_btn",
+        wait=False,
     )
 
     # mentorship claims
