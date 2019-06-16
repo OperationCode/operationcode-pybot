@@ -95,7 +95,6 @@ success_message = (
     "button to claim them and reach out via DM to schedule a slack call. There are also a few pinned "
     f"items in that channel that may be helpful. If you have any questions, please DM <@aaron-s|aaron-s>.\n\n"
     "We don't currently have a formal long term mentorship program, but if you feel like continuing to "
-    "keep in contact\n\n"
-    "with any members you speak to, that's perfectly fine. "
+    "keep in contact with any members you speak to, that's perfectly fine.\n\n"
     "Thank you for signing up!"
 )
