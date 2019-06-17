@@ -17,7 +17,7 @@ COPY poetry.lock pyproject.toml ./
 
 RUN pip install poetry && \
     poetry config settings.virtualenvs.create false && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry install --no-dev --no-interaction
 
 # The `built-image` stage is the base for all remaining images
 # Pulls all of the built dependencies from the builder stage
