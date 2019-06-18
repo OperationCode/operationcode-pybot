@@ -10,6 +10,16 @@ workflows:
     jobs:
       - build_test
 
+      # push new Docker image to Docker Hub
+      - dockerhub_build_and_push:
+          requires:
+            - build_test
+          filters:
+            branches:
+              only:
+                - master
+
+
       # push new Docker image to ECS
       - aws-ecr/build_and_push_image:
           repo: pybot
@@ -78,3 +88,25 @@ jobs:
 
       - store_test_results:
           path: test-results
+
+  dockerhub_build_and_push:
+    docker:
+      - image: circleci/python:3.7.1
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build and push to DockerHub
+          command: |
+            echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
+
+            docker build -f docker/Dockerfile  \
+                    -t operationcode/pybot:${CIRCLE_BUILD_NUM} \
+                    -t operationcode/pybot:latest .
+
+            docker push operationcode/pybot:latest
+            docker push operationcode/pybot:${CIRCLE_BUILD_NUM}
