@@ -1,14 +1,19 @@
-from slack.exceptions import SlackAPIError
-from slack.methods import Methods
-from slack.io.abc import SlackAPI
-from slack import ROOT_URL
+import logging
 from typing import Optional
 
-from pybot.endpoints.slack.utils import TICKET_CHANNEL
+from slack import ROOT_URL
+from slack.exceptions import SlackAPIError
+from slack.io.abc import SlackAPI
+from slack.methods import Methods
+
+from pybot.endpoints.slack.utils import MODERATOR_CHANNEL, PYBOT_ENV
 from pybot.endpoints.slack.utils.action_messages import (
     TICKET_OPTIONS,
     not_claimed_attachment,
 )
+from pybot.plugins.api.request import SlackApiRequest
+
+logger = logging.getLogger(__name__)
 
 
 async def _slack_info_from_email(
@@ -71,9 +76,30 @@ async def handle_slack_invite_error(email, error, slack):
         )
 
     response = {
-        "channel": TICKET_CHANNEL,
+        "channel": MODERATOR_CHANNEL,
         "attachments": attachments,
         "text": "User Slack Invite Error",
     }
 
     return await slack.query(Methods.CHAT_POST_MESSAGE, response)
+
+
+def production_only(func):
+    """
+    Decorator for functions that shouldn't be called unless in
+    production environment.
+
+    Used to avoid doing things like sending slack workspace invites to
+    staging environments.
+    """
+
+    async def not_prod(request: SlackApiRequest, app):
+        logger.info(
+            f"Received request on staging to {request.request.raw_path}.  Returning 200"
+        )
+        return {"ok": True, "details": "Development environment, returning 200"}
+
+    if PYBOT_ENV != "PRODUCTION":
+        return not_prod
+
+    return func

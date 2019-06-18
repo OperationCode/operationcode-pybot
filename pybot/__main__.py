@@ -1,18 +1,19 @@
-import os
-import yaml
 import logging.config
+import os
+
+import raven
+import yaml
 from raven.conf import setup_logging
 from raven.handlers.logging import SentryHandler
 from raven.processors import SanitizePasswordsProcessor
-from sirbot.plugins.slack import SlackPlugin
 from sirbot import SirBot
-import raven
+from sirbot.plugins.slack import SlackPlugin
 
 from pybot.endpoints import handle_health_check
+from pybot.endpoints.slack.utils import HOST, PORT, slack_configs
+
 from . import endpoints
 from .plugins import AirtablePlugin, APIPlugin
-from pybot.endpoints.slack.utils import PORT, HOST
-from pybot.endpoints.slack.utils import slack_configs
 
 VERSION = "1.0"
 logger = logging.getLogger(__name__)

@@ -1,4 +1,3 @@
-import functools
 import logging
 from collections import defaultdict
 
@@ -58,6 +57,9 @@ class AirtableAPI:
             res_json = await self.get(url)
             return res_json["fields"]
         except Exception as ex:
+            logger.exception(
+                f"Couldn't get row from record id {record_id} in {table_name}", ex
+            )
             return {}
 
     async def get_all_records(self, table_name, field=None):
@@ -83,16 +85,20 @@ class AirtableAPI:
         try:
             for mentor in mentors:
                 if all(
-                    skillset in mentor["fields"]["Skillsets"] for skillset in skillsets
+                    skillset in mentor["fields"].get("Skillsets", [])
+                    for skillset in skillsets
                 ):
                     complete_match.append(mentor["fields"])
                 if any(
                     mentor["fields"] not in complete_match
-                    and skillset in mentor["fields"]["Skillsets"]
+                    and skillset in mentor["fields"].get("Skillsets", [])
                     for skillset in skillsets
                 ):
                     partial_match.append(mentor["fields"])
         except Exception as e:
+            logger.exception(
+                "Exception while trying to find filter mentors by skillset", e
+            )
             return []
 
         if len(complete_match) < 5:

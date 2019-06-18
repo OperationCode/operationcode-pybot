@@ -7,20 +7,13 @@ from slack import methods
 from slack.commands import Command
 
 from pybot.endpoints.slack.message_templates.commands import (
+    mentor_request_blocks,
+    mentor_volunteer_blocks,
     ticket_dialog,
-    mentor_request_attachments,
 )
-from pybot.endpoints.slack.utils import (
-    PYBACK_HOST,
-    PYBACK_PORT,
-    PYBACK_TOKEN,
-    MODERATOR_CHANNEL,
-)
+from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
-from pybot.endpoints.slack.utils.command_utils import (
-    get_slash_here_messages,
-    get_slash_repeat_messages,
-)
+from pybot.endpoints.slack.utils.command_utils import get_slash_repeat_messages
 from pybot.endpoints.slack.utils.general_utils import catch_command_slack_error
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
 
@@ -28,13 +21,13 @@ logger = logging.getLogger(__name__)
 
 
 def create_endpoints(plugin: SlackPlugin):
-    plugin.on_command("/here", slash_here, wait=False)
     plugin.on_command("/lunch", slash_lunch, wait=False)
     plugin.on_command("/repeat", slash_repeat, wait=False)
     plugin.on_command("/report", slash_report, wait=False)
     plugin.on_command("/ticket", slash_ticket, wait=False)
     plugin.on_command("/roll", slash_roll, wait=False)
     plugin.on_command("/mentor", slash_mentor, wait=False)
+    plugin.on_command("/mentor-volunteer", slash_mentor_volunteer, wait=False)
 
 
 @catch_command_slack_error
@@ -44,9 +37,30 @@ async def slash_mentor(command: Command, app: SirBot):
     mentors = await airtable.get_all_records("Mentors", "Full Name")
     skillsets = await airtable.get_all_records("Skillsets", "Name")
 
-    dialog = mentor_request_attachments(services, mentors, skillsets)
+    blocks = mentor_request_blocks(services, mentors, skillsets)
 
-    response = {"attachments": dialog, "channel": command["user_id"], "as_user": True}
+    response = {
+        "text": "Mentor Request Form",
+        "blocks": blocks,
+        "channel": command["user_id"],
+        "as_user": True,
+    }
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
+
+
+@catch_command_slack_error
+async def slash_mentor_volunteer(command: Command, app: SirBot) -> None:
+    airtable = app.plugins["airtable"].api
+    skillsets = await airtable.get_all_records("Skillsets", "Name")
+
+    blocks = mentor_volunteer_blocks(skillsets)
+    response = {
+        "text": "Mentor Sign up Form",
+        "blocks": blocks,
+        "channel": command["user_id"],
+        "as_user": True,
+    }
+
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
 
 
@@ -89,47 +103,6 @@ async def slash_report(command: Command, app: SirBot):
     }
 
     await slack.query(methods.CHAT_POST_MESSAGE, response)
-
-
-@catch_command_slack_error
-async def slash_here(command: Command, app: SirBot):
-    """
-    /here allows admins to give non-admins the ability to use @here-esque functionality for specific channels.
-    Queries pyback to determine if user is authorized
-    """
-    channel_id = command["channel_id"]
-    slack_id = command["user_id"]
-    slack = app["plugins"]["slack"].api
-
-    params = {"slack_id": slack_id, "channel_id": channel_id}
-    headers = {"Authorization": f"Token {PYBACK_TOKEN}"}
-
-    logger.debug(f"/here params: {params}, /here headers {headers}")
-    async with app.http_session.get(
-        f"http://{PYBACK_HOST}:{PYBACK_PORT}/api/mods/", params=params, headers=headers
-    ) as r:
-
-        logger.debug(f"pyback response status: {r.status}")
-        if r.status >= 400:
-            return
-
-        response = await r.json()
-        logger.debug(f"pyback response: {response}")
-        if not len(response):
-            return
-
-    message, member_list = await get_slash_here_messages(
-        slack_id, channel_id, slack, command["text"]
-    )
-
-    response = await slack.query(
-        methods.CHAT_POST_MESSAGE, {"channel": channel_id, "text": message}
-    )
-    timestamp = response["ts"]
-    await slack.query(
-        methods.CHAT_POST_MESSAGE,
-        {"channel": channel_id, "text": member_list, "thread_ts": timestamp},
-    )
 
 
 @catch_command_slack_error

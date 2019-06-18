@@ -1,6 +1,7 @@
-from typing import List
 import logging
 from random import randint
+from typing import List
+
 from zipcodes import is_real
 
 from pybot.endpoints.slack.utils import YELP_TOKEN

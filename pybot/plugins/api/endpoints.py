@@ -4,7 +4,7 @@ import logging
 
 from aiohttp.web_response import Response
 
-from pybot.plugins.api.request import SlackApiRequest, FailedVerification
+from pybot.plugins.api.request import FailedVerification, SlackApiRequest
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ async def slack_api(request):
     try:
         slack_request = SlackApiRequest.from_request(request)
     except FailedVerification:
-        logger.info(f"Failed verification to API route {request.url} from {request.remote}")
+        logger.info(f"Failed verification to API route {request.url}.")
         return Response(status=401)
 
     futures = list(_dispatch(api_plugin.routers["slack"], slack_request, request.app))

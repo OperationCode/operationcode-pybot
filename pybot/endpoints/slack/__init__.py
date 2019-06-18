@@ -1,4 +1,4 @@
-from . import events, actions, commands, messages
+from . import actions, commands, events, messages
 
 
 def create_endpoints(plugin):

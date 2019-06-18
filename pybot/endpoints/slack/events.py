@@ -6,8 +6,8 @@ from slack.events import Event
 
 from pybot.endpoints.slack.utils.event_utils import (
     build_messages,
-    send_user_greetings,
     send_community_notification,
+    send_user_greetings,
 )
 
 logger = logging.getLogger(__name__)

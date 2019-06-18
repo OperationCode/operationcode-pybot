@@ -4,12 +4,12 @@ from slack.actions import Action
 
 from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import (
-    new_suggestion_text,
+    HELP_MENU_RESPONSES,
     base_response,
     greeted_attachment,
+    new_suggestion_text,
     not_greeted_attachment,
     reset_greet_message,
-    HELP_MENU_RESPONSES,
     suggestion_dialog,
 )
 
