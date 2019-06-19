@@ -20,7 +20,7 @@ workflows:
             - run:
                 name: Tag and Push
                 command: |
-                  IMAGE_ID=operationcode/pybot
+                  IMAGE_ID=<<parameters.image>>
                   docker tag ${IMAGE_ID}:${CIRCLE_BRANCH} ${IMAGE_ID}:${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
                   docker push ${IMAGE_ID}:${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
           requires:
