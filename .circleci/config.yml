@@ -5,7 +5,6 @@ orbs:
   aws-ecs: circleci/aws-ecs@0.0.8
   docker: circleci/docker@0.5.1
 
-
 workflows:
   build_test_deploy:
     jobs:
@@ -20,7 +19,7 @@ workflows:
             - run:
                 name: Tag and Push
                 command: |
-                  IMAGE_ID=<<parameters.image>>
+                  IMAGE_ID=operationcode/pybot
                   docker tag ${IMAGE_ID}:${CIRCLE_BRANCH} ${IMAGE_ID}:${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
                   docker push ${IMAGE_ID}:${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
           requires:
