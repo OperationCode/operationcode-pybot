@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@4.0.1
   aws-ecs: circleci/aws-ecs@0.0.8
+  docker: circleci/docker@0.5.1
 
 
 workflows:
@@ -11,13 +12,24 @@ workflows:
       - build_test
 
       # push new Docker image to Docker Hub
-      - dockerhub_build_and_push:
+      - docker/publish:
+          image: operationcode/pybot
+          dockerfile: docker/Dockerfile
+          tag: ${CIRCLE_BRANCH}
+          after_build:
+            - run:
+                name: Tag and Push
+                command: |
+                  IMAGE_ID=operationcode/pybot
+                  docker tag ${IMAGE_ID}:${CIRCLE_BRANCH} ${IMAGE_ID}:${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
+                  docker push ${IMAGE_ID}:${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
           requires:
             - build_test
           filters:
             branches:
               only:
                 - master
+                - staging
 
 
       # push new Docker image to ECS
@@ -88,25 +100,3 @@ jobs:
 
       - store_test_results:
           path: test-results
-
-  dockerhub_build_and_push:
-    docker:
-      - image: circleci/python:3.7.1
-
-    steps:
-      - checkout
-
-      - setup_remote_docker:
-          docker_layer_caching: true
-
-      - run:
-          name: Build and push to DockerHub
-          command: |
-            echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
-
-            docker build -f docker/Dockerfile  \
-                    -t operationcode/pybot:${CIRCLE_BUILD_NUM} \
-                    -t operationcode/pybot:latest .
-
-            docker push operationcode/pybot:latest
-            docker push operationcode/pybot:${CIRCLE_BUILD_NUM}
