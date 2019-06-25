@@ -36,7 +36,7 @@ def mentor_request_blocks(services, mentors, skillsets):
         {
             "type": "section",
             "block_id": "mentor_service",
-            "text": {"type": "mrkdwn", "text": "*Service (Required)*"},
+            "text": {"type": "mrkdwn", "text": "*Service*"},
             "accessory": {
                 "action_id": "mentor_service_select",
                 "type": "static_select",
@@ -78,7 +78,7 @@ def mentor_request_blocks(services, mentors, skillsets):
         {
             "type": "section",
             "block_id": "mentor",
-            "text": {"type": "mrkdwn", "text": "*Select a specific mentor*"},
+            "text": {"type": "mrkdwn", "text": "*Select a specific mentor* (optional)"},
             "accessory": {
                 "type": "static_select",
                 "action_id": "mentor_select",
@@ -92,7 +92,7 @@ def mentor_request_blocks(services, mentors, skillsets):
         {
             "type": "section",
             "block_id": "comments",
-            "text": {"type": "mrkdwn", "text": "*Add additional comments*"},
+            "text": {"type": "mrkdwn", "text": "*Add additional comments* (optional)"},
             "accessory": {
                 "type": "button",
                 "action_id": "comments_btn",
@@ -106,7 +106,7 @@ def mentor_request_blocks(services, mentors, skillsets):
             "block_id": "affiliation",
             "text": {
                 "type": "mrkdwn",
-                "text": "*I certify that I am a member of the following group (Required)*",
+                "text": "*I certify that I am a member of the following group*",
             },
             "accessory": {
                 "type": "static_select",
