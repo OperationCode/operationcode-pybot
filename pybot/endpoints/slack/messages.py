@@ -32,55 +32,6 @@ def not_bot_delete(event: Message):
     return "previous_message" in event and "bot_id" not in event["previous_message"]
 
 
-async def advertise_pybot(event: Message, app: SirBot):
-    response = dict(
-        channel=event["channel"],
-        text=f"OC-Community-Bot is a community led project\n <{BOT_URL}|source> ",
-    )
-
-    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
-
-async def google_link(event: Message, app: SirBot):
-    # TODO: add ability to parse @user_id and ping the user
-    unparsed_message =  event.get('text')
-    response = dict(
-        channel=event["channel"],
-        text="DuckDuckGo Search Results",
-        attachments=[dict(title=f'{unparsed_message}', 
-                          text=f'https://lmgtfy.com/?s=d&q={'+'.join(unparsed_message.split(' '))}')]
-    )
-    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
-
-
-
-async def here_bad(event: Message, app: SirBot) -> None:
-    if "channel_type" in event and event["channel_type"] != "im":
-        user = event.get("user")
-        user_id = f"<@{user}>" if user else "Hey you"
-        await app.plugins["slack"].api.query(
-            methods.CHAT_POST_MESSAGE,
-            data=dict(
-                channel=event["channel"],
-                text=f"{user_id} - this had better be important!",
-            ),
-        )
-
-
-async def tech_tips(event: Message, app: SirBot):
-    if not_bot_message(event):
-        logger.info(f"tech tips logging: {event}")
-        try:
-            tech_terms = await TechTerms(
-                event["channel"], event["user"], event.get("text"), app
-            ).grab_values()
-            await app.plugins["slack"].api.query(
-                methods.CHAT_POST_MESSAGE, tech_terms["message"]
-            )
-
-        except Exception:
-            logger.debug(f"Exception thrown while logging message_changed {event}")
-
-
 async def message_changed(event: Message, app: SirBot):
     """
     Logs all message edits not made by a bot.
@@ -109,3 +60,55 @@ async def message_deleted(event: Message, app: SirBot):
         logger.debug(
             f"Exception thrown while logging message_deleted. Event: {event} || Error: {e}"
         )
+
+
+
+async def tech_tips(event: Message, app: SirBot):
+    if not_bot_message(event):
+        logger.info(f"tech tips logging: {event}")
+        try:
+            tech_terms = await TechTerms(
+                event["channel"], event["user"], event.get("text"), app
+            ).grab_values()
+            await app.plugins["slack"].api.query(
+                methods.CHAT_POST_MESSAGE, tech_terms["message"]
+            )
+
+        except Exception:
+            logger.debug(f"Exception thrown while logging message_changed {event}")
+
+
+async def here_bad(event: Message, app: SirBot) -> None:
+    if "channel_type" in event and event["channel_type"] != "im":
+        user = event.get("user")
+        user_id = f"<@{user}>" if user else "Hey you"
+        await app.plugins["slack"].api.query(
+            methods.CHAT_POST_MESSAGE,
+            data=dict(
+                channel=event["channel"],
+                text=f"{user_id} - this had better be important!",
+            ),
+        )
+
+
+async def advertise_pybot(event: Message, app: SirBot):
+    response = dict(
+        channel=event["channel"],
+        text=f"OC-Community-Bot is a community led project\n <{BOT_URL}|source> ",
+    )
+
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
+
+
+async def google_link(event: Message, app: SirBot):
+    # TODO: add ability to parse @user_id and ping the user
+    unparsed_message =  event.get('text')
+    response = dict(
+        channel=event["channel"],
+        text="DuckDuckGo Search Results",
+        attachments=[dict(title=f'{unparsed_message}', 
+                          text=f'https://lmgtfy.com/?s=d&q={'+'.join(unparsed_message.split(' '))}')]
+    )
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
+
+
