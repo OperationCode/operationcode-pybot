@@ -17,7 +17,7 @@ def create_endpoints(plugin):
     plugin.on_message(r".*\<\!here\>", here_bad)
     plugin.on_message(r".*\<\!channel\>", here_bad)
     plugin.on_message(r".*\!pybot", advertise_pybot)
-    plugin.on_message(r".*\!lmgtfy", google_link)
+    plugin.on_message(r".*\!lmgtfy", search_link)
 
 
 def not_bot_message(event: Message):
@@ -100,7 +100,7 @@ async def advertise_pybot(event: Message, app: SirBot):
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
 
 
-async def google_link(event: Message, app: SirBot):
+async def search_link(event: Message, app: SirBot):
     # TODO: add ability to parse @user_id and ping the user
     unparsed_message =  event.get('text')
     response = dict(
