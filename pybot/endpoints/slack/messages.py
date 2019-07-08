@@ -17,6 +17,7 @@ def create_endpoints(plugin):
     plugin.on_message(r".*\<\!here\>", here_bad)
     plugin.on_message(r".*\<\!channel\>", here_bad)
     plugin.on_message(r".*\!pybot", advertise_pybot)
+    plugin.on_message(r".*\!lmgtfy", google_link)
 
 
 def not_bot_message(event: Message):
@@ -38,6 +39,18 @@ async def advertise_pybot(event: Message, app: SirBot):
     )
 
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
+
+async def google_link(event: Message, app: SirBot):
+    # TODO: add ability to parse @user_id and ping the user
+    unparsed_message =  event.get('text')
+    response = dict(
+        channel=event["channel"],
+        text="DuckDuckGo Search Results",
+        attachments=[dict(title=f'{unparsed_message}', 
+                          text=f'https://lmgtfy.com/?s=d&q={'+'.join(unparsed_message.split(' '))}')]
+    )
+    await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
+
 
 
 async def here_bad(event: Message, app: SirBot) -> None:
