@@ -107,7 +107,7 @@ async def search_link(event: Message, app: SirBot):
         channel=event["channel"],
         text="DuckDuckGo Search Results",
         attachments=[dict(title=f'{unparsed_message}', 
-                          text=f'https://lmgtfy.com/?s=d&q={'+'.join(unparsed_message.split(' '))}')]
+                          text=f'https://lmgtfy.com/?s=d&q={"+".join(unparsed_message.split(" "))}')]
     )
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, data=response)
 
