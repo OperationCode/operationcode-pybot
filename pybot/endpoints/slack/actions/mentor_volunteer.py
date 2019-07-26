@@ -74,7 +74,7 @@ async def build_airtable_fields(action, request, user_info):
     airtable_fields = {
         "Slack Name": username,
         "Full Name": name,
-        "Skillsets": request.skillsets,
+        "Skillsets": request.skillsets[1:],  # hack to filter out empty first option
         "Email": email,
     }
     return airtable_fields

@@ -60,7 +60,7 @@ def mentor_request_blocks(services, mentors, skillsets):
                         "text": {"type": "plain_text", "text": skillset},
                         "value": skillset,
                     }
-                    for skillset in skillsets
+                    for skillset in sorted(skillsets)
                 ],
             },
         },
@@ -181,7 +181,7 @@ def mentor_volunteer_blocks(skillsets: List[str]) -> List[dict]:
                         "text": {"type": "plain_text", "text": skillset},
                         "value": skillset,
                     }
-                    for skillset in skillsets
+                    for skillset in sorted(skillsets)
                 ],
             },
         },
@@ -189,6 +189,7 @@ def mentor_volunteer_blocks(skillsets: List[str]) -> List[dict]:
             "type": "section",
             "block_id": "clear_volunteer_skillsets",
             "text": {"type": "mrkdwn", "text": "*Selected Skillsets*"},
+            "fields": [{"type": "plain_text", "text": " ", "emoji": True}],
             "accessory": {
                 "type": "button",
                 "action_id": "clear_skillsets_btn",

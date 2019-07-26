@@ -21,27 +21,26 @@ class MentorVolunteer(BlockAction):
 
     @property
     def skillsets(self) -> [str]:
-        if self.skillset_fields:
-            return [field["text"] for field in self.skillset_fields]
-        return []
+        skillset_field = self.skillset_field_text
+        return skillset_field.split("\n")
 
     @property
-    def skillset_fields(self) -> list:
-        return self.blocks[VolunteerBlockIndex.SELECTED_SKILLSETS].get("fields", [])
+    def skillset_field_text(self) -> str:
+        return self.blocks[VolunteerBlockIndex.SELECTED_SKILLSETS]["fields"][0]["text"]
+
+    @skillset_field_text.setter
+    def skillset_field_text(self, value):
+        self.blocks[VolunteerBlockIndex.SELECTED_SKILLSETS]["fields"][0]["text"] = value
 
     def add_skillset(self, skillset: str) -> None:
         """
         Appends the new skillset to the displayed skillsets
         """
         if skillset not in self.skillsets:
-            new_field = {"type": "plain_text", "text": skillset, "emoji": True}
-            self.blocks[VolunteerBlockIndex.SELECTED_SKILLSETS].setdefault(
-                "fields", []
-            ).append(new_field)
+            self.skillset_field_text += f"\n{skillset}"
 
     def clear_skillsets(self) -> None:
-        if self.skillset_fields:
-            del self.blocks[VolunteerBlockIndex.SELECTED_SKILLSETS]["fields"]
+        self.skillset_field_text = " "
 
     def validate_self(self):
         if not self.skillsets:
