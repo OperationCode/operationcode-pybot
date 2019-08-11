@@ -12,6 +12,10 @@ PYBACK_TOKEN = os.environ.get("PYBACK_TOKEN") or "token"
 PORT = os.environ.get("SIRBOT_PORT", 5000)
 HOST = os.environ.get("SIRBOT_ADDR", "0.0.0.0")
 PYBOT_ENV = os.environ.get("PYBOT_ENV", "dev")
+BACKEND_URL = os.environ.get("BACKEND_URL", "https://api.operationcode.org")
+BACKEND_USERNAME = os.environ.get("BACKEND_USERNAME", "Pybot@test.test")
+BACKEND_PASS = os.environ.get("BACKEND_PASS", "fakePassword")
+
 BOT_URL = "https://github.com/OperationCode/operationcode-pybot"
 
 slack_configs = {
