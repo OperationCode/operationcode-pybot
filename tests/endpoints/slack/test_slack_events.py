@@ -17,15 +17,6 @@ async def test_team_join_handler_exists(bot):
     )
 
 
-async def test_team_join_waits_30_seconds(bot, aiohttp_client):
-    asyncio.sleep = CoroutineMock()
-    create_endpoints(bot["plugins"]["slack"])
-    bot["plugins"]["slack"] = CoroutineMock()
-
-    await team_join(TEAM_JOIN["event"], bot)
-    asyncio.sleep.assert_awaited_with(30)
-
-
 async def test_edits_are_logged(bot, aiohttp_client, caplog):
     client = await aiohttp_client(bot)
 
