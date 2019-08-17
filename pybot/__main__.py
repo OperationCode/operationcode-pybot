@@ -1,11 +1,9 @@
 import logging.config
 import os
 
-import raven
+import sentry_sdk
 import yaml
-from raven.conf import setup_logging
-from raven.handlers.logging import SentryHandler
-from raven.processors import SanitizePasswordsProcessor
+from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 from sirbot import SirBot
 from sirbot.plugins.slack import SlackPlugin
 
@@ -15,20 +13,7 @@ from pybot.endpoints.slack.utils import HOST, PORT, slack_configs
 from . import endpoints
 from .plugins import AirtablePlugin, APIPlugin
 
-VERSION = "1.0"
 logger = logging.getLogger(__name__)
-
-
-def make_sentry_logger():
-    client = raven.Client(
-        dsn=os.environ["SENTRY_DSN"],
-        release=VERSION,
-        processor=SanitizePasswordsProcessor,
-    )
-    handler = SentryHandler(client)
-    handler.setLevel(logging.WARNING)
-    setup_logging(handler)
-
 
 if __name__ == "__main__":
     try:
@@ -43,7 +28,12 @@ if __name__ == "__main__":
         logger.exception(e)
 
     if "SENTRY_DSN" in os.environ:
-        make_sentry_logger()
+        sentry_sdk.init(
+            dsn=os.environ["SENTRY_DSN"],
+            release=os.environ.get("VERSION", "1.0.0"),
+            environment=os.environ.get("ENVIRONMENT", "production"),
+            integrations=[AioHttpIntegration()],
+        )
 
     bot = SirBot()
 
