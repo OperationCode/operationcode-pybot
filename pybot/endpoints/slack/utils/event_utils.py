@@ -154,7 +154,7 @@ async def get_profile_suggestions(
 
 def parse_suggestions_from_profile(profile: Dict) -> List[str]:
     # To use more profile fields add them here.
-    suggestible_fields = ["city", "state", "interests"]
+    suggestible_fields = ["city", "state", "interests", "programming_languages", "disciplines"]
     data = []
 
     for field in suggestible_fields:
