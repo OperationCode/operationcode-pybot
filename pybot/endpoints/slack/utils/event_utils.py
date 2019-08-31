@@ -113,7 +113,7 @@ async def get_profile_suggestions(
     auth_header: Dict[str, str],
     slack_api: SlackAPI,
     session: ClientSession,
-) -> List[(str, str)]:
+) -> List[Tuple[str, str]]:
     """
     Generates a list of slack channels to suggest
 
@@ -167,7 +167,7 @@ def parse_suggestions_from_profile(profile: Dict) -> List[str]:
     return data
 
 
-def build_suggestion_messages(user_id: str, channels: List[(str, str)]) -> Message:
+def build_suggestion_messages(user_id: str, channels: List[Tuple[str, str]]) -> Message:
     suggestion_message = base_user_message(user_id)
     message = profile_suggestion_message(channels)
     suggestion_message["text"] = message
