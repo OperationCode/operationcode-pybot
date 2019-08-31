@@ -18,6 +18,7 @@ from pybot.endpoints.slack.utils.event_messages import (
     external_button_attachments,
     second_team_join_message,
     team_join_initial_message,
+    profile_suggestion_message,
 )
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,9 @@ def base_user_message(user_id: str) -> Message:
 
 def build_messages(user_id) -> Tuple[Message, Message, Message, Message]:
     initial_message = base_user_message(user_id)
-    initial_message["text"] = team_join_initial_message(user_id)
+    initial_message["text"] = team_join_initial_message(
+        user_id
+    )  # <--- Initial message is built
 
     second_message = base_user_message(user_id)
     second_message["text"] = second_team_join_message()
@@ -103,3 +106,69 @@ async def get_backend_auth_headers(session: ClientSession) -> Dict[str, str]:
         data = await response.json()
         headers = {"Authorization": f"Bearer {data['token']}"}
     return headers
+
+
+async def get_profile_suggestions(
+    slack_id: int,
+    auth_header: Dict[str, str],
+    slack_api: SlackAPI,
+    session: ClientSession,
+) -> List[(str, str)]:
+    """
+    Generates a list of slack channels to suggest
+
+    :param slack_id: The slack_id to return profile information from
+    :return: A list of slack channel names to suggest for the user
+    """
+    results = []
+
+    # Get profile data that we want to build suggestions from.
+    user_info = await slack_api.query(methods.USERS_INFO, {"user": slack_id})
+    email = user_info["user"]["profile"]["email"]
+
+    async with session.get(
+        f"{BACKEND_URL}/auth/profile/admin/",
+        headers=auth_header,
+        params={"email": email},
+    ) as response:
+        data = await response.json()
+        logger.info(f"Retrieved profile data from email: {email}")
+
+    # Get the names of all public, non-archived channels
+    channels = await slack_api.query(
+        methods.CONVERSATION_LIST, {"exclude_archived": True}
+    )
+
+    # Get a list of all the profile data we want to compare
+    possible_suggestions = parse_suggestions_from_profile(data)
+
+    # For each value in the profile data, check that we have a channel name that matches.
+    for info in possible_suggestions:
+        for channel in channels:
+            if info in channel[1]:
+                results.append((channel[0], channel[1]))
+                break
+
+    return results
+
+
+def parse_suggestions_from_profile(profile: Dict) -> List[str]:
+    # To use more profile fields add them here.
+    suggestible_fields = ["city", "state", "interests"]
+    data = []
+
+    for field in suggestible_fields:
+        if field in profile.keys() and profile[field] is not None:
+            if field in ["interests", "programming_languages", "disciplines"]:
+                for word in profile[field].lower().split(","):
+                    data.append(word)
+            else:
+                data.append(profile[field])
+    return data
+
+
+def build_suggestion_messages(user_id: str, channels: List[(str, str)]) -> Message:
+    suggestion_message = base_user_message(user_id)
+    message = profile_suggestion_message(channels)
+    suggestion_message["text"] = message
+    return suggestion_message

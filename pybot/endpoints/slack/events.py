@@ -10,6 +10,8 @@ from pybot.endpoints.slack.utils.event_utils import (
     link_backend_user,
     send_community_notification,
     send_user_greetings,
+    get_profile_suggestions,
+    build_suggestion_messages,
 )
 
 logger = logging.getLogger(__name__)
@@ -42,3 +44,8 @@ async def team_join(event: Event, app: SirBot) -> None:
     headers = await get_backend_auth_headers(app.http_session)
     if headers:
         await link_backend_user(user_id, headers, slack_api, app.http_session)
+
+        suggested_channels = get_profile_suggestions(slack_api)
+        if suggested_channels:
+            suggestion_messages = build_suggestion_messages(user_id, suggested_channels)
+            await asyncio.wait([send_user_greetings(suggestion_messages, slack_api)])

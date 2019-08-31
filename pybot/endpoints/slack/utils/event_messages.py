@@ -100,3 +100,10 @@ def base_resources():
             ],
         },
     ]
+
+
+def profile_suggestion_message(channels):
+    message = "We found some channels that you might be interested in based on your profile information.\n"
+    for channel, name in channels:
+        message += f"<#{channel}|{name}> "
+    return message
