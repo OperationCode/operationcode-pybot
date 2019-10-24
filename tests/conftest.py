@@ -1,9 +1,8 @@
 import copy
-
 import pytest
+
 from sirbot import SirBot
 from sirbot.plugins.slack import SlackPlugin
-
 from pybot import endpoints
 from pybot.plugins import AirtablePlugin, APIPlugin
 from tests import data
@@ -23,7 +22,8 @@ def action(request):
 @pytest.fixture
 async def bot(loop) -> SirBot:
     b = SirBot()
-    slack = SlackPlugin(
+    slack = SlackPlugin
+    (
         token="token",
         verify="supersecuretoken",
         bot_user_id="bot_user_id",
@@ -41,10 +41,10 @@ async def bot(loop) -> SirBot:
 
     return b
 
-
 @pytest.fixture
 def slack_bot(bot: SirBot):
-    slack = SlackPlugin(
+    slack = SlackPlugin
+    (
         token="token",
         verify="supersecuretoken",
         bot_user_id="bot_user_id",
