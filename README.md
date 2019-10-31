@@ -175,15 +175,35 @@ it all depends on what areas of pybot you're wanting to play with.
 #### Event Subscriptions
 
 You can follow the instructions (and read helpful related information) on the
-[Events API](https://api.slack.com/events-api) page on Slack. When configuring
-your events URI; make sure you pass in the Base-URI that pybot is listening on
-followed by the text _/slack/events_. For example:
+[Events API](https://api.slack.com/events-api) page on Slack to setup event
+subscriptions. When configuring your events URI; make sure you pass in the
+Base-URI that pybot is listening on followed by the text _/slack/events_. For
+example:
 
     https://supersecret.serveo.net/slack/events
 
 #### Slash Commands
 
-WIP
+You can follow the instructions (and read helpful relation information) on the
+[Enabling interactivity with Slash Commands](https://api.slack.com/interactivity/slash-commands)
+page on Slack to setup pybot slash commands. When configuring a Slash command,
+make sure you configure the request URL to match the Base-URI that pybot is
+listening on followed by the text _/slack/commands_. For example:
+
+    https://supersecret.serveo.net/slack/commands
+   
+You'll use the same URI for each command. Here's a table listing of currently
+supported commands along with some suggested configuration text:
+
+Command | Description | Usage Hint
+------- | ----------- | ----------
+/lunch | find lunch suggestions nearby | &lt;zip code> &lt;distance in miles>
+/mentor | request mentoring |
+/mentor-volunteer | offer to mentor others |
+/repeat | parrot canned messages | &lt;10000|ask|ldap|merge|firstpr|channels|resources>
+/report | report something to the admins | <text of message>
+/roll | roll x dice with y sides | <XdY>
+/ticket | submit ticket to admins | (text of ticket)
 
 #### Interactive Components
 
