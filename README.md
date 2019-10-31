@@ -75,7 +75,7 @@ a fix for an existing bug, how do you test it out in a real system in order to
 make sure that your changes do all that you hope they do? The answer; bring up
 the application in your own environment and hook it up to Slack!
 
-In order to do this, there are 6 main things you need to accomplish:
+In order to do this, you'll want to tackle the following items in order:
 
 1. Setup your own Slack workspace.
 2. Grab a signing secret from Slack that pybot can utilize.
@@ -83,7 +83,6 @@ In order to do this, there are 6 main things you need to accomplish:
 4. Attach your pybot instance to the public internet so that Slack can speak
    with it.
 5. Point Slack at your running pybot instance, and properly configure it.
-6. Relish in your success!
 
 The following sections will guide you through each of these stages.
 
@@ -122,7 +121,7 @@ Next, near the top of the screen select Add features and functionality and
 then chose _Bots_. Click on the _Add a Bot User_ button, add in a display name,
 enable _Always Show My Bot as Online_ and then select _Add Bot User_. Then, to
 the left, under Settings, choose _Install App_ and then click on _Install App to
-Workspace_, click _Allow- and then copy off the bot user OAuth access token for
+Workspace_, click _Allow_ and then copy off the bot user OAuth access token for
 later. You'll also be configuring pybot with this so that it can authenticate
 itself with Slack.
 
