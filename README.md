@@ -207,7 +207,20 @@ Command | Description | Usage Hint
 
 #### Interactive Components
 
-WIP
+You can follow the instructions (and read helpful related information) on the
+[Handling user interaction in your Slack apps](https://api.slack.com/interactivity/handling)
+page on Slack to setup Slack interactive component configuration. When
+configuring the request URL, you'll want to set it to the Base-URI that pybot
+is listening on followed by the text _/slack/actions_. For example:
+
+    https://supersecret.serveo.net/slack/actions
+
+You'll also want to make sure to configure the report message action with the
+following parameters:
+
+Name | Description | Callback ID
+---- | ----------- | -----------
+Report Message | Report this message to admins | report_message
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
