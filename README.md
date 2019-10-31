@@ -89,62 +89,52 @@ The following sections will guide you through each of these stages.
 ### 1 - Setup Your Own Slack Workspace
 
 To start, you'll want to visit Slack's [Getting
-Started](https://slack.com/get-started) page. From this page, choose the option
-to create a new workspace. It will request that you enter in an email address,
-feel free to enter in an email address that you have access to and continue
-through the process. It will email you a 6 digit code, check your email for
-this code and then input it into Slack to continue the process. Enter in the
-name of the workspace that you're going to play around with the pybot in. When
-it asks for a project you're working on, put in whatever you want. Maybe pybot
-would be a good choice? It will ask you to input other team members that you'd
-like to join in. Feel free to put in other emails here, or just skip this step
-altogether. Then, it gives you an option to login to your new workspace. Go
-ahead and do that!
+Started](https://slack.com/get-started) page. From this page, follow the steps
+required to create a new workspace. The names/options you configure during
+creation don't matter so much, but make sure you associate it with an email
+address you have access to. Once complete it should present you with an option
+to login to the new workspace, make sure you go ahead and do that.
 
-With your new workspace created, you'll see that it has created a channel for
-the project name you entered. Congratulations, you've completed the first stage!
+If you're having a hard time figuring this out, try checking out the following
+Slack article [Create a Slack Workspace](https://slack.com/intl/en-ca/help/articles/206845317-Create-a-Slack-workspace).
 
 ### 2 - Create a pybot App in Your Slack Workspace
 
-While logged in to your Slack workspace, click on the drop-down menu in the top
-left corner, find the administration menu and then select _Manage Apps_. Once
-here, to the top right, find the build option and select it. It will bring you
-to the Slack API page. Click on the _Start Building_ option. From here, it will
-prompt you to enter in an application name and to attach it to a workspace. Go
-ahead and name your new pybot bot and attach it to your newly created workspace.
-Then click _Create App_ to do the deed. It will bring you to a new page. On this
-page, find the app credentials section, and from here, copy out your app's new
-signing secret. This is what you'll configure pybot with so that it can
-authenticate inbound requests.
-
-Next, near the top of the screen select Add features and functionality and
-then chose _Bots_. Click on the _Add a Bot User_ button, add in a display name,
-enable _Always Show My Bot as Online_ and then select _Add Bot User_. Then, to
-the left, under Settings, choose _Install App_ and then click on _Install App to
-Workspace_, click _Allow_ and then copy off the bot user OAuth access token for
-later. You'll also be configuring pybot with this so that it can authenticate
-itself with Slack.
+The next step is to create a new bot application in your workspace. While still
+logged in, visit the [App Management](https://api.slack.com/apps) page and
+choose to create a new app. During this process, make sure to copy down the
+signing secret key that gets generated for your app, as you'll need it later,
+following this, follow the guidelines for creating a bot app as laid out in the
+[Enabling interactions with bots](https://api.slack.com/bot-users) article. When
+you get to the stage of creating the bot user, make sure to write down the bot
+user OAuth access token that is presented, as you'll need to use it later.
 
 ### 3 - Launch pybot Locally, Passing in Your Signing Secret
 
-Either configure a pybot.env file in the root of this repository, or set an
-exported variable in your shell environment. Here's the required parameters
-shown as being configured in pybot.env (these also can be set as environment
-variables in your shell of choice instead.)
+With your Slack workspace, app and bot user created, and your app signing secret
+and bot user OAuth access token in hand, you should now be ready to configure
+pybot to integrate with your new Slack workspace. To do this, you'll first want
+to setup the proper configuration in pybot.
 
-Example _pybot.env_:
+pybot configuration is specified completely through environment variables. When
+running locally, you can configure the _./docker/pybot.env_ file with the
+environment variable name/value pairings, which will get evaluated on
+application start. Otherwise, make sure to export or pass in the correct
+environment variables through your shell when launching pybot.
 
-```text
-SLACK_BOT_SIGNING_SECRET=SUPER-SECRET-SIGNING-SECRET-HERE
-BOT_OAUTH_TOKEN=BOT-USER-OAUTH-ACCESS-TOKEN-HERE
-SLACK_BOT_USER_ID=BOT-DISPLAY-NAME
+Here's an example of configuring these through the _pybot.env_ file:
+
+```bash
+SLACK_BOT_SIGNING_SECRET=APP-SIGNING-SECRET
+SLACK_TOKEN=BOT-USER-OAUTH-TOKEN
 ```
 
 ### 4 - Attach Your pybot Instance to the Public Internet
 
-You can easily utilize serveo to publish your pybot instance to the public
-internet. Just run the following command from your UNIX like workstation to
-setup an SSH port tunnel to serveo:
+With an instance of pybot running, you now need to expose this instance to the
+public internet so Slack can send in API requests. You can easily utilize serveo
+for this purpose if you wish. To do so; run the following command from your UNIX
+like workstation to setup an SSH port tunnel to serveo:
 
 ```bash
 ssh -R 80:localhost:5000 serveo.net
@@ -158,14 +148,46 @@ Forwarding HTTP traffic from https://supersecret.serveo.net
 Press g to start a GUI session and ctrl-c to quit.
 ```
 
+With this done, serveo will now expose the instance of pybot running locally
+on port 5000 on port 443 via the Base-URI it returns.
+
 ### 5 - Point Slack at Your Running pybot Instance
 
-From the Slack API interface that you used to create your bot, under Features
-on the left, select _Event Subscriptions_, slide it to on, paste in your serveo
-Base-URI followed by _/pybot/api/v1/slack/verify_ (IE:
-_https://cool.serveo.net/pybot/api/v1/slack/verify_) and then save your changes.
+With the initial Slack configuration complete and your instance of pybot
+running on the public internet, it is now the perfect time to fully configure
+Slack to interact with your bot. Depending on the interactions you're wanting to
+play with, there are various configurations you can specify, which can be
+broken down into the following parts:
 
-Everything should now be done!
+*  Event Subscriptions - this allows pybot to respond to various events that may
+   occur in your Slack workspace.
+*  Slash Commands - this allows a user to invoke various commands from any
+   channel in your workspace to interact with pybot.
+*  Interactive Components - this allows various options to be exposed when
+   right clicking on a message, or, when the bot presents various user
+   elements that can be interacted with, instructs Slack on where to send the
+   results for such interactions.
+
+High level steps for configuring each of these can be found in the following
+sub-sections; note that you don't need to necessarily configure all of these,
+it all depends on what areas of pybot you're wanting to play with.
+
+#### Event Subscriptions
+
+You can follow the instructions (and read helpful related information) on the
+[Events API](https://api.slack.com/events-api) page on Slack. When configuring
+your events URI; make sure you pass in the Base-URI that pybot is listening on
+followed by the text _/slack/events_. For example:
+
+    https://supersecret.serveo.net/slack/events
+
+#### Slash Commands
+
+WIP
+
+#### Interactive Components
+
+WIP
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
