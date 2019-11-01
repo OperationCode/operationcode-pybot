@@ -126,8 +126,12 @@ Here's an example of configuring these through the _pybot.env_ file:
 
 ```bash
 SLACK_BOT_SIGNING_SECRET=APP-SIGNING-SECRET
-SLACK_TOKEN=BOT-USER-OAUTH-TOKEN
+BOT_OATH_TOKEN=BOT-USER-OAUTH-TOKEN
 ```
+
+**NOTE**: More configuration settings than these may be specified. Please see
+the _Known Configuration Settings_ section near the bottom of this document
+for details on other settings that can be set.
 
 ### 4 - Attach Your pybot Instance to the Public Internet
 
@@ -221,6 +225,19 @@ following parameters:
 Name | Description | Callback ID
 ---- | ----------- | -----------
 Report Message | Report this message to admins | report_message
+
+## Known Configuration Settings
+
+This application has a number of environment variables that can be set when
+launching to alter the behaviour of the application. The list below is an
+incomplete description of a number of them. Please feel free to update this
+list with more details via a PR:
+
+Name | Description | Example
+---- | ----------- | -------
+SLACK_BOT_SIGNING_SECRET | The unique signing secret used by Slack for a specific app that will be validated by pybot when inspecting an inbound API request | f3b4d774b79e0fb55af624c3f376d5b4
+BOT_OATH_TOKEN | The bot user specific OAuth token used to authenticate the bot when making API requests to Slack | xoxb-800506043194-810119867738-vRvgSc3rslDUgQakFbMy3wAt
+MENTOR_CHANNEL | Slack unique identifier (not the same as the channel name) for a workspace channel that mentors should be added to | G1DRT62UC
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
