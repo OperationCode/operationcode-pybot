@@ -16,6 +16,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY poetry.lock pyproject.toml ./
 
 RUN pip install poetry && \
+    poetry config virtualenvs.create false && \
     poetry install --no-dev --no-interaction
 
 # The `built-image` stage is the base for all remaining images
