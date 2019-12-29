@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 RUN apk update && \
-    apk add --no-cache build-base musl-dev python3-dev
+    apk add --no-cache build-base musl-dev python3-dev libffi-dev openssl-dev
 
 RUN python -m venv /opt/venv
 # Make sure we use the virtualenv:
@@ -16,7 +16,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY poetry.lock pyproject.toml ./
 
 RUN pip install poetry && \
-    poetry config settings.virtualenvs.create false && \
     poetry install --no-dev --no-interaction
 
 # The `built-image` stage is the base for all remaining images
