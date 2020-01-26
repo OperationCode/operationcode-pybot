@@ -20,7 +20,7 @@ def ticket_dialog(clicker_email, text):
     }
 
 
-def mentor_request_blocks(services, mentors, skillsets):
+def mentor_request_blocks(services, skillsets):
     return [
         {
             "type": "section",
@@ -73,20 +73,6 @@ def mentor_request_blocks(services, mentors, skillsets):
                 "action_id": "clear_skillsets_btn",
                 "text": {"type": "plain_text", "text": "Reset Skillsets"},
                 "value": "reset_skillsets",
-            },
-        },
-        {
-            "type": "section",
-            "block_id": "mentor",
-            "text": {"type": "mrkdwn", "text": "*Select a specific mentor* (optional)"},
-            "accessory": {
-                "type": "static_select",
-                "action_id": "mentor_select",
-                "placeholder": {"type": "plain_text", "text": "Mentor"},
-                "options": [
-                    {"text": {"type": "plain_text", "text": mentor}, "value": mentor}
-                    for mentor in mentors
-                ],
             },
         },
         {

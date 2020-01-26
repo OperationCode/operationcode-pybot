@@ -32,6 +32,16 @@ class AirtableAPI:
         async with self.session.post(url, headers=auth_header, **kwargs) as r:
             return await r.json()
 
+    async def _depaginate_records(self, url, params, offset):
+        records = []
+        while offset:
+            params["offset"] = offset
+            response = await self.get(url, params=params)
+            records.extend(response["records"])
+            offset = response.get("offset")
+
+        return records
+
     def table_url(self, table_name, record_id=None):
         url = f"{self.API_ROOT}{self.base_key}/{table_name}"
         if record_id:
@@ -79,7 +89,13 @@ class AirtableAPI:
         )
         skillsets = skillsets.split(",")
         response = await self.get(url, params=params)
+        offset = response.get("offset")
         mentors = response["records"]
+
+        if offset:
+            additional_mentors = await self._depaginate_records(url, params, offset)
+            mentors.extend(additional_mentors)
+
         partial_match = []
         complete_match = []
         try:

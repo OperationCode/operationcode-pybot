@@ -34,10 +34,9 @@ def create_endpoints(plugin: SlackPlugin):
 async def slash_mentor(command: Command, app: SirBot):
     airtable = app.plugins["airtable"].api
     services = await airtable.get_all_records("Services", "Name")
-    mentors = await airtable.get_all_records("Mentors", "Full Name")
     skillsets = await airtable.get_all_records("Skillsets", "Name")
 
-    blocks = mentor_request_blocks(services, mentors, skillsets)
+    blocks = mentor_request_blocks(services, skillsets)
 
     response = {
         "text": "Mentor Request Form",

@@ -252,7 +252,7 @@ def build_report_message(slack_id, details, message_details):
     return {"text": message, "channel": MODERATOR_CHANNEL, "attachments": attachment}
 
 
-def mentor_details_dialog(action):
+def mentor_details_dialog(action, cur_details):
     trigger_id = action["trigger_id"]
     ts = action["message"]["ts"]
 
@@ -269,6 +269,7 @@ def mentor_details_dialog(action):
                 "name": "details",
                 "placeholder": "",
                 "required": False,
+                "value": cur_details
             }
         ],
     }
