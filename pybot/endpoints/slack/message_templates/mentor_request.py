@@ -15,10 +15,9 @@ class BlockIndex(IntEnum):
     SERVICE = 2
     SKILLSET = 3
     SELECTED_SKILLSETS = 4
-    MENTOR = 5
-    COMMENTS = 6
-    AFFILIATION = 7
-    SUBMIT = 9
+    COMMENTS = 5
+    AFFILIATION = 6
+    SUBMIT = 8
 
 
 class MentorRequest(BlockAction):
@@ -55,17 +54,6 @@ class MentorRequest(BlockAction):
             self.blocks[BlockIndex.SELECTED_SKILLSETS].setdefault("fields", []).append(
                 new_field
             )
-
-    @property
-    def mentor(self) -> Optional[str]:
-        option = self.initial_option(BlockIndex.MENTOR)
-        if option == "None":
-            return None
-        return option
-
-    @mentor.setter
-    def mentor(self, new_mentor: str) -> None:
-        self.blocks[BlockIndex.MENTOR]["accessory"]["initial_option"] = new_mentor
 
     @property
     def details(self) -> str:
@@ -111,11 +99,6 @@ class MentorRequest(BlockAction):
             params["Skillsets"] = self.skillsets
         if self.details:
             params["Additional Details"] = self.details
-        if self.mentor:
-            mentor_records = await airtable.find_records(
-                "Mentors", "Full Name", self.mentor
-            )
-            params["Mentor Requested"] = [mentor_records[0]["id"]]
 
         service_records = await airtable.find_records("Services", "Name", self.service)
         params["Service"] = [service_records[0]["id"]]
