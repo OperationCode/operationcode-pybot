@@ -92,7 +92,7 @@ success_message = (
     "channel when someone signs up for a 30 minute session with a mentor. If the skillsets they request "
     "match the ones you listed when you signed up, you'll be notified in the thread. Click the green "
     "button to claim them and reach out via DM to schedule a slack call. There are also a few pinned "
-    f"items in that channel that may be helpful. If you have any questions, please DM <@aaron-s|aaron-s>.\n\n"
+    f"items in that channel that may be helpful. If you have any questions, please DM <@Raz0r|Raz0r>.\n\n"
     "We don't currently have a formal long term mentorship program, but if you feel like continuing to "
     "keep in contact with any members you speak to, that's perfectly fine.\n\n"
     "Thank you for signing up!"
