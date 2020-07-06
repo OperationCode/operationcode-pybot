@@ -4,9 +4,9 @@ from typing import Iterable
 # TODO: use the github api to find the file even if location changes
 def find_resources() -> dict:
     return {
-        "link": "https://github.com/OperationCode/resources_api/blob/master/resources.yml",
-        "title": "A big list of resources",
-        "pretext": "Would you like some resources.yml?",
+        "link": "https://operationcode.org/resources",
+        "title": "A searchable database of learning resources",
+        "pretext": "Would you like some learning resources?",
     }
 
 
