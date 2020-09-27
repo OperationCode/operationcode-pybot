@@ -269,7 +269,7 @@ def mentor_details_dialog(action, cur_details):
                 "name": "details",
                 "placeholder": "",
                 "required": False,
-                "value": cur_details
+                "value": cur_details,
             }
         ],
     }
