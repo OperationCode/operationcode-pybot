@@ -28,6 +28,7 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command("/roll", slash_roll, wait=False)
     plugin.on_command("/mentor", slash_mentor, wait=False)
     plugin.on_command("/mentor-volunteer", slash_mentor_volunteer, wait=False)
+    plugin.on_command("/survey", slash_survey, wait=False)
 
 
 @catch_command_slack_error
@@ -175,3 +176,15 @@ async def slash_roll(command: Command, app: SirBot):
     message = f"<@{slack_id}> Rolled {numdice} D{typedice}: {dice}"
     response = dict(channel=channel_id, text=message)
     await slack.query(methods.CHAT_POST_MESSAGE, response)
+
+@catch_command_slack_error
+async def slash_survey(command: Command, app: SirBot):
+    """
+    Invoked via the command /survey
+    Provides a link to the survey on our website
+    """
+
+    slack = app["plugins"]["slack"].api
+
+    print("HERE IS THE SURVEY LINK:")
+    await slack.query(methods.CHAT_POST_MESSAGE, "Please fill out our survey at: https://operationcode.org/survey")
