@@ -8,9 +8,8 @@ from slack.commands import Command
 
 from pybot.endpoints.slack.message_templates.commands import (
     mentor_request_blocks,
-    mentor_volunteer_blocks,
-    ticket_dialog,
-)
+    mentor_volunteer_blocks)
+
 from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import get_slash_repeat_messages
