@@ -1,7 +1,6 @@
 from sirbot.plugins.slack import SlackPlugin
 
 from .general_actions import claimed, delete_message, reset_claim
-from .help_ticket import open_ticket, ticket_status
 from .mentor_request import (
     add_skillset,
     claim_mentee,
@@ -45,10 +44,6 @@ def create_endpoints(plugin: SlackPlugin):
     # reporting related interactive actions
     plugin.on_action("report_message", open_report_dialog, wait=False)
     plugin.on_action("report_dialog", send_report, wait=False)
-
-    # help ticket/request interactive actions
-    plugin.on_action("open_ticket", open_ticket, wait=False)
-    plugin.on_action("ticket_status", ticket_status, wait=False)
 
     # mentorship related interactive actions
     plugin.on_block(

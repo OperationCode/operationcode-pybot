@@ -76,7 +76,7 @@ async def handle_slack_invite_error(email, error, slack):
         )
 
     response = {
-        "channel": MODERATOR_CHANNEL,
+        "channel": OPS_CHANNEL,
         "attachments": attachments,
         "text": "User Slack Invite Error",
     }
