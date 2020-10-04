@@ -24,7 +24,6 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command("/lunch", slash_lunch, wait=False)
     plugin.on_command("/repeat", slash_repeat, wait=False)
     plugin.on_command("/report", slash_report, wait=False)
-    plugin.on_command("/ticket", slash_ticket, wait=False)
     plugin.on_command("/roll", slash_roll, wait=False)
     plugin.on_command("/mentor", slash_mentor, wait=False)
     plugin.on_command("/mentor-volunteer", slash_mentor_volunteer, wait=False)
@@ -61,26 +60,6 @@ async def slash_mentor_volunteer(command: Command, app: SirBot) -> None:
     }
 
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
-
-
-@catch_command_slack_error
-async def slash_ticket(command: Command, app: SirBot):
-    trigger_id = command["trigger_id"]
-    user_id = command["user_id"]
-    logger.warning(command["text"])
-
-    user_info = await app.plugins["slack"].api.query(
-        methods.USERS_INFO, {"user": user_id}
-    )
-    clicker_email = user_info["user"]["profile"]["email"]
-
-    response = {
-        "trigger_id": trigger_id,
-        "dialog": ticket_dialog(clicker_email, command["text"]),
-    }
-
-    await app.plugins["slack"].api.query(methods.DIALOG_OPEN, response)
-
 
 @catch_command_slack_error
 async def slash_report(command: Command, app: SirBot):

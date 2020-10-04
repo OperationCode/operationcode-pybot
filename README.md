@@ -1,3 +1,20 @@
+<div align="center">
+  <a href="https://operationcode.org" height="750" width="750">
+    <img
+      alt="Operation Code Hacktoberfest Banner"
+      src="https://operation-code-assets.s3.us-east-2.amazonaws.com/operationcode_hacktoberfest_2020.jpg"
+    >
+  </a>
+</div>
+<br />
+<br />
+
+# 🎃 Hacktoberfest 🎃	
+
+[All the details you need](https://github.com/OperationCode/START_HERE/blob/master/README.md#-hacktoberfest-) before participating with us during Hacktoberfest.	
+
+<br />
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Twitter Follow](https://img.shields.io/twitter/follow/operation_code.svg?style=social&label=Follow&style=social)](https://twitter.com/operation_code)
 [![Code-style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
@@ -81,6 +98,15 @@ to login to the new workspace, make sure you go ahead and do that.
 If you're having a hard time figuring this out, try checking out the following
 Slack article [Create a Slack Workspace](https://slack.com/intl/en-ca/help/articles/206845317-Create-a-Slack-workspace).
 
+#### Create expected channels
+Several of Pybot's features involve sending messages to specific channels - in order
+for this to work in your personal Slack workspace you'll need to create the following channels:
+- mentors-internal
+- greetings
+- moderators
+- oc-tech
+
+
 ### 2 - Create a pybot App in Your Slack Workspace
 
 The next step is to create a new bot application in your workspace. While still
@@ -91,6 +117,14 @@ following this, follow the guidelines for creating a bot app as laid out in the
 [Enabling interactions with bots](https://api.slack.com/bot-users) article. When
 you get to the stage of creating the bot user, make sure to write down the bot
 user OAuth access token that is presented, as you'll need to use it later.
+
+On the `OAuth & Permissions` page configure the Pybot app with the following scopes
+
+- channels:manage
+- chat:write
+- chat:write.public
+- commands
+- users:read
 
 ### 3 - Launch pybot Locally, Passing in Your Signing Secret
 
@@ -109,7 +143,7 @@ Here's an example of configuring these through the _pybot.env_ file:
 
 ```bash
 SLACK_BOT_SIGNING_SECRET=APP-SIGNING-SECRET
-BOT_OATH_TOKEN=BOT-USER-OAUTH-TOKEN
+BOT_USER_OAUTH_ACCESS_TOKEN=BOT-USER-OAUTH-TOKEN
 ```
 
 **NOTE**: More configuration settings than these may be specified. Please see
@@ -119,24 +153,34 @@ for details on other settings that can be set.
 ### 4 - Attach Your pybot Instance to the Public Internet
 
 With an instance of pybot running, you now need to expose this instance to the
-public internet so Slack can send in API requests. You can easily utilize serveo
-for this purpose if you wish. To do so; run the following command from your UNIX
-like workstation to setup an SSH port tunnel to serveo:
+public internet so Slack can send in API requests. You can easily utilize ngrok
+for this purpose if you wish. To do so; download ngrok from https://ngrok.com/download
+and set up a tunnel like so:
 
 ```bash
-ssh -R 80:localhost:5000 serveo.net
+ngrok http 5000
 ```
 
 Pay attention to copy out the response you get and keep this command running.
 Here's an example output from the command:
 
-```text
-Forwarding HTTP traffic from https://supersecret.serveo.net
-Press g to start a GUI session and ctrl-c to quit.
+```bash
+ngrok by @inconshreveable                                                                        (Ctrl+C to quit)
+Session Status                online                                                                             
+Session Expires               7 hours, 56 minutes                                                                
+Version                       2.3.35                                                                             
+Region                        United States (us)                                                                 
+Web Interface                 http://127.0.0.1:4040                                                              
+Forwarding                    http://9d73595a7aac.ngrok.io -> http://localhost:5000                              
+Forwarding                    https://9d73595a7aac.ngrok.io -> http://localhost:5000                             
+Connections                   ttl     opn     rt1     rt5     p50     p90                                        
+                              0       1       0.00    0.00    0.00    0.00                                       
+HTTP Requests 
 ```
 
-With this done, serveo will now expose the instance of pybot running locally
-on port 5000 on port 443 via the Base-URI it returns.
+With this done, ngrok will now expose the instance of pybot running locally
+on port 5000 via the "Forwarding" address it returns.  Be sure to use the URL
+beginning with http**s**.
 
 ### 5 - Point Slack at Your Running pybot Instance
 
@@ -167,7 +211,7 @@ subscriptions. When configuring your events URI; make sure you pass in the
 Base-URI that pybot is listening on followed by the text _/slack/events_. For
 example:
 
-    https://supersecret.serveo.net/slack/events
+    https://123_random_code_321.ngrok.io/slack/events
 
 #### Slash Commands
 
@@ -177,7 +221,7 @@ page on Slack to setup pybot slash commands. When configuring a Slash command,
 make sure you configure the request URL to match the Base-URI that pybot is
 listening on followed by the text _/slack/commands_. For example:
 
-    https://supersecret.serveo.net/slack/commands
+    https://123_random_code_321.ngrok.io/slack/commands
    
 You'll use the same URI for each command. Here's a table listing of currently
 supported commands along with some suggested configuration text:
@@ -192,6 +236,16 @@ Command | Description | Usage Hint
 /roll | roll x dice with y sides | <XdY>
 /ticket | submit ticket to admins | (text of ticket)
 
+
+**👋 IMPORTANT!**
+
+The `/lunch` command requires a valid Yelp API token stored in the `YELP_TOKEN` 
+environment variable. See https://www.yelp.com/developers/faq
+
+Similarly, the `/mentor` and `/mentor-volunteer` commands require access to an Airtable
+environment with a specific configuration.  If you're planning on working with the mentor
+functionality please reach out to the `#oc-python-projects` channel for help getting set up.  
+
 #### Interactive Components
 
 You can follow the instructions (and read helpful related information) on the
@@ -200,7 +254,7 @@ page on Slack to setup Slack interactive component configuration. When
 configuring the request URL, you'll want to set it to the Base-URI that pybot
 is listening on followed by the text _/slack/actions_. For example:
 
-    https://supersecret.serveo.net/slack/actions
+    https://123_random_code_321.ngrok.io/slack/actions
 
 You'll also want to make sure to configure the report message action with the
 following parameters:
@@ -219,8 +273,7 @@ list with more details via a PR:
 Name | Description | Example
 ---- | ----------- | -------
 SLACK_BOT_SIGNING_SECRET | The unique signing secret used by Slack for a specific app that will be validated by pybot when inspecting an inbound API request | f3b4d774b79e0fb55af624c3f376d5b4
-BOT_OATH_TOKEN | The bot user specific OAuth token used to authenticate the bot when making API requests to Slack | xoxb-800506043194-810119867738-vRvgSc3rslDUgQakFbMy3wAt
-MENTOR_CHANNEL | Slack unique identifier (not the same as the channel name) for a workspace channel that mentors should be added to | G1DRT62UC
+BOT_USER_OAUTH_ACCESS_TOKEN | The bot user specific OAuth token used to authenticate the bot when making API requests to Slack | xoxb-800506043194-810119867738-vRvgSc3rslDUgQakFbMy3wAt
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).

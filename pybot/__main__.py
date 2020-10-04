@@ -42,7 +42,9 @@ if __name__ == "__main__":
     bot.load_plugin(slack)
 
     admin_configs = dict(**slack_configs)
-    admin_configs["token"] = os.environ.get("APP_ADMIN_OAUTH_TOKEN")
+    admin_token = os.environ.get("APP_ADMIN_OAUTH_TOKEN", "FAKE_ADMIN_TOKEN")
+    if admin_token:
+        admin_configs["token"] = admin_token
     admin_slack = SlackPlugin(**admin_configs)
     bot.load_plugin(admin_slack, name="admin_slack")
 

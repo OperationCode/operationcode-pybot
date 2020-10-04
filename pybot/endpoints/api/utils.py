@@ -6,7 +6,7 @@ from slack.exceptions import SlackAPIError
 from slack.io.abc import SlackAPI
 from slack.methods import Methods
 
-from pybot.endpoints.slack.utils import MODERATOR_CHANNEL, PYBOT_ENV
+from pybot.endpoints.slack.utils import PYBOT_ENV, OPS_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import (
     TICKET_OPTIONS,
     not_claimed_attachment,
@@ -76,7 +76,7 @@ async def handle_slack_invite_error(email, error, slack):
         )
 
     response = {
-        "channel": MODERATOR_CHANNEL,
+        "channel": OPS_CHANNEL,
         "attachments": attachments,
         "text": "User Slack Invite Error",
     }

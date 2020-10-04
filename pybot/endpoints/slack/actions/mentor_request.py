@@ -45,7 +45,7 @@ async def mentor_details_submit(action: Action, app: SirBot):
     ts = state["ts"]
     search = {"inclusive": True, "channel": channel, "oldest": ts, "latest": ts}
 
-    history = await slack.query(methods.IM_HISTORY, search)
+    history = await slack.query(methods.CONVERSATIONS_HISTORY, search)
     request["message"] = history["messages"][0]
     request.details = action["submission"]["details"]
 
@@ -56,7 +56,10 @@ async def open_details_dialog(action: Action, app: SirBot):
     request = MentorRequest(action)
     cur_details = request.details
     trigger_id = action["trigger_id"]
-    response = {"trigger_id": trigger_id, "dialog": mentor_details_dialog(action, cur_details)}
+    response = {
+        "trigger_id": trigger_id,
+        "dialog": mentor_details_dialog(action, cur_details),
+    }
     await app.plugins["slack"].api.query(methods.DIALOG_OPEN, response)
 
 
