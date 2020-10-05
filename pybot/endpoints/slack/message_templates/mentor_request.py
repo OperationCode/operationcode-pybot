@@ -81,14 +81,14 @@ class MentorRequest(BlockAction):
             self.clear_errors()
 
     def validate_self(self) -> bool:
-        if not self.service or not self.affiliation:
+        if not self.service or not self.affiliation or not self.details:
             return False
         self.clear_errors()
         return True
 
     def add_errors(self) -> None:
         submit_attachment = {
-            "text": ":warning: Service and group certification are required. :warning:",
+            "text": ":warning: Service, group certification and comments are required. :warning:",
             "color": "danger",
         }
         self.attachments = [submit_attachment]
