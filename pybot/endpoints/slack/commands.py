@@ -150,7 +150,7 @@ async def slash_roll(command: Command, app: SirBot):
         )
         return await slack.query(methods.CHAT_POST_EPHEMERAL, response)
 
-    dice = [random.randint(1, typedice + 1) for _ in range(numdice)]
+    dice = [random.randint(1, typedice) for _ in range(numdice)]
     message = f"<@{slack_id}> Rolled {numdice} D{typedice}: {dice}"
     response = dict(channel=channel_id, text=message)
     await slack.query(methods.CHAT_POST_MESSAGE, response)
