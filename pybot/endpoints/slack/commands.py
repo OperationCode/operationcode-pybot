@@ -16,6 +16,7 @@ from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
 from pybot.endpoints.slack.utils.command_utils import get_slash_repeat_messages
 from pybot.endpoints.slack.utils.general_utils import catch_command_slack_error
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
+from pybot.endpoints.slack.utils.slash_search import get_search_links
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_command("/roll", slash_roll, wait=False)
     plugin.on_command("/mentor", slash_mentor, wait=False)
     plugin.on_command("/mentor-volunteer", slash_mentor_volunteer, wait=False)
+    plugin.on_command("/search", slash_search, wait=False)
 
 
 @catch_command_slack_error
@@ -153,4 +155,29 @@ async def slash_roll(command: Command, app: SirBot):
     dice = [random.randint(1, typedice + 1) for _ in range(numdice)]
     message = f"<@{slack_id}> Rolled {numdice} D{typedice}: {dice}"
     response = dict(channel=channel_id, text=message)
+    await slack.query(methods.CHAT_POST_MESSAGE, response)
+
+
+@catch_command_slack_error
+async def slash_search(command: Command, app: SirBot):
+    """
+    Invoked by /search doubt_query.
+
+    Used to find the top 5 search result links of your doubt from stack-overflow.
+    """
+    slack = app["plugins"]["slack"].api
+    slack_id = command["user_id"]
+    channel_id = command["channel_id"]
+    text = command["text"]
+
+    links = get_search_links(text)
+    if (len(links)==0):
+        # No results found
+        response_message = "Sorry, couldn't find relevant links.\nCan you reformat the question?"
+    else:
+        response_message = "Here are some StackOverflow links to help cater your doubts:\n\n"
+        for link in links:
+            response_message = response_message + link["text"] + "\n"
+            response_message = response_message + link["link"] + "\n\n"
+    response = dict(channel=channel_id, text=response_message)
     await slack.query(methods.CHAT_POST_MESSAGE, response)
