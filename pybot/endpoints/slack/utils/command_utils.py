@@ -3,13 +3,13 @@ from slack import methods
 from pybot.endpoints.slack.utils.slash_repeat import repeat_items
 
 
-def get_slash_repeat_messages(user_id, channel, text):
+def get_slash_repeat_messages(user_id, channel, arguments):
     response_type = {
         "ephemeral": methods.CHAT_POST_EPHEMERAL,
         "message": methods.CHAT_POST_MESSAGE,
     }
 
-    values_dict = repeat_items(text, user_id, channel)
+    values_dict = repeat_items(arguments, user_id, channel)
     return response_type[values_dict["type"]], values_dict["message"]
 
 

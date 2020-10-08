@@ -112,9 +112,10 @@ async def slash_repeat(command: Command, app: SirBot):
     channel_id = command["channel_id"]
     slack_id = command["user_id"]
     slack = app["plugins"]["slack"].api
+    arguments = command["text"].split(" ")
 
     method_type, message = get_slash_repeat_messages(
-        slack_id, channel_id, command["text"]
+        slack_id, channel_id, arguments
     )
 
     await slack.query(method_type, message)
