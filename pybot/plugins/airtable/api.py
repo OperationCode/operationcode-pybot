@@ -16,19 +16,19 @@ class AirtableAPI:
         self.base_key = base_key
 
     async def get(self, url, **kwargs):
-        auth_header = {f"Authorization": f"Bearer {self.api_key}"}
+        auth_header = {"Authorization": f"Bearer {self.api_key}"}
 
         async with self.session.get(url, headers=auth_header, **kwargs) as r:
             return await r.json()
 
     async def patch(self, url, **kwargs):
-        auth_header = {f"authorization": f"Bearer {self.api_key}"}
+        auth_header = {"authorization": f"Bearer {self.api_key}"}
         async with self.session.patch(url, headers=auth_header, **kwargs) as r:
             r.raise_for_status()
             return await r.json()
 
     async def post(self, url, **kwargs):
-        auth_header = {f"authorization": f"Bearer {self.api_key}"}
+        auth_header = {"authorization": f"Bearer {self.api_key}"}
         async with self.session.post(url, headers=auth_header, **kwargs) as r:
             return await r.json()
 

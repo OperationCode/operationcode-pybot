@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class LunchCommand:
     DEFAULT_LUNCH_DISTANCE = 20
     MIN_LUNCH_RANGE = 1
-    AUTH_HEADER = {f"Authorization": f"Bearer {YELP_TOKEN}"}
+    AUTH_HEADER = {"Authorization": f"Bearer {YELP_TOKEN}"}
 
     def __init__(self, channel: str, user: str, input_text: str, user_name: str):
 

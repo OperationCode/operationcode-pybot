@@ -48,18 +48,15 @@ async def slash_mentor(command: Command, app: SirBot):
 
 @catch_command_slack_error
 async def slash_mentor_volunteer(command: Command, app: SirBot) -> None:
-    airtable = app.plugins["airtable"].api
-    skillsets = await airtable.get_all_records("Skillsets", "Name")
 
-    blocks = mentor_volunteer_blocks(skillsets)
     response = {
-        "text": "Mentor Sign up Form",
-        "blocks": blocks,
+        "text": "Please fill up the Mentor Sign up Form here: https://op.co.de/volunteer-signup",
         "channel": command["user_id"],
         "as_user": True,
     }
 
     await app.plugins["slack"].api.query(methods.CHAT_POST_MESSAGE, response)
+
 
 @catch_command_slack_error
 async def slash_report(command: Command, app: SirBot):
