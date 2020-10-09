@@ -5,6 +5,7 @@ from slack import methods
 from slack.events import Message
 
 from .message_templates.tech import TechTerms
+from .message_templates.search_stackoverflow import SearchStockOverflow
 from .utils import BOT_URL
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,7 @@ def create_endpoints(plugin):
     plugin.on_message(r".*", message_changed, subtype="message_changed")
     plugin.on_message(r".*", message_deleted, subtype="message_deleted")
     plugin.on_message(r".*\!tech", tech_tips)
+    plugin.on_message(r".*\!search", search_stackoverflow)
     plugin.on_message(r".*\<\!here\>", here_bad)
     plugin.on_message(r".*\<\!channel\>", here_bad)
     plugin.on_message(r".*\!pybot", advertise_pybot)
@@ -62,6 +64,24 @@ async def tech_tips(event: Message, app: SirBot):
             ).grab_values()
             await app.plugins["slack"].api.query(
                 methods.CHAT_POST_MESSAGE, tech_terms["message"]
+            )
+
+        except Exception:
+            logger.debug(f"Exception thrown while logging message_changed {event}")
+
+
+async def search_stackoverflow(event: Message, app: SirBot):
+    """
+    Command to search help links from stackoverflow.
+    """
+    if not_bot_message(event):
+        logger.info(f"tech tips logging: {event}")
+        try:
+            response = await SearchStockOverflow(
+                event["channel"], event["user"], event.get("text"), app
+            )
+            await app.plugins["slack"].api.query(
+                methods.CHAT_POST_MESSAGE, response["message"]
             )
 
         except Exception:
