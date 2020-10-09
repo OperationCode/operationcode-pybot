@@ -103,7 +103,7 @@ def greeted_attachment(user_id: str) -> List[dict]:
             "actions": [
                 {
                     "name": "reset_greet",
-                    "text": f"Reset claim",
+                    "text": "Reset claim",
                     "type": "button",
                     "style": "danger",
                     "value": "reset_greet",
@@ -165,7 +165,7 @@ def claimed_attachment(user_id):
         "actions": [
             {
                 "name": "reset_claim",
-                "text": f"Reset claim",
+                "text": "Reset claim",
                 "type": "button",
                 "style": "danger",
                 "value": "reset_claim",

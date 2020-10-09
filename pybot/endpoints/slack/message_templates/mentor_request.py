@@ -245,7 +245,7 @@ class MentorRequestClaim(Action):
             "actions": [
                 {
                     "name": f"{self.record}",
-                    "text": f"Reset claim",
+                    "text": "Reset claim",
                     "type": "button",
                     "style": "danger",
                     "value": "reset_claim_mentee",
