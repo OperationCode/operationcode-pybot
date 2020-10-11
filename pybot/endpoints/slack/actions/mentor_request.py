@@ -56,7 +56,10 @@ async def open_details_dialog(action: Action, app: SirBot):
     request = MentorRequest(action)
     cur_details = request.details
     trigger_id = action["trigger_id"]
-    response = {"trigger_id": trigger_id, "dialog": mentor_details_dialog(action, cur_details)}
+    response = {
+        "trigger_id": trigger_id,
+        "dialog": mentor_details_dialog(action, cur_details),
+    }
     await app.plugins["slack"].api.query(methods.DIALOG_OPEN, response)
 
 
