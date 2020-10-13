@@ -31,7 +31,7 @@ extending [Pyslacker's](https://pyslackers.com/)
 framework.
 
 ## Resources
-* [Slack Bot Tutorial](https://www.fullstackpython.com/blog/build-first-slack-bot-python.html)
+* [Slack Bot Tutorial](https://www.https://www.digitalocean.com/community/tutorials/how-to-build-a-slackbot-in-python-on-ubuntu-20-04)
 * [Slack Events API Framework](https://github.com/slackapi/python-slack-events-api)
 * [sir-bot-a-lot](https://github.com/pyslackers/sir-bot-a-lot-2)
 
