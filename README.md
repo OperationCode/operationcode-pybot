@@ -212,6 +212,14 @@ example:
 
     https://123_random_code_321.ngrok.io/slack/events
 
+In the section that says "Subscribe to events on behalf of users", you must add the following events:
+
+Event Name | Scope
+------- | -----------
+message.channels | channels:history
+
+Once you have set your Event subscription URL and given it the proper scope, you should now be able to use event commands such as `!tech`
+
 #### Slash Commands
 
 You can follow the instructions (and read helpful relation information) on the
