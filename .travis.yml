@@ -1,0 +1,17 @@
+language: python
+python:
+- '3.6'
+- '3.7'
+- '3.8'
+
+os:
+  - linux
+
+cache: pip
+
+install: 
+  - pip install -r requirements.txt
+  - chmod +x qa.sh
+
+script: ./qa.sh
+
