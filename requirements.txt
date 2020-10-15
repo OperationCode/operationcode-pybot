@@ -1,0 +1,8 @@
+# App
+slack-bolt
+
+# QA
+rstcheck
+flake8
+pycodestyle
+pydocstyle
