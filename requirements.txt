@@ -1,5 +1,8 @@
 # App
 slack-bolt
+aiohttp
 
 # QA
 rstcheck
+flake8
+pydocstyle
