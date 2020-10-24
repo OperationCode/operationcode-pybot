@@ -93,12 +93,15 @@ class MentorRequest(BlockAction):
         }
         self.attachments = [submit_attachment]
 
-    async def submit_request(self, username: str, email: str, airtable: AirtableAPI):
+    async def submit_request(
+        self, username: str, email: str, start_date: str, airtable: AirtableAPI
+    ):
         params = {"Slack User": username, "Email": email, "Status": "Available"}
         if self.skillsets:
             params["Skillsets"] = self.skillsets
         if self.details:
             params["Additional Details"] = self.details
+        params["start date"] = start_date
 
         service_records = await airtable.find_records("Services", "Name", self.service)
         params["Service"] = [service_records[0]["id"]]
@@ -118,11 +121,30 @@ class MentorRequest(BlockAction):
         self.attachments = [error_attachment]
         return self.update_message(slack)
 
-    def submission_complete(self, slack: SlackAPI) -> Coroutine[Any, Any, dict]:
+    def submit_request_rate_limit_exceeded_error(
+        self, new_start_date: str, slack: SlackAPI
+    ) -> Coroutine[Any, Any, dict]:
+        error_attachment = {
+            "text": (
+                f"You have exceeded mentor request limit.\n"
+                f"New request can be made starting on {new_start_date}"
+            ),
+            "color": "danger",
+        }
+        self.attachments = [error_attachment]
+        return self.update_message(slack)
+
+    def submission_complete(
+        self, remaining_requests: int, current_end_date: str, slack: SlackAPI
+    ) -> Coroutine[Any, Any, dict]:
         done_block = {
             "type": "section",
             "block_id": "submission",
-            "text": {"type": "mrkdwn", "text": "Request Submitted Successfully!"},
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Request Submitted Successfully!\n"
+                f"You have now {remaining_requests} mentor requests remaining until {current_end_date}.",
+            },
             "accessory": {
                 "type": "button",
                 "action_id": "cancel_btn",

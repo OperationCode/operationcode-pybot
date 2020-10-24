@@ -136,6 +136,27 @@ class AirtableAPI:
             )
             return []
 
+    async def find_recent_requests(
+        self, table_name: str, field: str, value: str
+    ) -> list:
+        url = self.table_url(table_name)
+
+        params = {
+            "filterByFormula": f"AND(FIND(LOWER('{value}'), LOWER({{{field}}})), "
+            "{start date} != '', DATETIME_DIFF(NOW(), {start date}, 'days') <= 31)",
+            "maxRecords": 3,
+            "view": "Test Filter View",
+        }
+
+        try:
+            response = await self.get(url, params=params)
+            return response["records"]
+        except Exception as ex:
+            logger.exception(
+                f"Exception when attempting to get {field} from {table_name}.", ex
+            )
+            return []
+
     async def update_request(self, request_record, mentor_id):
         url = self.table_url("Mentor Request", request_record)
         data = {"fields": {"Mentor Assigned": [mentor_id] if mentor_id else None}}

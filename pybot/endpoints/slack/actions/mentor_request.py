@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import date, timedelta
 
 from sirbot import SirBot
 from slack import methods
@@ -27,13 +28,41 @@ async def mentor_request_submit(action: Action, app: SirBot):
     username = action["user"]["name"]
     user_info = await slack.query(methods.USERS_INFO, {"user": action["user"]["id"]})
     email = user_info["user"]["profile"]["email"]
+    remaining_requests = 2
+    request_cycle_start_date = date.today().isoformat()
 
-    airtable_response = await request.submit_request(username, email, airtable)
+    recent_requests = await airtable.find_recent_requests("Mentor Request", "Email", email)
+    if len(recent_requests) != 0:
+        """
+        filter the recent requests by the value of most recent request cycle start date
+        if the user has already made 3 requests in the last 31 days, show them an error message
+        Otherwise, proceed to submit request
+        """
+        request_cycle_start_date = recent_requests[0]["fields"]["start date"]
+        filtered_requests = [
+            request
+            for request in recent_requests
+            if request["fields"]["start date"] == request_cycle_start_date
+        ]
+        remaining_requests -= len(filtered_requests)
+        if len(filtered_requests) == 3:
+            new_request_cycle_start_date = date.fromisoformat(request_cycle_start_date) + timedelta(days=31)
+            await request.submit_request_rate_limit_exceeded_error(
+                new_request_cycle_start_date.isoformat(), slack
+            )
+            return
+
+    airtable_response = await request.submit_request(
+        username, email, request_cycle_start_date, airtable
+    )
 
     if "error" in airtable_response:
         await request.submission_error(airtable_response, slack)
     else:
-        await request.submission_complete(slack)
+        request_cycle_end_date = date.fromisoformat(request_cycle_start_date) + timedelta(days=30)
+        await request.submission_complete(
+            remaining_requests, request_cycle_end_date.isoformat(), slack
+        )
 
 
 async def mentor_details_submit(action: Action, app: SirBot):
