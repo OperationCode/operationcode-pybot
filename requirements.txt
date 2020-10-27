@@ -3,6 +3,7 @@ slack-bolt
 aiohttp
 
 # QA
+isort
 rstcheck
 flake8
 pydocstyle

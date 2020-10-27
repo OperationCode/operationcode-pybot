@@ -1,5 +1,6 @@
 """Main program."""
 import os
+
 from bot import DailyProgrammerBot
 
 
