@@ -134,6 +134,49 @@ def not_greeted_attachment():
     ]
 
 
+def direct_messaged_attachment(user_id: str) -> List[dict]:
+    return [
+        {
+            "text": f":100:<@{user_id}> has DMed the new user!:100:\n"
+            f"<!date^{now()}^DMed at {{date_num}} {{time_secs}}|Failed to parse time>",
+            "fallback": "",
+            "color": "#3AA3E3",
+            "callback_id": "messaged",
+            "attachment_type": "default",
+            "actions": [
+                {
+                    "name": "reset_message",
+                    "text": f"Reset DM",
+                    "type": "button",
+                    "style": "danger",
+                    "value": "reset_message",
+                }
+            ],
+        }
+    ]
+
+
+def not_direct_messaged_attachment():
+    return [
+        {
+            "text": "",
+            "fallback": "Someone should DM them!",
+            "color": "#3AA3E3",
+            "callback_id": "messaged",
+            "attachment_type": "default",
+            "actions": [
+                {
+                    "name": "messaged",
+                    "text": "I will DM them!",
+                    "type": "button",
+                    "style": "primary",
+                    "value": "messaged",
+                }
+            ],
+        }
+    ]
+
+
 def not_claimed_attachment():
     return {
         "text": "",
