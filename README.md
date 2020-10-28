@@ -169,6 +169,13 @@ example:
 
     https://supersecret.serveo.net/slack/events
 
+Additional setup may needed depending on the type of events pybot is subscribing to. 
+For example, in order to work on the app's functionality on a `team_join` event, you need to:  
+
+* Add `team_join` to workspace event
+* Make sure `greetings` channel exists and ensure the app is invited to the channel
+* Add necessary OAuth scopes to the app e.g. `users:read`, `chat:write`, etc.
+
 #### Slash Commands
 
 You can follow the instructions (and read helpful relation information) on the
