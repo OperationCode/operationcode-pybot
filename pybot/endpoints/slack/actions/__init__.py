@@ -20,9 +20,11 @@ from .mentor_volunteer import (
 )
 from .new_member import (
     member_greeted,
+    member_messaged,
     open_suggestion,
     post_suggestion,
     reset_greet,
+    reset_message,
     resource_buttons,
 )
 from .report_message import open_report_dialog, send_report
@@ -38,6 +40,8 @@ def create_endpoints(plugin: SlackPlugin):
     plugin.on_action("resource_buttons", resource_buttons, wait=False)
     plugin.on_action("greeted", member_greeted, name="greeted", wait=False)
     plugin.on_action("greeted", reset_greet, name="reset_greet", wait=False)
+    plugin.on_action("messaged", member_messaged, name="messaged", wait=False)
+    plugin.on_action("messaged", reset_message, name="reset_message", wait=False)
     plugin.on_action("suggestion", open_suggestion, wait=False)
     plugin.on_action("suggestion_modal", post_suggestion, wait=False)
 

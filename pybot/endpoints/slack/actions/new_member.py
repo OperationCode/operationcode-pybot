@@ -6,8 +6,10 @@ from pybot.endpoints.slack.utils import COMMUNITY_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import (
     HELP_MENU_RESPONSES,
     base_response,
+    direct_messaged_attachment,
     greeted_attachment,
     new_suggestion_text,
+    not_direct_messaged_attachment,
     not_greeted_attachment,
     reset_greet_message,
     suggestion_dialog,
@@ -68,6 +70,28 @@ async def reset_greet(action: Action, app: SirBot):
     """
     response = base_response(action)
     response["attachments"] = not_greeted_attachment()
+    response["attachments"][0]["text"] = reset_greet_message(action["user"]["id"])
+
+    await app.plugins["slack"].api.query(methods.CHAT_UPDATE, response)
+
+
+async def member_messaged(action: Action, app: SirBot):
+    """
+    Called when a outreach team member clicks the button saying they messaged the new member
+    """
+    response = base_response(action)
+    user_id = action["user"]["id"]
+    response["attachments"] = direct_messaged_attachment(user_id)
+
+    await app.plugins["slack"].api.query(methods.CHAT_UPDATE, response)
+
+
+async def reset_message(action: Action, app: SirBot):
+    """
+    Resets the claim messaged button back to its initial state and appends the user that hit reset and the time
+    """
+    response = base_response(action)
+    response["attachments"] = not_direct_messaged_attachment()
     response["attachments"][0]["text"] = reset_greet_message(action["user"]["id"])
 
     await app.plugins["slack"].api.query(methods.CHAT_UPDATE, response)

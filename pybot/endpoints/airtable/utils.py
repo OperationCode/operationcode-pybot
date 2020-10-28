@@ -65,6 +65,7 @@ def _create_messages(
             slack_id,
             service_translation,
             request.get("skillsets", None),
+            request.get("affiliation", "None Provided"),
             requested_mentor_message,
         ),
         "attachments": claim_mentee_attachment(request["record"]),

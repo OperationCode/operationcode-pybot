@@ -12,7 +12,10 @@ from pybot.endpoints.slack.utils import (
     BACKEND_USERNAME,
     COMMUNITY_CHANNEL,
 )
-from pybot.endpoints.slack.utils.action_messages import not_greeted_attachment
+from pybot.endpoints.slack.utils.action_messages import (
+    not_direct_messaged_attachment,
+    not_greeted_attachment,
+)
 from pybot.endpoints.slack.utils.event_messages import (
     base_resources,
     external_button_attachments,
@@ -30,7 +33,7 @@ def base_user_message(user_id: str) -> Message:
     return message
 
 
-def build_messages(user_id) -> Tuple[Message, Message, Message, Message]:
+def build_messages(user_id) -> Tuple[Message, Message, Message, Message, Message]:
     initial_message = base_user_message(user_id)
     initial_message["text"] = team_join_initial_message(user_id)
 
@@ -47,7 +50,21 @@ def build_messages(user_id) -> Tuple[Message, Message, Message, Message]:
     community_message["attachments"] = not_greeted_attachment()
     community_message["channel"] = COMMUNITY_CHANNEL
 
-    return initial_message, second_message, action_menu, community_message
+    outreach_team_message = Message()
+    outreach_team_message["text"] = (
+        f":spiral_note_pad: Outreach Team: Please reach out to <@{user_id}> via DM"
+        f":spiral_note_pad: "
+    )
+    outreach_team_message["attachments"] = not_direct_messaged_attachment()
+    outreach_team_message["channel"] = COMMUNITY_CHANNEL
+
+    return (
+        initial_message,
+        second_message,
+        action_menu,
+        community_message,
+        outreach_team_message,
+    )
 
 
 async def send_user_greetings(

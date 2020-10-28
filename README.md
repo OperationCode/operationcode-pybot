@@ -32,7 +32,7 @@ extending [Pyslacker's](https://pyslackers.com/)
 framework.
 
 ## Resources
-* [Slack Bot Tutorial](https://www.fullstackpython.com/blog/build-first-slack-bot-python.html)
+* [Slack Bot Tutorial](https://www.digitalocean.com/community/tutorials/how-to-build-a-slackbot-in-python-on-ubuntu-20-04)
 * [Slack Events API Framework](https://github.com/slackapi/python-slack-events-api)
 * [sir-bot-a-lot](https://github.com/pyslackers/sir-bot-a-lot-2)
 
@@ -212,6 +212,13 @@ Base-URI that pybot is listening on followed by the text _/slack/events_. For
 example:
 
     https://123_random_code_321.ngrok.io/slack/events
+
+Additional setup may needed depending on the type of events pybot is subscribing to. 
+For example, in order to work on the app's functionality on a `team_join` event, you need to:  
+
+* Add `team_join` to workspace event
+* Make sure `greetings` channel exists and ensure the app is invited to the channel
+* Add necessary OAuth scopes to the app e.g. `users:read`, `chat:write`, etc.
 
 #### Slash Commands
 

@@ -78,7 +78,7 @@ def mentor_request_blocks(services, skillsets):
         {
             "type": "section",
             "block_id": "comments",
-            "text": {"type": "mrkdwn", "text": "*Add additional comments* (optional)"},
+            "text": {"type": "mrkdwn", "text": "*Add comments* (required)"},
             "accessory": {
                 "type": "button",
                 "action_id": "comments_btn",
@@ -110,6 +110,10 @@ def mentor_request_blocks(services, skillsets):
                     {
                         "text": {"type": "plain_text", "text": "Military Spouse"},
                         "value": "Military Spouse",
+                    },
+                    {
+                        "text": {"type": "plain_text", "text": "Non Veteran"},
+                        "value": "Non Veteran",
                     },
                 ],
             },
