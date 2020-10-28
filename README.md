@@ -212,16 +212,26 @@ example:
 
     https://123_random_code_321.ngrok.io/slack/events
 
-Additional setup may needed depending on the type of events pybot is subscribing to. 
-For example, in order to work on the app's functionality on a `team_join` event, you need to:  
+Additional setup may be needed depending on the type of events pybot is subscribing to. 
+For example, in order to work on the app's functionality on a `team_join` event, you need to:
 
 * Add `team_join` to workspace event
 * Make sure `greetings` channel exists and ensure the app is invited to the channel
 * Add necessary OAuth scopes to the app e.g. `users:read`, `chat:write`, etc.
 
+In the section which says "Subscribe to events on behalf of users", you must add the following events:
+
+Event Name | Required OAuth Scope
+------- | -----------
+member_joined_channel | channels:read or groups:read
+message.channels | channels:history
+message.groups | groups:history
+message.im | im:history
+team_join | users:read
+
 #### Slash Commands
 
-You can follow the instructions (and read helpful relation information) on the
+You can follow the instructions (and read helpful related information) on the
 [Enabling interactivity with Slash Commands](https://api.slack.com/interactivity/slash-commands)
 page on Slack to setup pybot slash commands. When configuring a Slash command,
 make sure you configure the request URL to match the Base-URI that pybot is
