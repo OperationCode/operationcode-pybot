@@ -64,7 +64,6 @@ class DailyProgrammerHelper(object):
         Returns: None
 
         """
-        exit(type(message))
         try:
             text = await self.format_messages(message)
             await self.write_history_to_file(text)
