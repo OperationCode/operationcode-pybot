@@ -36,16 +36,13 @@ def modify_params(modify_options: dict) -> dict:
         ],
     }
 
-    message["attachments"][0][
-        "pretext"
-    ] = f'<@{modify_options["slack_id"]}>: {modify_options["pretext"]}'
-    message["attachments"][0]["title"] = modify_options["title"]
+    message["attachments"][0]["pretext"] = f'<{modify_options["arguments"][1]}>: {modify_options["pretext"]} (sent by: <@{modify_options["slack_id"]}>)' if len(modify_options["arguments"]) >= 2 else f'<@{modify_options["slack_id"]}>: {modify_options["pretext"]}'
     message["attachments"][0]["title_link"] = modify_options["link"]
 
     return message
 
 
-def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
+def repeat_items(arguments: list, slack_id: str, channel_id: str) -> dict:
     # TODO: get better way of only showing unique values
     # for keys instead of my wonky way of adding more options
     messages = {
@@ -81,11 +78,13 @@ def repeat_items(requested_text: str, slack_id: str, channel_id: str) -> dict:
         "resource": find_resources(),
     }
 
-    modify_options = messages.get(requested_text.lower())
+    modify_options = messages.get(arguments[0].lower())
 
     if modify_options:
         modify_options["slack_id"] = slack_id
         modify_options["channel_id"] = channel_id
+        modify_options["arguments"] = arguments
+
         return {"type": "message", "message": modify_params(modify_options)}
     else:
         return {
