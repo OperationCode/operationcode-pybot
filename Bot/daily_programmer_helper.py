@@ -2,21 +2,27 @@
 import os
 import re
 
+from git import Repo, exc
+
 
 class DailyProgrammerHelper(object):
     """Singleton helper used to transform messages into a md file."""
 
     __instance = None
-    __directory = './output/'
-    __filename = 'daily-programmer-challenges.md'
+    __directory = 'ToBePublished/'
+    __filename = 'index.md'
     # separate challenges with a line
     __challenges_separator = "\n\n\n---\n\n\n"
+
     CHALLENGE_REGEX = re.compile(
         r"===?\s+([\w\s]+)\-?[\w\s]*\s+=?==")
-
     __CODE_BLOCS_REGEX = re.compile(r"(```)((?:[^`]*\n*)*?)(```)")
     __TITLE_REGEX = re.compile((r"(?:\*\={3}\s)(.*)(?:\s-\sDaily\sProgrammer"
                                 r"\s\={3}\*\n*?\*\[)(.*)(?:\]\*)"))
+    __IMAGES_REGEX = re.compile(
+        r"<(https://assets\.leetcode\.com/uploads/.*?)>")
+
+    __REPO_URL = 'git@github.com:73VW/Daily-Programmer-Bot.git'
 
     @staticmethod
     async def getInstance():
@@ -42,6 +48,7 @@ class DailyProgrammerHelper(object):
         Returns: None
 
         """
+        print("Parsing and formating history...")
         complete_history = ""
         # recover only messages
         messages = channel_history.get('messages')
@@ -52,6 +59,7 @@ class DailyProgrammerHelper(object):
                 complete_history += text + self.__challenges_separator
             except MessageTypeException:
                 pass
+        print("Done...")
         if complete_history != "":
             await self.write_history_to_file(complete_history, 'w')
 
@@ -79,10 +87,14 @@ class DailyProgrammerHelper(object):
         Returns: None
 
 
-        1. Check if message has text. If so, check if it has the right pattern.
+        0. Check if message has text. If so, check if it has the right pattern.
 
-        2. Format first 3 lines (Date and subject) and add '## ' at the \
+        1. Format first 3 lines (Date and subject) and add '## ' at the \
 beginning of first line.
+
+        2. Check and format code blocs.
+
+        3. Check and format images links.
         """
         """
         Ex.
@@ -113,6 +125,8 @@ beginning of first line.
         text = "## " + re.sub(self.__TITLE_REGEX, r"\2 -- \1", text)
         # 2nd modification
         text = re.sub(self.__CODE_BLOCS_REGEX, r"\1\n\2\n\3", text)
+        # 3rd modification
+        text = re.sub(self.__IMAGES_REGEX, r"![Illustration](\1)\n", text)
         return text
 
     async def write_history_to_file(self, challenges, mode='a'):
@@ -126,6 +140,7 @@ beginning of first line.
         Returns: None
 
         """
+        print("Writing history to file...")
         if mode not in ('a', 'w'):
             raise FileOpeningModeException("Given mode isn't 'a' or 'w'!")
 
@@ -136,6 +151,38 @@ beginning of first line.
         # write in file
         with open(os.path.join(self.__directory, self.__filename), mode) as f:
             f.writelines(challenges)
+        print("Done...")
+        await self.publish_challenges()
+
+    async def publish_challenges(self):
+        """Publish challenges to the gh_pages branches of the repo."""
+        print("Publishing result...")
+        remote_name = 'origin'
+        new_branch = 'gh-pages'
+        repo = None
+
+        try:
+            # Try to use local repo if it exists
+            repo = Repo(self.__directory)
+            repo.git.add('.')
+            repo.git.commit('--amend', '--no-edit')
+            repo.git.push('-f')
+        except exc.InvalidGitRepositoryError:
+            # Otherwise create it and configurate it
+            repo = Repo.init(self.__directory)
+            with repo.config_writer() as config:
+                config.add_value('user', 'name', 'Daily Programmer Bot')
+                config.add_value('user', 'email', 'daily@programmer.bot')
+            origin = repo.create_remote(
+                remote_name, self.__REPO_URL)
+            repo.git.add('.')
+            repo.git.commit(m="Deploying to gh-pages")
+            current_branch = repo.create_head(new_branch)
+            current_branch.checkout()
+            origin.fetch()
+            repo.git.push('-f', '--set-upstream', remote_name, current_branch)
+
+        print("Done.")
 
 
 class MessageTypeException(Exception):

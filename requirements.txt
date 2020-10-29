@@ -1,6 +1,7 @@
 # App
 slack-bolt
 aiohttp
+gitpython
 
 # QA
 isort

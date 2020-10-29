@@ -46,6 +46,7 @@ class DailyProgrammerBot(AsyncApp):
 
     async def list_challenges(self):
         """List challenges already in channel."""
+        print("Fetching challenge history...")
         # Fetch conversations available
         response = await self.client.conversations_list()
         if response is None or response['channels'] is None:
@@ -61,6 +62,7 @@ class DailyProgrammerBot(AsyncApp):
         # Fetch channel history
         history = await self.client.conversations_history(channel=channel_id)
         # Parse channel history using helper
+        print("Done...")
         helper = await DailyProgrammerHelper.getInstance()
         await helper.parse_channel_history(history)
 
