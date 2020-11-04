@@ -1,3 +1,4 @@
+dist: xenial
 language: python
 python:
 - '3.6'
@@ -10,8 +11,8 @@ os:
 cache: pip
 
 install: 
-  - pip install -r requirements.txt
-  - chmod +x qa.sh
+  - pip install -r pin-manager-bot/requirements.txt
+  - chmod +x pin-manager-bot/qa.sh
 
-script: ./qa.sh
+script: ./pin-manager-bot/qa.sh
 
