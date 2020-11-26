@@ -1,6 +1,7 @@
 """Helper module."""
 import os
 import re
+from configparser import ConfigParser, NoOptionError, ParsingError
 
 from git import Repo, exc
 
@@ -24,6 +25,8 @@ class DailyProgrammerHelper(object):
 
     __REPO_URL = 'git@github.com:73VW/Daily-Programmer-Bot.git'
 
+    __CONFIG_FILE_PATH = 'config.ini'
+
     @staticmethod
     async def getInstance():
         """Return or create and return instance."""
@@ -37,6 +40,42 @@ class DailyProgrammerHelper(object):
             raise Exception("This class is a singleton!")
         else:
             DailyProgrammerHelper.__instance = self
+            self.read_config()
+
+    def read_config(self):
+        """Read config from config.ini file.
+
+        Exceptions are raised if the config file is not correct.
+
+        File content :
+
+        [GitRepoInfo]
+        repo = git@github.com:73VW/Daily-Programmer-Bot.git
+
+        """
+        config_object = ConfigParser()
+        try:
+            config_object.read(self.__CONFIG_FILE_PATH)
+            git_repo_info = config_object["GitRepoInfo"]
+            repo = git_repo_info["repo"]
+
+            if repo is None or repo == '':
+                raise NoOptionError('repo', section='GitRepoInfo')
+
+            self.__REPO_URL = git_repo_info["repo"]
+
+        except (NoOptionError, ParsingError, KeyError) as e:
+            message = '\n/!\\ \n\n'
+            message += f'Invalid {self.__CONFIG_FILE_PATH} file \n'
+            if isinstance(e, NoOptionError):
+                message += f'Check option "{e.option}" in section "{e.section}"'
+            elif isinstance(e, KeyError):
+                message += f'Missing section {e}'
+            message += '\nContent should look like:\n'
+            message += '[GitRepoInfo]\n'
+            message += 'repo = git@github.com:73VW/Daily-Programmer-Bot.git'
+            message += '\n\n\nUSING DEFAULT REPO'
+            print(message)
 
     async def parse_channel_history(self, channel_history):
         """Parse channel_history and find messages matching CHALLENGE_REGEX.

@@ -2,6 +2,7 @@
 slack-bolt
 aiohttp
 gitpython
+configparser
 
 # QA
 isort
