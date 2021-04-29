@@ -1,0 +1,57 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "07:00"
+    timezone: America/Los_Angeles
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: black
+    versions:
+    - 21.4b0
+    - 21.4b1
+  - dependency-name: pytest-asyncio
+    versions:
+    - 0.15.0
+  - dependency-name: python-dotenv
+    versions:
+    - 0.15.0
+    - 0.16.0
+  - dependency-name: isort
+    versions:
+    - 5.7.0
+    - 5.8.0
+  - dependency-name: flake8
+    versions:
+    - 3.8.4
+    - 3.9.0
+  - dependency-name: sentry-sdk
+    versions:
+    - 0.19.5
+    - 0.20.0
+    - 0.20.2
+    - 0.20.3
+    - 1.0.0
+  - dependency-name: aiohttp
+    versions:
+    - 3.7.4
+  - dependency-name: cython
+    versions:
+    - 0.29.22
+  - dependency-name: pytest
+    versions:
+    - 6.2.2
+  - dependency-name: pyyaml
+    versions:
+    - 5.4.1
+  - dependency-name: pytest-mock
+    versions:
+    - 3.5.1
+  - dependency-name: requests
+    versions:
+    - 2.25.1
+  - dependency-name: cchardet
+    versions:
+    - 2.1.7
