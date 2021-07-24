@@ -276,3 +276,4 @@ BOT_USER_OAUTH_ACCESS_TOKEN | The bot user specific OAuth token used to authenti
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+
