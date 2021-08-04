@@ -66,6 +66,27 @@ def build_messages(user_id) -> Tuple[Message, Message, Message, Message, Message
         outreach_team_message,
     )
 
+def build_delayed_messages(user_id) -> Tuple[Message]:
+    social_media_message = base_user_message(user_id)
+    social_media_message["text"] = (
+        f"Welcome to Operation Code's Slack Community, we're glad you're here! "
+        f"Please share with us in #general what brings you to Operation Code, "
+        f"and how we can assist you. Also, consider adding to your Operation Code "
+        f"profile the links to your LinkedIn and GitHub accounts. "
+        f"Lastly, consider connecting with us on our social media accounts: "
+        f"<a href='https://www.facebook.com/operationcode.org/'>Facebook</a>, "
+        f"<a href='https://twitter.com/operation_code'>Twitter</a>, "
+        f"<a href='https://business.linkedin.com/marketing-solutions/higher-education'>LinkedIn</a>, "
+        f"<a href='https://www.instagram.com/operation_code/?hl=en'>Instagram</a> and "
+        f"<a href='https://www.youtube.com/channel/UCAoJt4a_KEBmgXfoQUrNbSA/featured?view_as=public'>YouTube</a>"
+        f", and contribute to our open source platform on "
+        f"<a href='https://github.com/OperationCode'>GitHub</a>. If you have any immediate needs, "
+        f"please tag our @outreach-team in any public channel. "
+    )
+
+    return (
+        social_media_message,
+    )
 
 async def send_user_greetings(
     user_messages: List[Message], slack_api: SlackAPI
@@ -79,6 +100,11 @@ async def send_community_notification(
 ) -> dict:
     return await slack_api.query(url=methods.CHAT_POST_MESSAGE, data=community_message)
 
+async def send_social_cta(
+   social_media_messages: List[Message], slack_api: SlackAPI
+) -> None:
+    for message in social_media_messages:
+        await slack_api.query(url=methods.CHAT_POST_MESSAGE, data=message)
 
 async def link_backend_user(
     slack_id: str,
