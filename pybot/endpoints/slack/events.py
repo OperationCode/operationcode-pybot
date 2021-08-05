@@ -47,6 +47,7 @@ async def team_join(event: Event, app: SirBot) -> None:
     if headers:
         await link_backend_user(user_id, headers, slack_api, app.http_session)
 
+
 async def team_join_delayed(event: Event, app: SirBot) -> None:
     """
     Handler for when the Slack workspace has a new member join.
@@ -57,8 +58,8 @@ async def team_join_delayed(event: Event, app: SirBot) -> None:
     user_id = event["user"]["id"]
 
     social_media_messages = build_delayed_messages(user_id)
-    future = [ send_social_cta(social_media_messages, slack_api) ]
+    future = [send_social_cta(social_media_messages, slack_api)]
 
     logger.info(f"Scheduling delayed message")
-    await asyncio.sleep(60)
+    await asyncio.sleep(900)
     await asyncio.wait(future)
