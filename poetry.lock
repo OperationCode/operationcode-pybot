@@ -638,8 +638,8 @@ typing-extensions = {version = ">=3.7.4", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "zipcodes"
-version = "1.1.2"
-description = "No-SQLite U.S. zipcode validation Python package, ready for use in AWS Lambda"
+version = "1.1.3"
+description = "Query U.S. state zipcodes without SQLite."
 category = "main"
 optional = false
 python-versions = "*"
@@ -659,7 +659,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "5cedb157a62ca876dbdba428047ebc6b509ebc308cd04e8023b8f18eafb62382"
+content-hash = "7b09b6420eed2f1c0f3f1f427ada7cf35fc087e92ffa187b562cb4771a1c0b92"
 
 [metadata.files]
 aiocontextvars = [
@@ -1071,8 +1071,8 @@ yarl = [
     {file = "yarl-1.6.0.tar.gz", hash = "sha256:61d3ea3c175fe45f1498af868879c6ffeb989d4143ac542163c45538ba5ec21b"},
 ]
 zipcodes = [
-    {file = "zipcodes-1.1.2-py2.py3-none-any.whl", hash = "sha256:66b69078c7336b1cd32d032d34251d9e961a8842a9add5e08dfcb628d8c4bc5e"},
-    {file = "zipcodes-1.1.2.tar.gz", hash = "sha256:20673593a25c0b5c04ed5c1c0ed68be88e96ae79b0f1d12946809084165e5afb"},
+    {file = "zipcodes-1.1.3-py2.py3-none-any.whl", hash = "sha256:b228fd678c1f035b67df1af39880c62e842a3b03c0d78dfeb2bf26069dec2a7a"},
+    {file = "zipcodes-1.1.3.tar.gz", hash = "sha256:566a0bf8af3254d5b314cf902ca8d63046795f8811046d9d218fe30ce9ee3241"},
 ]
 zipp = [
     {file = "zipp-3.2.0-py3-none-any.whl", hash = "sha256:43f4fa8d8bb313e65d8323a3952ef8756bf40f9a5c3ea7334be23ee4ec8278b6"},
