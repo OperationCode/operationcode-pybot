@@ -81,7 +81,8 @@ jobs:
       - run:
           name: Installing dependencies
           command: |
-            sudo pip install poetry
+            pip install --upgrade pip
+            pip install poetry
             poetry install
 
       - save_cache:
