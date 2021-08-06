@@ -10,6 +10,8 @@ from pybot.endpoints.slack.utils.event_utils import (
     link_backend_user,
     send_community_notification,
     send_user_greetings,
+    build_delayed_messages,
+    send_social_cta,
 )
 
 logger = logging.getLogger(__name__)
@@ -17,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 def create_endpoints(plugin):
     plugin.on_event("team_join", team_join, wait=False)
+    plugin.on_event("team_join", team_join_delayed, wait=False)
 
 
 async def team_join(event: Event, app: SirBot) -> None:
@@ -43,3 +46,20 @@ async def team_join(event: Event, app: SirBot) -> None:
     headers = await get_backend_auth_headers(app.http_session)
     if headers:
         await link_backend_user(user_id, headers, slack_api, app.http_session)
+
+
+async def team_join_delayed(event: Event, app: SirBot) -> None:
+    """
+    Handler for when the Slack workspace has a new member join.
+
+    After 1 day sends the new user a greeting, a call to action to join social media
+    """
+    slack_api = app.plugins["slack"].api
+    user_id = event["user"]["id"]
+
+    social_media_messages = build_delayed_messages(user_id)
+    future = [send_social_cta(social_media_messages, slack_api)]
+
+    logger.info(f"Scheduling delayed message")
+    await asyncio.sleep(900)
+    await asyncio.wait(future)

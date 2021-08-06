@@ -25,6 +25,28 @@ def second_team_join_message() -> str:
     )
 
 
+def third_team_join_message() -> str:
+    return f"If this is your first time using Slack, please watch this <https://youtu.be/m2JuAa6-ors|short tutorial> to get familiar with the app."
+
+
+def delayed_team_join_message() -> str:
+    return (
+        f"Welcome to Operation Code's Slack Community, we're glad you're here! "
+        f"Please share with us in #general what brings you to Operation Code, "
+        f"and how we can assist you. Also, consider adding to your Operation Code "
+        f"profile the links to your LinkedIn and GitHub accounts. "
+        f"Lastly, consider connecting with us on our social media accounts: "
+        f"<https://www.facebook.com/operationcode.org/|Facebook>, "
+        f"<https://twitter.com/operation_code|Twitter>, "
+        f"<https://business.linkedin.com/marketing-solutions/higher-education|LinkedIn>, "
+        f"<https://www.instagram.com/operation_code/?hl=en|Instagram> and "
+        f"<https://www.youtube.com/channel/UCAoJt4a_KEBmgXfoQUrNbSA/featured?view_as=public|YouTube>"
+        f", and contribute to our open source platform on "
+        f"<https://github.com/OperationCode|GitHub>. If you have any immediate needs, "
+        f"please tag our @outreach-team in any public channel. "
+    )
+
+
 def external_button_attachments() -> List[dict]:
     return [
         {

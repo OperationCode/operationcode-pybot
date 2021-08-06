@@ -21,6 +21,8 @@ from pybot.endpoints.slack.utils.event_messages import (
     external_button_attachments,
     second_team_join_message,
     team_join_initial_message,
+    delayed_team_join_message,
+    third_team_join_message,
 )
 
 logger = logging.getLogger(__name__)
@@ -33,13 +35,18 @@ def base_user_message(user_id: str) -> Message:
     return message
 
 
-def build_messages(user_id) -> Tuple[Message, Message, Message, Message, Message]:
+def build_messages(
+    user_id,
+) -> Tuple[Message, Message, Message, Message, Message, Message]:
     initial_message = base_user_message(user_id)
     initial_message["text"] = team_join_initial_message(user_id)
 
     second_message = base_user_message(user_id)
     second_message["text"] = second_team_join_message()
     second_message["attachments"] = external_button_attachments()
+
+    third_message = base_user_message(user_id)
+    third_message["text"] = third_team_join_message()
 
     action_menu = base_user_message(user_id)
     action_menu["text"] = "We recommend the following resources."
@@ -61,10 +68,18 @@ def build_messages(user_id) -> Tuple[Message, Message, Message, Message, Message
     return (
         initial_message,
         second_message,
+        third_message,
         action_menu,
         community_message,
         outreach_team_message,
     )
+
+
+def build_delayed_messages(user_id) -> Tuple[Message]:
+    social_media_message = base_user_message(user_id)
+    social_media_message["text"] = delayed_team_join_message()
+
+    return (social_media_message,)
 
 
 async def send_user_greetings(
@@ -78,6 +93,13 @@ async def send_community_notification(
     community_message: Message, slack_api: SlackAPI
 ) -> dict:
     return await slack_api.query(url=methods.CHAT_POST_MESSAGE, data=community_message)
+
+
+async def send_social_cta(
+    social_media_messages: List[Message], slack_api: SlackAPI
+) -> None:
+    for message in social_media_messages:
+        await slack_api.query(url=methods.CHAT_POST_MESSAGE, data=message)
 
 
 async def link_backend_user(

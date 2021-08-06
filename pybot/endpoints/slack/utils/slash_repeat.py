@@ -36,7 +36,11 @@ def modify_params(modify_options: dict) -> dict:
         ],
     }
 
-    message["attachments"][0]["pretext"] = f'<{modify_options["arguments"][1]}>: {modify_options["pretext"]} (sent by: <@{modify_options["slack_id"]}>)' if len(modify_options["arguments"]) >= 2 else f'<@{modify_options["slack_id"]}>: {modify_options["pretext"]}'
+    message["attachments"][0]["pretext"] = (
+        f'<{modify_options["arguments"][1]}>: {modify_options["pretext"]} (sent by: <@{modify_options["slack_id"]}>)'
+        if len(modify_options["arguments"]) >= 2
+        else f'<@{modify_options["slack_id"]}>: {modify_options["pretext"]}'
+    )
     message["attachments"][0]["title_link"] = modify_options["link"]
 
     return message
