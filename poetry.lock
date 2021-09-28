@@ -493,7 +493,7 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "sentry-sdk"
-version = "0.17.8"
+version = "1.4.2"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = false
@@ -512,6 +512,7 @@ chalice = ["chalice (>=1.16.0)"]
 django = ["django (>=1.8)"]
 falcon = ["falcon (>=1.4)"]
 flask = ["flask (>=0.11)", "blinker (>=1.1)"]
+httpx = ["httpx (>=0.16.0)"]
 pure_eval = ["pure-eval", "executing", "asttokens"]
 pyspark = ["pyspark (>=2.4.4)"]
 rq = ["rq (>=0.6)"]
@@ -659,7 +660,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "7b09b6420eed2f1c0f3f1f427ada7cf35fc087e92ffa187b562cb4771a1c0b92"
+content-hash = "d9d55b9d20737d8e7999d4966a0311da557307c897f85d24f00c4de33ee85fb2"
 
 [metadata.files]
 aiocontextvars = [
@@ -980,8 +981,8 @@ requests = [
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
 sentry-sdk = [
-    {file = "sentry-sdk-0.17.8.tar.gz", hash = "sha256:e159f7c919d19ae86e5a4ff370fccc45149fab461fbeb93fb5a735a0b33a9cb1"},
-    {file = "sentry_sdk-0.17.8-py2.py3-none-any.whl", hash = "sha256:c9c0fa1412bad87104c4eee8dd36c7bbf60b0d92ae917ab519094779b22e6d9a"},
+    {file = "sentry-sdk-1.4.2.tar.gz", hash = "sha256:683e2f677d518b6a203785f5a6c27d3a6b48cca8293d43cc7efc7815ea4dada5"},
+    {file = "sentry_sdk-1.4.2-py2.py3-none-any.whl", hash = "sha256:ffb7b1f7c9a2ca771066aa4b502756e1ef08aff246de23ffecaa5d2af1533a62"},
 ]
 sirbot = [
     {file = "sirbot-0.1.1-py3-none-any.whl", hash = "sha256:3252a917f6336f37fd95223f472cc0e225dac98b6b3492c5ce9953d8cda3cc4f"},
