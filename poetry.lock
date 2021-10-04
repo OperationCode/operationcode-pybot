@@ -638,7 +638,7 @@ typing-extensions = {version = ">=3.7.4", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "zipcodes"
-version = "1.1.3"
+version = "1.2.0"
 description = "Query U.S. state zipcodes without SQLite."
 category = "main"
 optional = false
@@ -659,7 +659,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "7b09b6420eed2f1c0f3f1f427ada7cf35fc087e92ffa187b562cb4771a1c0b92"
+content-hash = "5013a4807e7c5c20ff0bcc85e1cbec17b24814e5d6d2d4e7659b493a72f116e0"
 
 [metadata.files]
 aiocontextvars = [
@@ -1071,8 +1071,8 @@ yarl = [
     {file = "yarl-1.6.0.tar.gz", hash = "sha256:61d3ea3c175fe45f1498af868879c6ffeb989d4143ac542163c45538ba5ec21b"},
 ]
 zipcodes = [
-    {file = "zipcodes-1.1.3-py2.py3-none-any.whl", hash = "sha256:b228fd678c1f035b67df1af39880c62e842a3b03c0d78dfeb2bf26069dec2a7a"},
-    {file = "zipcodes-1.1.3.tar.gz", hash = "sha256:566a0bf8af3254d5b314cf902ca8d63046795f8811046d9d218fe30ce9ee3241"},
+    {file = "zipcodes-1.2.0-py2.py3-none-any.whl", hash = "sha256:e06e4ad7a460cfa892452e1b8d6207a0e9059e2a00e96bf0b7b36afcaa176a29"},
+    {file = "zipcodes-1.2.0.tar.gz", hash = "sha256:15d727e1c3426423fe0f2bdc9b056fdbc18c7c31e556d62e23537ceb35001077"},
 ]
 zipp = [
     {file = "zipp-3.2.0-py3-none-any.whl", hash = "sha256:43f4fa8d8bb313e65d8323a3952ef8756bf40f9a5c3ea7334be23ee4ec8278b6"},
