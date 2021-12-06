@@ -18,7 +18,7 @@ zipcodes = "^1.1.3"
 
 [tool.poetry.dev-dependencies]
 asynctest = "^0.13.0"
-black = {version = "^20.8b1", allow-prereleases = true}
+black = {version = "^21.12b0", allow-prereleases = true}
 flake8 = "^3.8.3"
 isort = "^4.3"
 pytest = "^6.0.2"
