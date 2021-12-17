@@ -79,6 +79,13 @@ async def slash_report(command: Command, app: SirBot):
 
     await slack.query(methods.CHAT_POST_MESSAGE, response)
 
+    ack = {
+        "text": f"Your report has been submitted successfully. The moderation team will review. Your Report:\n\n{message}",
+        "channel": slack_id,
+    }
+
+    await slack.query(methods.CHAT_POST_MESSAGE, ack)
+
 
 @catch_command_slack_error
 async def slash_lunch(command: Command, app: SirBot):
