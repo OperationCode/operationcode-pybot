@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  aws-ecr: circleci/aws-ecr@4.0.1
+  aws-ecr: circleci/aws-ecr@7.3.0
   aws-ecs: circleci/aws-ecs@0.0.8
   docker: circleci/docker@0.5.1
 
@@ -32,7 +32,7 @@ workflows:
 
 
       # push new Docker image to ECS
-      - aws-ecr/build_and_push_image:
+      - aws-ecr/build-and-push-image:
           repo: pybot
           tag: '${CIRCLE_BRANCH}'
           dockerfile: docker/Dockerfile
@@ -64,7 +64,7 @@ jobs:
     docker:
       - image: circleci/python:3.7.1
         environment: # environment variables for primary container
-          PIPENV_VENV_IN_PROJECT: true
+          PIPENV_VENV_IN_PROJECT: "true"
 
     steps:
       - checkout
