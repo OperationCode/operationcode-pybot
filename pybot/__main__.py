@@ -58,6 +58,6 @@ if __name__ == "__main__":
 
     # Add route to respond to AWS health check
     bot.router.add_get("/health", handle_health_check)
-    logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
+    logging.getLogger("aiohttp.access").setLevel(logging.INFO)
 
     bot.start(host=HOST, port=PORT, print=logger.info)
