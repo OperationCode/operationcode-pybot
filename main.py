@@ -7,9 +7,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
-from slack_bolt.context.ack.async_ack import AsyncAck
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
-from slack_sdk.web.async_client import AsyncWebClient
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -129,21 +127,15 @@ async def handle_mentorship_request_claim_reset_click(
     await handle_mentorship_request_claim_reset(SlackActionRequestBody(**body), context)
 
 
-# TODO: Change this back to an event
 @app.command("/new_join")
-async def handle_new_member_join_event(
-    body: dict[str, Any], context: AsyncBoltContext
-) -> None:
-    logger.debug(f"Received body: {body}")
-    await handle_new_member_join(SlackCommandRequestBody(**body), context)
-
-
 @app.event("member_joined_channel")
 async def handle_new_member_join_event(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
-    logger.debug(f"Received body: {body}")
-    await handle_new_member_join(MemberJoinedChannelEvent(**body), context)
+    if body['command']:
+        await handle_new_member_join(SlackCommandRequestBody(**body), context)
+    else:
+        await handle_new_member_join(MemberJoinedChannelEvent(**body), context)
 
 
 @app.action("greet_new_user_claim")

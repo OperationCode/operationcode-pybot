@@ -41,7 +41,7 @@ async def handle_channel_join_request(
             text=f"Your request to join {channel_name} was successful...",
         )
     except Exception as e:
-        logger.warning(f"Unable to handle the channel join request, error: {e}")
+        logger.exception(f"Unable to handle the channel join request, error: {e}")
         raise e
 
 

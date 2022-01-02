@@ -1,14 +1,15 @@
 import re
-from typing import Any
+from typing import Any, Union
 from datetime import datetime, timezone, timedelta
 from slack_bolt.context.async_context import AsyncBoltContext
 
+from modules.models.slack_models.command_models import SlackCommandRequestBody
 from modules.models.slack_models.event_models import MemberJoinedChannelEvent
 from modules.slack.blocks.new_join_blocks import (
     new_join_immediate_welcome_blocks,
     new_join_delayed_welcome_blocks,
 )
-from modules.utils import get_team_info, get_slack_user_by_id, log_to_thread
+from modules.utils import get_team_info, get_slack_user_by_id, log_to_thread, slack_team
 from modules.slack.blocks.greeting_blocks import (
     initial_greet_user_blocks,
     greeting_block_claimed_button,
@@ -17,25 +18,27 @@ from modules.slack.blocks.greeting_blocks import (
 
 
 async def handle_new_member_join(
-    parsed_body: MemberJoinedChannelEvent, context: AsyncBoltContext
+    parsed_body: Union[MemberJoinedChannelEvent, SlackCommandRequestBody], context: AsyncBoltContext
 ) -> None:
     await context.ack()
-    slack_team = get_team_info()
-    user = await get_slack_user_by_id(context.client, parsed_body.user)
+    user = None
+    if isinstance(parsed_body, MemberJoinedChannelEvent):
+        user = await get_slack_user_by_id(context.client, parsed_body.user)
+    elif isinstance(parsed_body, SlackCommandRequestBody):
+        user = await get_slack_user_by_id(context.client, parsed_body.user_id)
     await context.client.chat_postMessage(
         channel=slack_team.greetings_channel.id,
         blocks=initial_greet_user_blocks(user),
         text="A new member has joined!",
     )
-    user_info = await context.client.users_info(user=parsed_body.user)
     # Add one minute to the current timestamp
     immediate_message_timestamp = datetime.now(timezone.utc).timestamp() + 60
     await context.client.chat_scheduleMessage(
-        channel=parsed_body.user,
-        user=parsed_body.user,
+        channel=user.id,
+        user=user.id,
         post_at=int(immediate_message_timestamp),
         text="Welcome to Operation Code Slack!",
-        blocks=new_join_immediate_welcome_blocks(user_info["body"]["name"]),
+        blocks=new_join_immediate_welcome_blocks(user.name),
         unfurl_links=False,
         unfurl_media=False,
     )
@@ -47,15 +50,14 @@ async def handle_new_member_join(
         .timestamp()
     )
     await context.client.chat_scheduleMessage(
-        channel=parsed_body.user,
-        user=parsed_body.user,
+        channel=user.id,
+        user=user.id,
         post_at=int(delayed_message_timestamp),
         text="We're happy to have you at Operation Code!",
         blocks=new_join_delayed_welcome_blocks(),
         unfurl_media=False,
         unfurl_links=False,
     )
-
 
 async def handle_greeting_new_user_claim(
     body: dict[str, Any],
