@@ -1,0 +1,588 @@
+
+{
+	"blocks": [
+		{
+			"type": "section",
+			"block_id": "mentorship_request_title",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":male-teacher: Mentor Request Form :female-teacher:\n Thank you for signing up for a mentoring session. Please fill out the form below. If you have any questions, please don't hesitate to contact @mentor-coordinators.",
+				"verbatim": false
+			}
+		},
+		{
+			"type": "divider",
+			"block_id": "mentorship_divider_1"
+		},
+		{
+			"type": "section",
+			"block_id": "mentor_service",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Type of Mentorship Service*",
+				"verbatim": false
+			},
+			"accessory": {
+				"type": "static_select",
+				"action_id": "mentor_service_select",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Type of Service",
+					"emoji": true
+				},
+				"options": [
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Pair Programming",
+							"emoji": true
+						},
+						"value": "pair_programming"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Career Guidance",
+							"emoji": true
+						},
+						"value": "career_guidance"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Resume Review",
+							"emoji": true
+						},
+						"value": "resume_review"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "General Guidance",
+							"emoji": true
+						},
+						"value": "general_guidance"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Code Review",
+							"emoji": true
+						},
+						"value": "code_review"
+					}
+				]
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "mentor_skillset",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Desired Mentor Skillsets*",
+				"verbatim": false
+			},
+			"accessory": {
+				"type": "multi_static_select",
+				"action_id": "mentor_skillset_select",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Desired Mentor Skillsets",
+					"emoji": true
+				},
+				"options": [
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Job Search",
+							"emoji": true
+						},
+						"value": "job_search"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Cybersecurity",
+							"emoji": true
+						},
+						"value": "cybersecurity"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Functional Programming",
+							"emoji": true
+						},
+						"value": "functional_programming"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "General Code Review",
+							"emoji": true
+						},
+						"value": "general_code_review"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Design / UX",
+							"emoji": true
+						},
+						"value": "design_ux"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Go",
+							"emoji": true
+						},
+						"value": "go"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Project Management",
+							"emoji": true
+						},
+						"value": "project_management"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Scala",
+							"emoji": true
+						},
+						"value": "scala"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Entrepreneurship",
+							"emoji": true
+						},
+						"value": "entrepreneurship"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Education Help",
+							"emoji": true
+						},
+						"value": "education_help"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Cloud / AWS / GCP / Azure",
+							"emoji": true
+						},
+						"value": "cloud_aws_gcp_azure"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Career Advice",
+							"emoji": true
+						},
+						"value": "career_advice"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Bot Programming",
+							"emoji": true
+						},
+						"value": "bot_programming"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Study Help",
+							"emoji": true
+						},
+						"value": "study_help"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Pair Programming",
+							"emoji": true
+						},
+						"value": "pair_programming"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Prolog",
+							"emoji": true
+						},
+						"value": "prolog"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "VA Benefits / Financial Aid",
+							"emoji": true
+						},
+						"value": "va_benefits_financial_aid"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Mobile Development (Android)",
+							"emoji": true
+						},
+						"value": "mobile_development_android"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Resume Reviews",
+							"emoji": true
+						},
+						"value": "resume_reviews"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "React / Angular / Vue",
+							"emoji": true
+						},
+						"value": "react_angular_vue"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "JavaScript",
+							"emoji": true
+						},
+						"value": "javascript"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Xamarin",
+							"emoji": true
+						},
+						"value": "xamarin"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Web Development (Back-end)",
+							"emoji": true
+						},
+						"value": "web_development_backend"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Data Science",
+							"emoji": true
+						},
+						"value": "data_science"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "General Architecture",
+							"emoji": true
+						},
+						"value": "general_architecture"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "DevOps",
+							"emoji": true
+						},
+						"value": "devops"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Rust",
+							"emoji": true
+						},
+						"value": "rust"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Ruby / Rails",
+							"emoji": true
+						},
+						"value": "ruby_rails"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Salesforce",
+							"emoji": true
+						},
+						"value": "salesforce"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Transition Assistance",
+							"emoji": true
+						},
+						"value": "transition_assistance"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Mobile Development (iOS)",
+							"emoji": true
+						},
+						"value": "mobile_development_ios"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "PHP",
+							"emoji": true
+						},
+						"value": "php"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Linux",
+							"emoji": true
+						},
+						"value": "linux"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "C# / .NET",
+							"emoji": true
+						},
+						"value": "c#_.net"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Cake",
+							"emoji": true
+						},
+						"value": "cake"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Python",
+							"emoji": true
+						},
+						"value": "python"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Java",
+							"emoji": true
+						},
+						"value": "java"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Docker / Containers",
+							"emoji": true
+						},
+						"value": "docker_containers"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "C / C++",
+							"emoji": true
+						},
+						"value": "c_c++"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Mock Interview",
+							"emoji": true
+						},
+						"value": "mock_interview"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "SQL",
+							"emoji": true
+						},
+						"value": "sql"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Product Management",
+							"emoji": true
+						},
+						"value": "product_management"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Networking",
+							"emoji": true
+						},
+						"value": "networking"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Web Development (Front-end)",
+							"emoji": true
+						},
+						"value": "web_development_frontend"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Introductory Coding",
+							"emoji": true
+						},
+						"value": "introductory_coding"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Remote Working",
+							"emoji": true
+						},
+						"value": "remote_working"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Open Source Contributing",
+							"emoji": true
+						},
+						"value": "open_source_contributing"
+					}
+				]
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "comments",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Add details* (required)",
+				"verbatim": false
+			},
+			"accessory": {
+				"type": "button",
+				"action_id": "details_btn",
+				"text": {
+					"type": "plain_text",
+					"text": "Add details",
+					"emoji": true
+				},
+				"value": "add_details"
+			},
+			"fields": [
+				{
+					"type": "plain_text",
+					"text": " ",
+					"emoji": true
+				}
+			]
+		},
+		{
+			"type": "divider",
+			"block_id": "jeZsB"
+		},
+		{
+			"type": "section",
+			"block_id": "affiliation",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*I certify that I am a member of the following group*",
+				"verbatim": false
+			},
+			"accessory": {
+				"type": "static_select",
+				"action_id": "affiliation_select",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Military affiliation",
+					"emoji": true
+				},
+				"options": [
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Veteran",
+							"emoji": true
+						},
+						"value": "Veteran"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Active Duty",
+							"emoji": true
+						},
+						"value": "Active Duty"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Military Spouse",
+							"emoji": true
+						},
+						"value": "Military Spouse"
+					},
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "Non Veteran",
+							"emoji": true
+						},
+						"value": "Non Veteran"
+					}
+				]
+			}
+		},
+		{
+			"type": "divider",
+			"block_id": "2+AO"
+		},
+		{
+			"type": "actions",
+			"block_id": "submission",
+			"elements": [
+				{
+					"type": "button",
+					"action_id": "submit_mentor_btn",
+					"text": {
+						"type": "plain_text",
+						"text": "Submit",
+						"emoji": true
+					},
+					"style": "primary",
+					"value": "submit"
+				},
+				{
+					"type": "button",
+					"action_id": "cancel_btn",
+					"text": {
+						"type": "plain_text",
+						"text": "Cancel",
+						"emoji": true
+					},
+					"style": "danger",
+					"value": "cancel"
+				}
+			]
+		}
+	]
+}

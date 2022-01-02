@@ -1,0 +1,29 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"block_id": "request_main",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":tada: <google.com|@JulioMendez> has requested to join the channel."
+			}
+		},
+		{
+			"type": "actions",
+			"block_id": "invite_to_channel_claim",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "I'll Invite Them!",
+						"emoji": true
+					},
+					"style": "primary",
+					"value": "juilio.mendez",
+					"action_id": "invite_to_channel_click"
+				}
+			]
+		}
+	]
+}

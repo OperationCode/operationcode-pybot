@@ -4,53 +4,44 @@
 
 
 [![CircleCI](https://circleci.com/gh/OperationCode/operationcode-pybot.svg?style=svg)](https://circleci.com/gh/OperationCode/operationcode-pybot)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=OperationCode/operationcode-pybot)](https://dependabot.com)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://contributor-covenant.org/)
 
-# [OperationCode-Pybot](https://github.com/OperationCode/operationcode-pybot)
+# OperationCode-Pybot
 
-OperationCode PyBot is a Python [Slack Bot](https://api.slack.com)
-extending [Pyslacker's](https://pyslackers.com/)
-[sir-bot-a-lot](https://github.com/pyslackers/sir-bot-a-lot-2)
-framework.
+OperationCode PyBot is a Python [Slack](https://api.slack.com) Bot utilizing [Slack Bolt](https://github.com/SlackAPI/bolt-python).
 
 ## Resources
-* [Slack Bot Tutorial](https://www.digitalocean.com/community/tutorials/how-to-build-a-slackbot-in-python-on-ubuntu-20-04)
-* [Slack Events API Framework](https://github.com/slackapi/python-slack-events-api)
-* [sir-bot-a-lot](https://github.com/pyslackers/sir-bot-a-lot-2)
+* [Slack Web API Methods](https://api.slack.com/methods) - used to interact with Slack beyond the built-in Slack Bolt capabilities
+* [Slack Block Kit](https://api.slack.com/block-kit) - used to build the blocks used in various requests and responses
+* [Slack Bolt](https://slack.dev/bolt-python/tutorial/getting-started) - the underlying framework of the bot
+* [Slack Bolt API Reference](https://slack.dev/bolt-python/api-docs/slack_bolt/index.html)
+* [Slack Python SDK API Reference](https://slack.dev/python-slack-sdk/api-docs/slack_sdk/index.html)
 
 
 ## Contributing
-Bug reports and pull requests are welcome on [Github](https://github.com/OperationCode/operationcode-pybot). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct. If you wish to assist, join the [\#oc-python-projects](https://operation-code.slack.com/messages/C7NJLCCMB/) rewrite to learn how to contribute.
+[Bug reports](https://github.com/OperationCode/operationcode-pybot/issues) and [pull requests](https://github.com/OperationCode/operationcode-pybot/pulls) are welcome on [our Github repo](https://github.com/OperationCode/operationcode-pybot).
+This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+The best place to get assistance with OperationCode-Pybot is on [Slack](https://operationcode.org/join) in the `#oc-python-project` channel.
 
 ## Quick Start
 Recommended versions of tools used within the repo:
-- `python@3.7` or greater (in some environments, you may need to specify version of python i.e. `python test.py` vs `python3 test.py`))
-- `git@2.17.1` or greater
-- `poetry@0.12.11` or greater
-    - [Poetry](https://poetry.eustace.io/) is a packaging and dependency manager, similar to pip or pipenv
-    - Poetry provides a custom installer that can be ran via `curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python`
-    - Alternatively, poetry can be installed via pip/pip3 with `pip install --user poetry` or `pip3 install --user poetry`
-    - See https://poetry.eustace.io/docs/
-
+- `python@3.10` or greater
+- `pipenv@2021.5.29` or greater - [pipenv](https://github.com/pypa/pipenv) is a package manager similar to poetry that utilizes `pip` to manage project dependencies, along with creating new virtual environments
+and deterministic builds
 
 ```bash
-# Install dependencies (ensure poetry is already installed)
-poetry install
+# Ensure you have pipenv already installed
+pipenv install --dev
 
-# Run local development
-poetry run python -m pybot
+# Start up your virtual environment
+pipenv shell
 
-# Run testing suite
-poetry run pytest
+# Run the test suite
+pytest
 
-# Run formatting and linting
-poetry run black .
-# the next line shouldn't output anything to the terminal if it passes
-poetry run flake8
-poetry run isort -rc .
+# Run the code formatter
+black .
 ```
-
 ## How to Test Integration With Slack
 
 After having developed some new feature, or having in hand what you believe is
@@ -278,3 +269,23 @@ BOT_USER_OAUTH_ACCESS_TOKEN | The bot user specific OAuth token used to authenti
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
+
+
+## Notes
+Option 1 - Create your own Slack workspace to use for testing.
+Follow [this guide](https://slack.dev/bolt-python/tutorial/getting-started-http)
+
+
+Start the application with WebSockets instead of HTTP for better development experience? Requires the use of the SLACK_APP_TOKEN.
+Would need to set an environment variable to determine if we were in development or staging/production.
+
+Database to store history of events or just use logging? Probably best to use a database to store history of requests and responses?
+Easier to track interactions that way. 
+
+Utilizing FastAPI allows us to take advantage of things like Pydantic, inherent typing, models, and a better handler
+for the HTTP requests themselves.
+
+Utilizing [FastAPI](https://fastapi.tiangolo.com/) and [Slack-Bolt](https://slack.dev/bolt-python/tutorial/getting-started-http).
+
+All the interactive elements of this bot were built using the Slack [Block Kit Builder](https://app.slack.com/block-kit-builder/).
+The example JSON for each interactive element can be found in the `modules/slack/blocks/block_kit_examples` folder.

@@ -1,0 +1,64 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - DUMMY
+      Connection:
+      - keep-alive
+      Cookie:
+      - brw=brwOluKvpW4Hx5E7F
+      User-Agent:
+      - python-requests/2.26.0
+    method: GET
+    uri: https://api.airtable.com/v0/appHcVtFOf2HaGQog/Mentors?pageSize=1&maxRecords=1&view=Fields
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA32RSW/CMBCF/4rlc0Bx1JYqJ3ZogXSBgkrVg5sM1I3JIC90Qfz32iGn0lbywXrz
+        zczTmz1VkKLKNI2f9lRkNPZCg2+TvHXJxufD5eqGBnQlQHpmT+/xnVx1aczCs4DOuSxbRLErfwGd
+        Sp7mJOEbcLIBbUSxrh27awrfHTHm2pAJZsKpvjcKo6gWMvdmrBFHLGasHobh8idK2p9+f7nPatWy
+        vY9Ro9tb9BNxdeFg2HAhXe3NZhqLujawg0I3116up7hxSHG0dV0SZHok6CGgfSvlv6Z71fDTYtNL
+        1fxWasTOz+hzqcGnkQspfbQ+1Pxuzj7PZ+ar04PxA30O6IR/kAkUBsAxLKBtgX8ZSNB46PfiTGyA
+        LLH4034XtFAuQr8MlX4VWzJEqzS5BUUWAHm5vrJCFqhyBy+Eea2s22E0fxk+DqajVWKlt97BDAiu
+        SAeLzKaGtNIUtsYf1CgLAR1YkcELYk7ugVeqCzpVwB3lDZ+ePozDxvH0h+fDN8ty/B+ZAgAA
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '396'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 01 Jan 2022 17:38:32 GMT
+      Server:
+      - Tengine
+      Set-Cookie:
+      - brw=brwOluKvpW4Hx5E7F; path=/; expires=Sun, 01 Jan 2023 17:38:32 GMT; domain=.airtable.com;
+        samesite=none; secure
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      access-control-allow-headers:
+      - authorization,content-length,content-type,user-agent,x-airtable-application-id,x-airtable-user-agent,x-api-version,x-requested-with
+      access-control-allow-methods:
+      - DELETE,GET,OPTIONS,PATCH,POST,PUT
+      access-control-allow-origin:
+      - '*'
+      airtable-uncompressed-content-length:
+      - '665'
+      content-encoding:
+      - gzip
+    status:
+      code: 200
+      message: OK
+version: 1

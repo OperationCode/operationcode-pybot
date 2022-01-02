@@ -1,0 +1,11 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":warning: Your report was not sent to the moderators due to an unspecified error. Please contact @moderators and let them know so we can investigate the issue and take care of your report. :warning:"
+			}
+		}
+	]
+}

@@ -1,0 +1,110 @@
+{
+  "type": "block_actions",
+  "user": {
+    "id": "U01RN31JSTD",
+    "username": "judson.stevens",
+    "name": "judson.stevens",
+    "team_id": "T01SBLCQ57A"
+  },
+  "api_app_id": "A02R6C6S9JN",
+  "token": "ZdW4MAeWALbwTKtzdfhyvrGW",
+  "container": {
+    "type": "message",
+    "message_ts": "1640986475.006500",
+    "channel_id": "C01R77KM8H5",
+    "is_ephemeral": false,
+    "thread_ts": "1640986475.006500"
+  },
+  "trigger_id": "2921169898672.1895692821248.8f353dfbf0be6d23ed09354b247e0b89",
+  "team": {
+    "id": "T01SBLCQ57A",
+    "domain": "bot-testing-field"
+  },
+  "enterprise": "None",
+  "is_enterprise_install": false,
+  "channel": {
+    "id": "C01R77KM8H5",
+    "name": "mentors-internal"
+  },
+  "message": {
+    "bot_id": "B02QRQ4KU5V",
+    "type": "message",
+    "text": "New mentorship request received...",
+    "user": "U02RK2AL5LZ",
+    "ts": "1640986475.006500",
+    "team": "T01SBLCQ57A",
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "mentorship_request_service_text",
+        "text": {
+          "type": "mrkdwn",
+          "text": "User <@U01RN31JSTD> has requested a mentor for General Guidance.",
+          "verbatim": false
+        }
+      },
+      {
+        "type": "section",
+        "block_id": "mentorship_request_skillset_text",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Requested Skillset(s):* Architecture, Career Advice, Cloud / AWS / GCP / Azure",
+          "verbatim": false
+        }
+      },
+      {
+        "type": "section",
+        "block_id": "mentorship_request_affiliation_text",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Requestor Affiliation:* US Military Spouse",
+          "verbatim": false
+        }
+      },
+      {
+        "type": "actions",
+        "block_id": "claim_button_action_block",
+        "elements": [
+          {
+            "type": "button",
+            "action_id": "claim_mentorship_request",
+            "text": {
+              "type": "plain_text",
+              "text": "Claim Mentorship Request",
+              "emoji": true
+            },
+            "style": "primary"
+          }
+        ]
+      }
+    ],
+    "thread_ts": "1640986475.006500",
+    "reply_count": 2,
+    "reply_users_count": 1,
+    "latest_reply": "1640986477.006800",
+    "reply_users": [
+      "U02RK2AL5LZ"
+    ],
+    "is_locked": false,
+    "subscribed": true,
+    "last_read": "1640986477.006800"
+  },
+  "state": {
+    "values": {}
+  },
+  "response_url": "https://hooks.slack.com/actions/T01SBLCQ57A/2899731511204/xb8gxI24ldtCaVwbdsddM0nb",
+  "actions": [
+    {
+      "action_id": "claim_mentorship_request",
+      "block_id": "claim_button_action_block",
+      "text": {
+        "type": "plain_text",
+        "text": "Claim Mentorship Request",
+        "emoji": true
+      },
+      "style": "primary",
+      "type": "button",
+      "action_ts": "1640986929.354736"
+    }
+  ]
+}

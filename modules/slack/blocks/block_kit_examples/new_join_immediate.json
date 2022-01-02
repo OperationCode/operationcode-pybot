@@ -1,0 +1,93 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"block_id": "immediate_welcome_main_text",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Hello <google.com|@JulioMendez>! Welcome to Operation Code! I'm a bot designed to help you navigate this Slack workspace. Our goal here at Operation Code is to get veterans and their families started on the path to a career in tech. We do that through providing you with scholarships, mentoring, career development opportunities, conference tickets, and more! You can check out more information about us <https://operationcode.org/about|here>."
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Much of the provided aid requires veteran or military spouse status. Please verify your status on your profile at https://operationcode.org if you haven't already."
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "You are currently in Slack, a chat application that serves as the hub of Operation Code. If you are visiting us via your browser, Slack provides a <https://slack.com/downloads/|stand alone program> to make staying in touch even more convenient."
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "All active Operation Code open source projects are located on our <https://github.com/OperationCode|source control repository located on Github>. Lastly, please take a moment to review our <https://github.com/OperationCode/community/blob/master/code_of_conduct.md|Code of Conduct>."
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "oc_homepage_button",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Operation Code Homepage"
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "OC Homepage",
+					"emoji": true
+				},
+				"value": "oc_home_page",
+				"url": "https://operationcode.org",
+				"action_id": "oc_greeting_homepage_click",
+				"style": "primary"
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "slack_download_button",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Slack Download"
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "Slack Download",
+					"emoji": true
+				},
+				"value": "slack_download",
+				"url": "https://slack.com/downloads/",
+				"style": "primary",
+				"action_id": "oc_greeting_slack_download_click"
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "oc_coc_button",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Operation Code CoC"
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "Operation Code CoC",
+					"emoji": true
+				},
+				"value": "operation_code_coc",
+				"url": "https://github.com/OperationCode/community/blob/master/code_of_conduct.md",
+				"style": "primary",
+				"action_id": "oc_greeting_coc_click"
+			}
+		}
+	]
+}

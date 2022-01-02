@@ -1,0 +1,60 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - DUMMY
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.26.0
+    method: GET
+    uri: https://api.airtable.com/v0/appHcVtFOf2HaGQog/Services?pageSize=1&maxRecords=1&view=Fields
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA23OW0vDMBQH8K9S8tyWtDI386RjE+ZliJuKiozYHsuRNJFc5qX0u5vLgzCEPIT/
+        +eXkPxANjdKtIex5INgSFoKbozvz6n5uH+eiXlGSkzcEEcxANsJ1HlkwFmW3S4OdVp9e3XMRN6Dc
+        x1tO1ryHP10kXSR9xY3NrlWLPg2valrXBa382VZTVp0wOikppU+HNJt/hyLxJ2f0mVt+XU4Xy4fz
+        Na6OPYaeo/Czd9caJUtjYQ/SnHYhLhvVeyJTrYsosk0SZMzJAkyj8cOikv/X9qbRwC20W4w7DlrP
+        2GSWWo8v4y88kykbXQEAAA==
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '244'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 01 Jan 2022 17:38:14 GMT
+      Server:
+      - Tengine
+      Set-Cookie:
+      - brw=brwbGAe1ZDvQhU9Aj; path=/; expires=Sun, 01 Jan 2023 17:38:14 GMT; domain=.airtable.com;
+        samesite=none; secure
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      access-control-allow-headers:
+      - authorization,content-length,content-type,user-agent,x-airtable-application-id,x-airtable-user-agent,x-api-version,x-requested-with
+      access-control-allow-methods:
+      - DELETE,GET,OPTIONS,PATCH,POST,PUT
+      access-control-allow-origin:
+      - '*'
+      airtable-uncompressed-content-length:
+      - '349'
+      content-encoding:
+      - gzip
+    status:
+      code: 200
+      message: OK
+version: 1

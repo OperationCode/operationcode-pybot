@@ -1,0 +1,65 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - DUMMY
+      Connection:
+      - keep-alive
+      Cookie:
+      - brw=brw6yqQpAzIJ7BgE8
+      User-Agent:
+      - python-requests/2.26.0
+    method: GET
+    uri: https://api.airtable.com/v0/appHcVtFOf2HaGQog/Mentor%20Requests?pageSize=1&maxRecords=1&view=Fields
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA32S3VLbMBCFX0Wj6yQjuw1JfUV+TEwSwtQ2ZKDDhWqvjbAipZYcGjK8O5IVOsBA
+        Z3zj3W/Psc/uAdeQyTpXOPh1wCzHgS00kX/9O7qZJYti1XDcwQUDbpkDjkGBRhPZCI0D0sGxfETn
+        Zsz77nfwkiqNLmTODG+lfOL7XeKZJ/UGge8FZNAjhNziDyga7612a9+oetSEfxeDabg+W7HzEwPD
+        hjJueg9NrqToKQ07EOq0tOVeJjcGEXQDhpi3BEocgZ87OOE0q9DKtTUozUTZdf/TreWjGQ2P6m+a
+        rndqK0f9BOody6xGesTOnEbcaoyKgnFGNZPCJGkzXDD/ptrKp3saj8PSIKa2gzTeysl8uyb3ax/f
+        mbk8Z3aIcjQFbb5DvXF495VJxTg32SsUw5/GEDbh1qn6ee3t+6l+moSwvHJO6qGcRftyGmX94Rys
+        k8vhApSiJaA0+cpnwinbWG1dN/Dvtd1Q68bLKhnuvDGZiXoknNuAblfVaOgt+9FtcWndXscuxYcz
+        MDfwIyDk9QzcOVnxz3fj+v9XMUvOaqAmkJS1W35/dmQYfDs5knfPL7PR6AbxAgAA
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '447'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 01 Jan 2022 17:46:27 GMT
+      Server:
+      - Tengine
+      Set-Cookie:
+      - brw=brw6yqQpAzIJ7BgE8; path=/; expires=Sun, 01 Jan 2023 17:46:27 GMT; domain=.airtable.com;
+        samesite=none; secure
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      access-control-allow-headers:
+      - authorization,content-length,content-type,user-agent,x-airtable-application-id,x-airtable-user-agent,x-api-version,x-requested-with
+      access-control-allow-methods:
+      - DELETE,GET,OPTIONS,PATCH,POST,PUT
+      access-control-allow-origin:
+      - '*'
+      airtable-uncompressed-content-length:
+      - '753'
+      content-encoding:
+      - gzip
+    status:
+      code: 200
+      message: OK
+version: 1

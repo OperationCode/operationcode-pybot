@@ -1,0 +1,20 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"block_id": "delayed_welcome_first_text",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Again, welcome to Operation Code's Slack Community, we're very glad you are here! Please share with us in #general what brings you to Operation Code if you haven't already. Also please let us know how we can assist you on your journey. Consider adding links to your LinkedIn and Github profiles on your Operation Code profile. Lastly, consider connecting with us on our <https://www.facebook.com/operationcode.org/|Facebook>, <https://twitter.com/operation_code|Twitter>, <https://www.instagram.com/operation_code/?hl=en|Instagram>, and <https://www.youtube.com/channel/UCAoJt4a_KEBmgXfoQUrNbSA/featured?view_as=public|YouTube>. If you'd like to contribute to our Open Source software, you can do so on <https://github.com/OperationCode|GitHub>."
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "delayed_welcome_second_text",
+			"text": {
+				"type": "mrkdwn",
+				"text": "We're excited to have you! If you have any immediate needs, please tag @outreach-team in any public channel."
+			}
+		}
+	]
+}

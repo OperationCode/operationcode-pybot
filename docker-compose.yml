@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    command: bash -c "uvicorn main:app --host 0.0.0.0 --port 8001 --reload"
+    volumes:
+      - .:/pybot
+    ports:
+      - "8001:8001"
+  redis:
+    image: "redis:6.2.6"
+    ports:
+      - "6379:6379"
