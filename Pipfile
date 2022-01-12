@@ -20,6 +20,7 @@ aiohttp = "==3.8.1"
 pytest = "*"
 black = "*"
 pytest-vcr = "*"
+pyyaml = "*"
 
 [requires]
 python_version = "3.10"

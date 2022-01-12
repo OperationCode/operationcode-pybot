@@ -1,0 +1,62 @@
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: ${BOT_NAME}
+features:
+  bot_user:
+    display_name: ${BOT_NAME}
+    always_online: false
+  slash_commands:
+    - command: /mentor_request-${USERNAME}
+      url: ${NGROK_URL}/slack/events
+      description: Request a Mentor
+      should_escape: false
+    - command: /new_join-${USERNAME}
+      url: ${NGROK_URL}/slack/events
+      description: New join testing
+      should_escape: false
+    - command: /report-${USERNAME}
+      url: ${NGROK_URL}/slack/events
+      description: Sends a report to the moderation team
+      should_escape: false
+    - command: /join-blacks-in-tech-${USERNAME}
+      url: ${NGROK_URL}/slack/events
+      description: Sends a request to join the blacks-in-tech channel
+      should_escape: false
+    - command: /join-pride-${USERNAME}
+      url: ${NGROK_URL}/slack/events
+      description: Sends a request to join the operation-pride channel.
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:history
+      - channels:join
+      - channels:read
+      - chat:write
+      - chat:write.public
+      - commands
+      - emoji:read
+      - files:read
+      - groups:read
+      - groups:write
+      - im:write
+      - links:read
+      - mpim:write
+      - pins:read
+      - remote_files:read
+      - team.preferences:read
+      - team:read
+      - usergroups:read
+      - users.profile:read
+      - users:read
+      - users:read.email
+settings:
+  interactivity:
+    is_enabled: true
+    request_url: ${NGROK_URL}/slack/events
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false

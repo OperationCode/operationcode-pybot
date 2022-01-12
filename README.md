@@ -42,6 +42,17 @@ pytest
 # Run the code formatter
 black .
 ```
+
+## How to Test Integration with SlackAPI
+
+In order to test the new methods and interactions you may have created already,
+you'll need an "app configuration token". In order to get one of those, you'll need to create [a new
+issue](https://github.com/OperationCode/operationcode-pybot/issues). Please use the `type: config token request`
+label and make the title "<Your Name> Requests an App Config Token". For example: `Judson Stevens Requests an App Config Token`.
+
+Once you have created your issue, one of the maintainers of this repository will get in touch and give you your token.
+
+
 ## How to Test Integration With Slack
 
 After having developed some new feature, or having in hand what you believe is

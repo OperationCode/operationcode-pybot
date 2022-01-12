@@ -1,10 +1,14 @@
 import os
 import re
+import sys
+import yaml
+import json
 import uvicorn
 import logging
 from typing import Any
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
+from slack_bolt.app import App
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
@@ -64,6 +68,28 @@ app = AsyncApp(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET"),
 )
+
+# Currently, the app create functionality is not released in the Slack SDK for Python
+#  see https://github.com/slackapi/python-slack-sdk/issues/1119
+# try:
+#     bot_name = os.getenv("BOT_NAME")
+#     bot_username = os.getenv("BOT_USERNAME")
+#     ngrok_url = os.getenv("NGROK_URL")
+#     app_config_token = os.getenv("SLACK_APP_CONFIGURATION_TOKEN")
+#     if bot_name is None or bot_username is None or ngrok_url is None or app_config_token is None:
+#         raise "Please ensure you have all required environment variables set..."
+#
+#     synchronous_app = App(
+#         token=os.environ.get("SLACK_BOT_TOKEN"),
+#         signing_secret=os.environ.get("SLACK_SIGNING_SECRET"),
+#     )
+#     with open('bot_manifest.yml', 'r') as yaml_manifest:
+#         yaml_obj = yaml.safe_load(yaml_manifest)
+#         json_manifest = json.dumps(yaml_obj)
+#         synchronous_app.client.apps_manifest_create(manifest=json_manifest)
+#
+# except Exception as generic_error:
+#     sys.exit(1)
 
 # Define the application handler for the async Slack Bolt application - this adapter is specific to FastAPI
 app_handler = AsyncSlackRequestHandler(app)
@@ -221,5 +247,7 @@ async def handle_daily_programmer_post(
 
 if __name__ == "__main__":
     if os.environ.get("RUN_ENV") == "development":
+        uvicorn.run("main:api", host="0.0.0.0", port=8010, reload=True, reload_dirs=["./models", "./tests"])
+    else:
         # noinspection PyTypeChecker
-        uvicorn.run(api, host="0.0.0.0", port=8010)
+        uvicorn.run("main:api", host="0.0.0.0", port=5001)
