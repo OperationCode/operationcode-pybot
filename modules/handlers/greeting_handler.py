@@ -3,6 +3,7 @@ from typing import Any, Union
 from datetime import datetime, timezone, timedelta
 from slack_bolt.context.async_context import AsyncBoltContext
 
+from modules.models.slack_models.action_models import SlackActionRequestBody
 from modules.models.slack_models.command_models import SlackCommandRequestBody
 from modules.models.slack_models.event_models import MemberJoinedChannelEvent
 from modules.slack.blocks.new_join_blocks import (
@@ -60,14 +61,21 @@ async def handle_new_member_join(
     )
 
 async def handle_greeting_new_user_claim(
-    body: dict[str, Any],
+    parsed_body: SlackActionRequestBody,
     context: AsyncBoltContext,
 ) -> None:
     await context.ack()
-    original_blocks = body["message"]["blocks"]
-    original_blocks[-1] = greeting_block_claimed_button(body["user"]["username"])
+    original_blocks = parsed_body.message.blocks
+    original_blocks[-1] = greeting_block_claimed_button(parsed_body.user.username)
     modified_blocks = original_blocks
-    await log_to_thread(context.client, body, claim=True)
+    await log_to_thread(
+        client=context.client,
+        channel_id=parsed_body.channel.id,
+        message_ts=parsed_body.message.ts,
+        username=parsed_body.user.username,
+        action_ts=parsed_body.actions[0].action_ts,
+        claim=True,
+    )
     await context.respond(
         text="Modified the claim to greet the new user...",
         blocks=modified_blocks,
@@ -76,17 +84,24 @@ async def handle_greeting_new_user_claim(
 
 
 async def handle_resetting_greeting_new_user_claim(
-    body: dict[str, Any],
+    parsed_body: SlackActionRequestBody,
     context: AsyncBoltContext,
 ) -> None:
     await context.ack()
-    original_blocks = body["message"]["blocks"]
+    original_blocks = parsed_body.message.blocks
     # Extract out the username of the new user (the user we are greeting)
     original_blocks[-1] = greeting_block_button(
-        str(re.match(r"\((@.*)\)", body["message"]["blocks"][0]["text"]["text"]))
+        str(re.match(r"\((@.*)\)", parsed_body.message.blocks[0]['text']["text"]))
     )
     modified_blocks = original_blocks
-    await log_to_thread(context.client, body, claim=False)
+    await log_to_thread(
+        client=context.client,
+        channel_id=parsed_body.channel.id,
+        message_ts=parsed_body.message.ts,
+        username=parsed_body.user.username,
+        action_ts=parsed_body.actions[0].action_ts,
+        claim=True,
+    )
     await context.respond(
         text="Modified the claim to greet the new user...",
         blocks=modified_blocks,

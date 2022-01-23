@@ -1,14 +1,14 @@
 import os
+# import sys
+# import yaml
+# import json
+# from slack_bolt.app import App
 import re
-import sys
-import yaml
-import json
 import uvicorn
 import logging
 from typing import Any
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from slack_bolt.app import App
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
@@ -37,7 +37,8 @@ from modules.handlers.report_handler import (
     handle_report_claim,
     handle_reset_report_claim,
 )
-from modules.models.slack_models.event_models import MemberJoinedChannelEvent
+from modules.handlers.daily_programmer import handle_daily_programmer_post
+from modules.models.slack_models.event_models import MemberJoinedChannelEvent, MessageReceivedChannelEvent
 from modules.models.slack_models.slack_models import (
     SlackResponseBody,
     SlackUserInfo,
@@ -127,6 +128,7 @@ async def handle_mentor_request_command(
     context: AsyncBoltContext,
     body: dict[str, Any],
 ) -> None:
+    logger.info("STAGE: Processing mentorship request...")
     await handle_mentor_request(SlackCommandRequestBody(**body), context)
 
 
@@ -134,6 +136,7 @@ async def handle_mentor_request_command(
 async def handle_mentorship_request_form_view_submit(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing mentorship form submission...")
     await handle_mentorship_request_form_submit(SlackViewRequestBody(**body), context)
 
 
@@ -158,6 +161,7 @@ async def handle_mentorship_request_claim_reset_click(
 async def handle_new_member_join_event(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing new member joining...")
     if body['command']:
         await handle_new_member_join(SlackCommandRequestBody(**body), context)
     else:
@@ -169,20 +173,23 @@ async def handle_greeting_new_user_claim_action(
     context: AsyncBoltContext,
     body: dict[str, Any],
 ) -> None:
-    await handle_greeting_new_user_claim(body, context)
+    logger.info("STAGE: Processing new claim on new user for greetings...")
+    await handle_greeting_new_user_claim(SlackActionRequestBody(**body), context)
 
 
 @app.action("reset_greet_new_user_claim")
 async def handle_resetting_greeting_new_user_claim_action(
     context: AsyncBoltContext, body: dict[str, Any]
 ) -> None:
-    await handle_resetting_greeting_new_user_claim(body, context)
+    logger.info("STAGE: Resetting claim on new user greeting...")
+    await handle_resetting_greeting_new_user_claim(SlackActionRequestBody(**body), context)
 
 
 @app.command("/report")
 async def handle_report_command(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing report command...")
     await handle_report(body, context)
 
 
@@ -190,6 +197,7 @@ async def handle_report_command(
 async def handle_report_view_submit(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing report view submission...")
     await handle_report_submit(body, context)
 
 
@@ -197,6 +205,7 @@ async def handle_report_view_submit(
 async def handle_report_claim_action(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing report claim....")
     await handle_report_claim(
         SlackResponseBody(**body, originating_user=SlackUserInfo(**body["user"])),
         context,
@@ -207,6 +216,7 @@ async def handle_report_claim_action(
 async def handle_reset_report_claim_action(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing reset of report claim...")
     await handle_reset_report_claim(
         SlackResponseBody(**body, originating_user=SlackUserInfo(**body["user"])),
         context,
@@ -218,7 +228,7 @@ async def handle_reset_report_claim_action(
 async def handle_channel_join_request_command(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
-    logger.info("STAGE: Handling pride channel join request...")
+    logger.info("STAGE: Handling channel join request...")
     await handle_channel_join_request(SlackCommandRequestBody(**body), context)
 
 
@@ -226,6 +236,7 @@ async def handle_channel_join_request_command(
 async def handle_invite_to_channel_click_action(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Handling invite button click for channel join...")
     await handle_channel_join_request_claim(SlackActionRequestBody(**body), context)
 
 
@@ -233,16 +244,17 @@ async def handle_invite_to_channel_click_action(
 async def handle_invite_to_channel_reset_action(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Handling reset to invite button click for channel join...")
     await handle_channel_join_request_claim_reset(
         SlackActionRequestBody(**body), context
     )
 
 
 @app.message(re.compile(r"(={2}.*={3})|(\[.*?])"))
-async def handle_daily_programmer_post(
+async def handle_daily_programmer(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
-    pass
+    await handle_daily_programmer_post(MessageReceivedChannelEvent(**body), context)
 
 
 if __name__ == "__main__":

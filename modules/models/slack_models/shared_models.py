@@ -107,10 +107,11 @@ class SlackViewInfo(BaseModel):
 
 
 class SlackMessageInfo(BaseModel):
+    client_msg_id: str = Field(None, example="de437daf-67fd-48a6-b9bd-03f9336509e9")
     bot_id: str = Field(
         None,
         example="B02QRQ4KU5V",
-        description="Slack ID of the bot that sent the message - provided if the original message was sent from a bot",
+        description="Slack ID of the bot that sent the message - provided that the original message was sent from a bot",
     )
     type: str = Field(..., example="message", description="The type of message")
     text: str = Field(
@@ -178,7 +179,7 @@ class SlackActionInfo(BaseModel):
         None,
         description="The text object that represents the text on the action (button, etc)",
     )
-    value: Optional[dict[str, Any]] = Field(
+    value: Union[dict[str, Any], str] = Field(
         None,
         description="The value sent to the application when the action is triggered",
     )
