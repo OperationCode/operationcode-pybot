@@ -60,6 +60,7 @@ settings:
       - app_mention
       - member_joined_channel
       - message.channels
+      - message.mpim:history
       - message.im
       - message.mpim
       - team_join
