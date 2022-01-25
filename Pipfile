@@ -15,6 +15,7 @@ pydantic = "*"
 apscheduler = "*"
 dailyprogrammer = "*"
 aiohttp = "==3.8.1"
+gunicorn = "*"
 
 [dev-packages]
 pytest = "*"

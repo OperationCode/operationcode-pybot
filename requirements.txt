@@ -19,14 +19,15 @@ charset-normalizer==2.0.10; python_version >= '3'
 click==8.0.3; python_version >= '3.6'
 dailyprogrammer==1.0
 decorator==5.1.1; python_version >= '3.5'
-fastapi==0.72.0
+fastapi==0.73.0
 frozenlist==1.3.0; python_version >= '3.7'
+gunicorn==20.1.0
 h11==0.13.0; python_version >= '3.6'
 httptools==0.3.0
 idna==3.3; python_version >= '3'
 jsonpath-rw-ext==1.2.2
 jsonpath-rw==1.4.0
-multidict==6.0.1; python_version >= '3.7'
+multidict==6.0.2; python_version >= '3.7'
 pbr==5.8.0; python_version >= '2.6'
 ply==3.11
 pyairtable==1.0.0.post1
@@ -45,7 +46,7 @@ typing-extensions==4.0.1; python_version >= '3.6'
 tzdata==2021.5; python_version >= '3.6'
 tzlocal==4.1; python_version >= '3.6'
 urllib3==1.26.8; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'
-uvicorn[standard]==0.17.0
+uvicorn[standard]==0.17.0.post1
 uvloop==0.16.0
 watchgod==0.7
 websockets==10.1
