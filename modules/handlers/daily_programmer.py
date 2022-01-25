@@ -26,6 +26,7 @@ def check_for_existing_post(text: str) -> Optional[tuple[str, int]]:
     existing_posts = daily_programmer_table.all(view="Valid", fields=["Text", "Posted Count"])
     for post in existing_posts:
         if SequenceMatcher(None, post["fields"]["Text"], text).ratio() > 0.85:
+            logger.debug(f"Found matching post: {post}")
             return post["id"], int(post["fields"]["Posted Count"])
     return None
 
@@ -52,8 +53,8 @@ def process_daily_programmer_post_text(body: SlackMessageInfo) -> None:
                 )
                 return None
             except Exception as general_error:
-                logger.debug(f"Unable to create new daily programmer entry: {general_error}")
-        logger.debug(f"Unable to create new daily programmer entry due to not finding the name...")
+                logger.exception(f"Unable to create new daily programmer entry: {general_error}")
+        logger.warning(f"Unable to create new daily programmer entry due to not finding the name...")
         return None
-    logger.debug(f"Unable to create new daily programmer entry due to not finding the title...")
+    logger.warning(f"Unable to create new daily programmer entry due to not finding the title...")
     return None
