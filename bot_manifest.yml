@@ -43,8 +43,10 @@ oauth_config:
       - groups:read
       - groups:write
       - im:write
+      - im:history
       - links:read
       - mpim:write
+      - mpim:history
       - pins:read
       - remote_files:read
       - team.preferences:read

@@ -1,4 +1,5 @@
 import os
+
 # import sys
 # import yaml
 # import json
@@ -8,7 +9,7 @@ import uvicorn
 import logging
 from typing import Any
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response, Body
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
@@ -38,7 +39,10 @@ from modules.handlers.report_handler import (
     handle_reset_report_claim,
 )
 from modules.handlers.daily_programmer import handle_daily_programmer_post
-from modules.models.slack_models.event_models import MemberJoinedChannelEvent, MessageReceivedChannelEvent
+from modules.models.slack_models.event_models import (
+    MemberJoinedChannelEvent,
+    MessageReceivedChannelEvent,
+)
 from modules.models.slack_models.slack_models import (
     SlackResponseBody,
     SlackUserInfo,
@@ -46,6 +50,7 @@ from modules.models.slack_models.slack_models import (
 from modules.models.slack_models.command_models import SlackCommandRequestBody
 from modules.models.slack_models.view_models import SlackViewRequestBody
 from modules.models.slack_models.action_models import SlackActionRequestBody
+from modules.models.slack_models.shared_models import SlackTeam
 
 load_dotenv()
 logging.basicConfig(level=os.getenv("LOGGING_LEVEL", "INFO"))
@@ -117,9 +122,22 @@ async def shutdown_event():
     await Scheduler.shutdown()
 
 
+@api.post("/pybot/api/v1/slack/invite")
+async def invite_new_user(
+    email: str = Body(
+        ..., example="Test@test.com", description="Email address of the user to invite"
+    )
+) -> None:
+    await app.client.admin_users_invite(
+        team_id=SlackTeam.slack_id,
+        channel_ids=f"{SlackTeam.general_channel.id}",
+        email=email,
+    )
+
+
 # The base URI for Slack to communicate with our application - this URI is used for events, commands, and any other interaction
 @api.post("/slack/events")
-async def base_endpoint(req: Request):
+async def base_endpoint(req: Request) -> Response:
     return await app_handler.handle(req)
 
 
@@ -162,7 +180,7 @@ async def handle_new_member_join_event(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
     logger.info("STAGE: Processing new member joining...")
-    if body['command']:
+    if body["command"]:
         await handle_new_member_join(SlackCommandRequestBody(**body), context)
     else:
         await handle_new_member_join(MemberJoinedChannelEvent(**body), context)
@@ -182,7 +200,9 @@ async def handle_resetting_greeting_new_user_claim_action(
     context: AsyncBoltContext, body: dict[str, Any]
 ) -> None:
     logger.info("STAGE: Resetting claim on new user greeting...")
-    await handle_resetting_greeting_new_user_claim(SlackActionRequestBody(**body), context)
+    await handle_resetting_greeting_new_user_claim(
+        SlackActionRequestBody(**body), context
+    )
 
 
 @app.command("/report")
@@ -259,7 +279,13 @@ async def handle_daily_programmer(
 
 if __name__ == "__main__":
     if os.environ.get("RUN_ENV") == "development":
-        uvicorn.run("main:api", host="0.0.0.0", port=8010, reload=True, reload_dirs=["./models", "./tests"])
+        uvicorn.run(
+            "main:api",
+            host="0.0.0.0",
+            port=8010,
+            reload=True,
+            reload_dirs=["./models", "./tests"],
+        )
     else:
         # noinspection PyTypeChecker
         uvicorn.run("main:api", host="0.0.0.0", port=5001)
