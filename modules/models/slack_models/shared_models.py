@@ -281,6 +281,7 @@ class SlackTeam:
 
     def find_channel_by_name(self, channel_name: str) -> SlackConversationInfo:
         logger.debug(f"Finding channel by name: {channel_name}")
+        logger.debug(f"Full channel list: {self.full_conversation_list}")
         return [
             conversation
             for conversation in self.full_conversation_list

@@ -278,6 +278,11 @@ async def handle_message_event(body: dict[str, Any], context: AsyncBoltContext) 
     logger.info("STAGE: Processing message event...")
     await context.ack()
 
+@app.event("app_mention")
+async def handle_app_mention_event(body: dict[str, Any], context: AsyncBoltContext) -> None:
+    logger.info("STAGE: Processing app mention event...")
+    await context.ack()
+
 
 if __name__ == "__main__":
     if os.environ.get("RUN_ENV") == "development":
