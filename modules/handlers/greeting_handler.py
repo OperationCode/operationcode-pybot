@@ -102,7 +102,7 @@ async def handle_resetting_greeting_new_user_claim(
         message_ts=parsed_body.message.ts,
         username=parsed_body.user.username,
         action_ts=parsed_body.actions[0].action_ts,
-        claim=True,
+        claim=False,
     )
     await context.respond(
         text="Modified the claim to greet the new user...",
