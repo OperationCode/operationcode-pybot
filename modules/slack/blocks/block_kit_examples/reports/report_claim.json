@@ -1,0 +1,46 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"block_id": "report_claim_title",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":warning: <fakelink.com|@JulioMendez> has submitted a report. :warning:"
+			}
+		},
+		{
+			"type": "header",
+			"block_id": "report_claim_header",
+			"text": {
+				"type": "plain_text",
+				"text": "Report details:",
+				"emoji": true
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "report_claim_details",
+			"text": {
+				"type": "mrkdwn",
+				"text": "I have an issue with the post made by x: blah blah blah"
+			}
+		},
+		{
+			"type": "actions",
+			"block_id": "report_claim_button",
+			"elements": [
+				{
+					"type": "button",
+					"action_id": "report_claim_button_click",
+					"text": {
+						"type": "plain_text",
+						"emoji": true,
+						"text": "I Will Reach Out to Them"
+					},
+					"style": "primary",
+					"value": "claim_report"
+				}
+			]
+		}
+	]
+}

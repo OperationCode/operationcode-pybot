@@ -1,0 +1,45 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"block_id": "mentorship_request_service_text",
+			"text": {
+				"type": "mrkdwn",
+				"text": "User <google.com|@JulioMendez> has requested a mentor for Code Review."
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "mentorship_request_skillset_text",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Requested Skillset(s):* SQL, C / C++"
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "mentorship_request_affiliation_text",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Requestor Affiliation:* US Military Veteran"
+			}
+		},
+		{
+			"type": "actions",
+			"block_id": "claim_button_action_block",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "Claim Mentorship Request",
+						"emoji": true
+					},
+					"style": "primary",
+					"value": "JulioMendez",
+					"action_id": "claim_mentorship_request"
+				}
+			]
+		}
+	]
+}

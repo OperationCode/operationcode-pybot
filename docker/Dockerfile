@@ -1,4 +1,4 @@
-FROM python:3.7-alpine AS base
+FROM python:3.10-alpine AS base
 
 FROM base as builder
 
@@ -9,39 +9,31 @@ ENV PYTHONUNBUFFERED 1
 RUN apk update && \
     apk add --no-cache build-base musl-dev python3-dev libffi-dev openssl-dev
 
-RUN python -m venv /opt/venv
-# Make sure we use the virtualenv:
-ENV PATH="/opt/venv/bin:$PATH"
+COPY Pipfile Pipfile.lock ./
 
-COPY poetry.lock pyproject.toml ./
+RUN pip install --upgrade pip
 
-RUN pip install pip==21.3.1
+RUN pip install pipenv
 
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev --no-interaction
+# The `dev` stage creates an image and runs the application with development settings
+FROM builder as dev
 
-# The `built-image` stage is the base for all remaining images
-# Pulls all of the built dependencies from the builder stage
-FROM base as built-image
 ENV PIP_DISABLE_PIP_VERSION_CHECK on
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# copy installed deps from builder image
-COPY --from=builder /opt/venv /opt/venv
+COPY . ./
 
-# Make sure we use the virtualenv
-ENV PATH="/opt/venv/bin:$PATH"
+RUN pipenv install --dev
 
-# The `app` stage is used as the base for images that don't
-# need the development dependencies
-FROM built-image as app
+ENTRYPOINT ["pipenv", "run", "python3", "main.py"]
 
-COPY . /src
-WORKDIR /src
+# The `prod` stage creates an image that will run the application with production
+#  settings
+FROM builder As prod
 
-# The `Prod` stage creates an image that will run the application using a
-# production webserver and the `environments/production.py` configuration
-FROM app As Prod
-ENTRYPOINT ["python3", "-m", "pybot"]
+ENV PYTHONDONTWRITEBYTECODE 1
+
+RUN pipenv install
+
+ENTRYPOINT ["pipenv", "run", "python3", "main.py"]

@@ -1,0 +1,21 @@
+{
+	"blocks": [
+		{
+			"type": "header",
+			"block_id": "general_announcement_header",
+			"text": {
+				"type": "plain_text",
+				"text": "[Scholarship Opportunity]",
+				"emoji": true
+			}
+		},
+		{
+			"type": "section",
+			"block_id": "general_announcement_body",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Coursera:* Prepare for in-demand jobs in Data Analytics, IT Support, Project Management, and UX design. <https://airtable.com/shriXgPLQNZ5QqYyP|Sign up> ends on December 31st 2022."
+			}
+		}
+	]
+}

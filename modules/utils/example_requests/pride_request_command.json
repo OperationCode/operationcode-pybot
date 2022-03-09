@@ -1,0 +1,14 @@
+{
+  "token": "ZdW4MAeWALbwTKtzdfhyvrGW",
+  "team_id": "T01SBLCQ57A",
+  "team_domain": "bot-testing-field",
+  "channel_id": "D02R6CR6DMG",
+  "channel_name": "directmessage",
+  "user_id": "U01RN31JSTD",
+  "user_name": "judson.stevens",
+  "command": "/pride",
+  "api_app_id": "A02R6C6S9JN",
+  "is_enterprise_install": "false",
+  "response_url": "https://hooks.slack.com/commands/T01SBLCQ57A/2897652965298/c11hovXK7EMpPtnWOcRvFE4m",
+  "trigger_id": "2921387427888.1895692821248.08d2864bfc4f49d666e25ead52fb95ca"
+}

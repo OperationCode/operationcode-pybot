@@ -1,0 +1,55 @@
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":tada: <fakelink.com|@JulioMendez> has joined our community! :tada:"
+			}
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "*First Name:*"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "Julio"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "*Last Name:*"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "Mendez"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "*When:*"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "August 10th, 2021"
+				}
+			]
+		},
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"emoji": true,
+						"text": "I will greet them!"
+					},
+					"style": "primary",
+					"value": "greet_user"
+				}
+			]
+		}
+	]
+}

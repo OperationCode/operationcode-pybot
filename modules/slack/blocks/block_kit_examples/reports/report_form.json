@@ -1,0 +1,49 @@
+{
+	"title": {
+		"type": "plain_text",
+		"text": "OC Slack - Report",
+		"emoji": true
+	},
+	"type": "modal",
+	"callback_id": "report_modal",
+	"blocks": [
+		{
+			"type": "section",
+			"block_id": "report_title_block",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":warning: Thank you for taking the time to report an issue to the moderation team. Please fill out the below input field with the text of the message you'd like to report. If you'd like, you can include a short description of why you are reporting it. The report will only be shown to the moderators of the OC Slack workspace.:warning:"
+			}
+		},
+		{
+			"type": "input",
+			"block_id": "report_input",
+			"element": {
+				"type": "plain_text_input",
+				"action_id": "report_input_field",
+				"multiline": true,
+				"focus_on_load": true,
+				"min_length": 2,
+				"placeholder": {
+					"type": "plain_text",
+					"text": "You can copy and paste the text of the message you'd like to report or tell us a bit about what you are reporting..."
+				}
+			},
+			"label": {
+				"type": "plain_text",
+				"text": "Text of message you are reporting or reason for your report*",
+				"emoji": true
+			}
+		}
+	],
+	"close": {
+		"type": "plain_text",
+		"text": "Cancel",
+		"emoji": true
+	},
+	"submit": {
+		"type": "plain_text",
+		"text": "Submit Report",
+		"emoji": true
+	}
+}
