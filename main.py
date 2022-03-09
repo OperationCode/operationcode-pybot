@@ -1,9 +1,4 @@
 import os
-
-# import sys
-# import yaml
-# import json
-# from slack_bolt.app import App
 import re
 import uvicorn
 import logging
@@ -50,7 +45,6 @@ from modules.models.slack_models.slack_models import (
 from modules.models.slack_models.command_models import SlackCommandRequestBody
 from modules.models.slack_models.view_models import SlackViewRequestBody
 from modules.models.slack_models.action_models import SlackActionRequestBody
-from modules.models.slack_models.shared_models import SlackTeam
 
 load_dotenv()
 logging.basicConfig(level=os.getenv("LOGGING_LEVEL", "INFO"))
@@ -105,14 +99,14 @@ api = FastAPI()
 
 # Initialize an AsyncIOScheduler object to schedule tasks
 Scheduler = AsyncIOScheduler({"apscheduler.timezone": "UTC"})
-Trigger = IntervalTrigger(seconds=30)
-
+MessageTrigger = IntervalTrigger(seconds=30)
+DailyProgrammerTrigger = IntervalTrigger(hours=24)
 
 # Start up our job scheduler on FastAPI startup and schedule jobs as needed
 @api.on_event("startup")
 async def startup_event() -> None:
     Scheduler.start()
-    # job = Scheduler.add_job(schedule_messages, trigger=Trigger)
+    # job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger)
     # logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
 
 
@@ -121,18 +115,18 @@ async def startup_event() -> None:
 async def shutdown_event():
     await Scheduler.shutdown()
 
-
-@api.post("/pybot/api/v1/slack/invite")
-async def invite_new_user(
-    email: str = Body(
-        ..., example="Test@test.com", description="Email address of the user to invite"
-    )
-) -> None:
-    await app.client.admin_users_invite(
-        team_id=SlackTeam.slack_id,
-        channel_ids=f"{SlackTeam.general_channel.id}",
-        email=email,
-    )
+# Currently, handled by the old Pybot and can't be handled by us without some legacy token usage
+# @api.post("/pybot/api/v1/slack/invite")
+# async def invite_new_user(
+#     email: str = Body(
+#         ..., example="Test@test.com", description="Email address of the user to invite"
+#     )
+# ) -> None:
+#     await app.client.admin_users_invite(
+#         team_id=SlackTeam.slack_id,
+#         channel_ids=f"{SlackTeam.general_channel.id}",
+#         email=email,
+#     )
 
 
 # The base URI for Slack to communicate with our application - this URI is used for events, commands, and any other interaction
@@ -174,13 +168,13 @@ async def handle_mentorship_request_claim_reset_click(
     await handle_mentorship_request_claim_reset(SlackActionRequestBody(**body), context)
 
 
-# @app.command("/new_join")
+@app.command("/new_join") # This is used specifically for testing in staging
 @app.event("member_joined_channel")
 async def handle_new_member_join_event(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
     logger.info("STAGE: Processing new member joining...")
-    if body["command"]:
+    if body["command"] and os.getenv("RUN_ENVIRONMENT") != "production":
         await handle_new_member_join(SlackCommandRequestBody(**body), context)
     else:
         await handle_new_member_join(MemberJoinedChannelEvent(**body), context)
@@ -278,6 +272,13 @@ async def handle_daily_programmer(
     await handle_daily_programmer_post(MessageReceivedChannelEvent(**body), context)
 
 
+@app.event("message")
+async def handle_message_event(
+    body: dict[str, Any], context: AsyncBoltContext
+) -> None:
+    logger.info("STAGE: Processing message event...")
+    await context.ack()
+
 if __name__ == "__main__":
     if os.environ.get("RUN_ENV") == "development":
         uvicorn.run(
@@ -289,4 +290,4 @@ if __name__ == "__main__":
         )
     else:
         # noinspection PyTypeChecker
-        uvicorn.run("main:api", host="0.0.0.0", port=5001)
+        uvicorn.run("main:api", host="0.0.0.0", port=5000)

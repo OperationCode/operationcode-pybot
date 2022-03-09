@@ -1,6 +1,6 @@
 import re
 import logging
-from typing import Optional
+from typing import Optional, Union
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from slack_bolt.context.async_context import AsyncBoltContext
@@ -27,7 +27,7 @@ async def handle_daily_programmer_post(
     process_daily_programmer_post_text(parsed_body.event)
 
 
-def check_for_existing_post(text: str) -> Optional[tuple[str, int]]:
+def check_for_existing_post(text: str) -> Union[tuple[str, int], tuple[None, None]]:
     existing_posts = daily_programmer_table.all(
         view="Valid", fields=["Text", "Posted Count"]
     )
@@ -35,7 +35,7 @@ def check_for_existing_post(text: str) -> Optional[tuple[str, int]]:
         if SequenceMatcher(None, post["fields"]["Text"], text).ratio() > 0.85:
             logger.debug(f"Found matching post: {post}")
             return post["id"], int(post["fields"]["Posted Count"])
-    return None
+    return None, None
 
 
 def process_daily_programmer_post_text(body: SlackMessageInfo) -> None:
@@ -52,12 +52,12 @@ def process_daily_programmer_post_text(body: SlackMessageInfo) -> None:
                         .replace("]", "")
                         .replace("*", ""),
                         "Text": body.text[name.span()[1] + 1 :],
-                        "Initially Posted On": datetime.fromtimestamp(
+                        "Initially Posted On": str(datetime.fromtimestamp(
                             float(body.ts), timezone.utc
-                        ),
-                        "Last Posted On": datetime.fromtimestamp(
+                        )),
+                        "Last Posted On": str(datetime.fromtimestamp(
                             float(body.ts), timezone.utc
-                        ),
+                        )),
                         "Posted Count": 1,
                         "Initial Slack TS": body.ts,
                         "Blocks": body.blocks,
