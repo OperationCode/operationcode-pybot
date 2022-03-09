@@ -174,7 +174,7 @@ async def handle_mentorship_request_claim_reset_click(
     await handle_mentorship_request_claim_reset(SlackActionRequestBody(**body), context)
 
 
-@app.command("/new_join")
+# @app.command("/new_join")
 @app.event("member_joined_channel")
 async def handle_new_member_join_event(
     body: dict[str, Any], context: AsyncBoltContext
@@ -274,6 +274,7 @@ async def handle_invite_to_channel_reset_action(
 async def handle_daily_programmer(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing daily programmer post...")
     await handle_daily_programmer_post(MessageReceivedChannelEvent(**body), context)
 
 
