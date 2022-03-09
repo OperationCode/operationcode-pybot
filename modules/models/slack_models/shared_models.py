@@ -1,8 +1,11 @@
 import os
+import logging
 from functools import cached_property
-from typing import Any, Union, Optional
+from typing import Any, Union
 
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 
 class SlackUserInfo(BaseModel):
@@ -277,6 +280,7 @@ class SlackTeam:
         self._team_info = team_info
 
     def find_channel_by_name(self, channel_name: str) -> SlackConversationInfo:
+        logger.debug(f"Finding channel by name: {channel_name}")
         return [
             conversation
             for conversation in self.full_conversation_list

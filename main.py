@@ -115,6 +115,7 @@ async def startup_event() -> None:
 async def shutdown_event():
     await Scheduler.shutdown()
 
+
 # Currently, handled by the old Pybot and can't be handled by us without some legacy token usage
 # @api.post("/pybot/api/v1/slack/invite")
 # async def invite_new_user(
@@ -168,7 +169,7 @@ async def handle_mentorship_request_claim_reset_click(
     await handle_mentorship_request_claim_reset(SlackActionRequestBody(**body), context)
 
 
-@app.command("/new_join") # This is used specifically for testing in staging
+@app.command("/new_join")  # This is used specifically for testing in staging
 @app.event("member_joined_channel")
 async def handle_new_member_join_event(
     body: dict[str, Any], context: AsyncBoltContext
@@ -273,11 +274,10 @@ async def handle_daily_programmer(
 
 
 @app.event("message")
-async def handle_message_event(
-    body: dict[str, Any], context: AsyncBoltContext
-) -> None:
+async def handle_message_event(body: dict[str, Any], context: AsyncBoltContext) -> None:
     logger.info("STAGE: Processing message event...")
     await context.ack()
+
 
 if __name__ == "__main__":
     if os.environ.get("RUN_ENV") == "development":

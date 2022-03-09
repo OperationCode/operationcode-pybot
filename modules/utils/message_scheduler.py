@@ -57,7 +57,11 @@ async def schedule_messages(async_app: AsyncApp) -> None:
                     f"and Next Send: {next_when_to_send}"
                 )
                 scheduled_message_table.update_record(
-                    message.airtable_id, {"Last Sent": str(datetime_to_update), "When To Send": str(next_when_to_send)}
+                    message.airtable_id,
+                    {
+                        "Last Sent": str(datetime_to_update),
+                        "When To Send": str(next_when_to_send),
+                    },
                 )
             else:
                 logger.warning(

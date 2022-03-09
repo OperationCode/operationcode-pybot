@@ -52,12 +52,12 @@ def process_daily_programmer_post_text(body: SlackMessageInfo) -> None:
                         .replace("]", "")
                         .replace("*", ""),
                         "Text": body.text[name.span()[1] + 1 :],
-                        "Initially Posted On": str(datetime.fromtimestamp(
-                            float(body.ts), timezone.utc
-                        )),
-                        "Last Posted On": str(datetime.fromtimestamp(
-                            float(body.ts), timezone.utc
-                        )),
+                        "Initially Posted On": str(
+                            datetime.fromtimestamp(float(body.ts), timezone.utc)
+                        ),
+                        "Last Posted On": str(
+                            datetime.fromtimestamp(float(body.ts), timezone.utc)
+                        ),
                         "Posted Count": 1,
                         "Initial Slack TS": body.ts,
                         "Blocks": body.blocks,
