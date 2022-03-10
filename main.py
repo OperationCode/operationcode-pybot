@@ -283,6 +283,28 @@ async def handle_app_mention_event(body: dict[str, Any], context: AsyncBoltConte
     logger.info("STAGE: Processing app mention event...")
     await context.ack()
 
+@app.action("oc_greeting_homepage_click")
+async def handle_oc_greeting_homepage_click_action(
+    body: dict[str, Any], context: AsyncBoltContext
+) -> None:
+    logger.info("STAGE: Processing OC greeting homepage click...")
+    await context.ack()
+
+@app.action("oc_greeting_slack_download_click")
+async def handle_oc_greeting_slack_download_click_action(
+    body: dict[str, Any], context: AsyncBoltContext
+) -> None:
+    logger.info("STAGE: Processing OC greeting slack download click...")
+    await context.ack()
+
+
+@app.action("oc_greeting_coc_click")
+async def handle_oc_greeting_coc_click_action(
+    body: dict[str, Any], context: AsyncBoltContext
+) -> None:
+    logger.info("STAGE: Processing OC greeting coc click...")
+    await context.ack()
+
 
 if __name__ == "__main__":
     if os.environ.get("RUN_ENV") == "development":
