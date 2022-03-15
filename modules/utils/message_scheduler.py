@@ -14,8 +14,10 @@ async def schedule_messages(async_app: AsyncApp) -> None:
     messages = scheduled_message_table.all_valid_scheduled_messages
     logger.debug(f"Retrieved {len(messages)} total valid messages to be potentially be scheduled")
     for message in messages:
+        # If we had scheduled this message to be sent at a time in the past, proceed
         if message.scheduled_next < datetime.now(tz=timezone.utc):
             logger.debug(f"Scheduling message {message.name}")
+            # If when to send is in the past as well, that means we should send it immediately
             if message.when_to_send < datetime.now(tz=timezone.utc):
                 logger.debug(f"Scheduling message {message.name} to be sent immediately")
                 send_message_timestamp = int(datetime.now(timezone.utc).timestamp()) + 240
@@ -28,6 +30,7 @@ async def schedule_messages(async_app: AsyncApp) -> None:
                     next_month = datetime(message.when_to_send.year, message.when_to_send.month + 1, 7)
                     offset = -next_month.weekday()
                     new_scheduled_next = next_month + timedelta(days=offset)
+            # Otherwise, we send it out normally using the when to send field
             else:
                 send_message_timestamp = int(message.when_to_send.timestamp())
                 new_scheduled_next = message.when_to_send
