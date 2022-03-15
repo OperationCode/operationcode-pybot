@@ -121,7 +121,7 @@ async def startup_event() -> None:
 # On shutdown, shutdown the scheduler service first
 @api.on_event("shutdown")
 async def shutdown_event():
-    await Scheduler.shutdown()
+    Scheduler.shutdown()
 
 
 # Currently, handled by the old Pybot and can't be handled by us without some legacy token usage

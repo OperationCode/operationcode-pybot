@@ -35,7 +35,7 @@ class ScheduledMessageInfo(AirtableRowBaseModel):
         example="2021-04-23T10:20:30.400+00:00",
         description="ISO formatted datetime in UTC to send the first message - this is used to set the schedule for this message",
     )
-    frequency: FrequencyEnum = Field(
+    frequency: str = Field(
         ...,
         example="daily",
         description="Frequency to send the message - one of daily, weekly, monthly",
