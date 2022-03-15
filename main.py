@@ -54,7 +54,6 @@ logging.basicConfig(level=os.getenv("LOGGING_LEVEL", "INFO"))
 
 logger = logging.getLogger(__name__)
 
-# TODO: Add in /moderators slash command that lists the moderators pulled from Airtable
 # TODO: Change mentorship view to dynamically add descriptions for the mentorship service block - will require dispatching an action on select and updating the block
 # TODO: Allow matching mentor to mentee based on time zone, number of mentees a mentor already has (will need integration with Dreami to track long term relationships)
 # TODO: Integrate with current backend to grab information about the mentee after a request is sent to allow for better matching (could be related to time zone, zip code, etc)
@@ -308,7 +307,6 @@ async def handle_oc_greeting_slack_download_click_action(
     logger.info("STAGE: Processing OC greeting slack download click...")
     await context.ack()
 
-
 @app.action("oc_greeting_coc_click")
 async def handle_oc_greeting_coc_click_action(
     body: dict[str, Any], context: AsyncBoltContext
@@ -325,7 +323,7 @@ if __name__ == "__main__":
             port=8010,
             reload=True,
             reload_dirs=["./models", "./tests"],
+            workers=1
         )
     else:
-        # noinspection PyTypeChecker
-        uvicorn.run("main:api", host="0.0.0.0", port=5000)
+        raise ValueError("RUN_ENVIRONMENT must be set to 'development'")
