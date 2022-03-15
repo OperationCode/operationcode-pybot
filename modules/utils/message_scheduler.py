@@ -23,7 +23,7 @@ async def schedule_messages(async_app: AsyncApp) -> None:
                     new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=1)
                 elif message.frequency == "weekly":
                     new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=7)
-                elif message.frequency == "monthly":
+                else:
                     new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=30)
             else:
                 send_message_timestamp = int(message.when_to_send.timestamp())
