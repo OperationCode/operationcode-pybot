@@ -107,14 +107,14 @@ api = FastAPI()
 
 # Initialize an AsyncIOScheduler object to schedule tasks
 Scheduler = AsyncIOScheduler({"apscheduler.timezone": "UTC"})
-MessageTrigger = IntervalTrigger(seconds=30)
+MessageTrigger = IntervalTrigger(minutes=10)
 DailyProgrammerTrigger = IntervalTrigger(hours=24)
 
 # Start up our job scheduler on FastAPI startup and schedule jobs as needed
 @api.on_event("startup")
 async def startup_event() -> None:
     Scheduler.start()
-    job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger)
+    job = Scheduler.add_job(schedule_messages(async_app=app), trigger=MessageTrigger)
     logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
 
 
