@@ -24,7 +24,10 @@ async def schedule_messages(async_app: AsyncApp) -> None:
                 elif message.frequency == "weekly":
                     new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=7)
                 else:
-                    new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=30)
+                    # Should find the next Monday in the month - will have to increase the variability in frequency to post theses on different days
+                    next_month = datetime(message.when_to_send.year, message.when_to_send.month + 1, 7)
+                    offset = -next_month.weekday()
+                    new_scheduled_next = next_month + timedelta(days=offset)
             else:
                 send_message_timestamp = int(message.when_to_send.timestamp())
                 new_scheduled_next = message.when_to_send
