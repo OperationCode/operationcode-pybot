@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request, Response
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
-from apscheduler.schedulers.asyncio import BackgroundScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from modules.handlers.channel_join_handler import (
