@@ -1,10 +1,10 @@
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from slack_bolt.async_app import AsyncApp
 
+from modules.utils import slack_team
 from modules.airtable import scheduled_message_table
 from modules.slack.blocks.announcement_blocks import general_announcement_blocks
-from modules.utils import slack_team
 
 logger = logging.getLogger(__name__)
 
@@ -19,23 +19,27 @@ async def schedule_messages(async_app: AsyncApp) -> None:
             if message.when_to_send < datetime.now(tz=timezone.utc):
                 logger.debug(f"Scheduling message {message.name} to be sent immediately")
                 send_message_timestamp = int(datetime.now(timezone.utc).timestamp()) + 240
+                new_scheduled_next = datetime.now(timezone.utc)
             else:
                 send_message_timestamp = int(message.when_to_send.timestamp())
+                new_scheduled_next = message.when_to_send
+
+            channel_to_send_to = slack_team.find_channel_by_name(message.channel)
 
             response = await async_app.client.chat_scheduleMessage(
-                channel=slack_team.general_channel.id,
+                channel=channel_to_send_to.id,
                 post_at=send_message_timestamp,
                 text=f"Announcement in {message.channel}...",
                 blocks=general_announcement_blocks(message.name, message.message_text),
             )
             if response.status_code == 200:
                 logger.debug(
-                    f"Updating the Airtable {scheduled_message_table.table_name} table for row with id: {message.airtable_id} with new value Scheduled Next: {message.when_to_send}"
+                    f"Updating the Airtable {scheduled_message_table.table_name} table for row with id: {message.airtable_id} with new value Scheduled Next: {new_scheduled_next}"
                 )
                 scheduled_message_table.update_record(
                     message.airtable_id,
                     {
-                        "Scheduled Next": str(message.when_to_send),
+                        "Scheduled Next": str(new_scheduled_next),
                     },
                 )
             else:
