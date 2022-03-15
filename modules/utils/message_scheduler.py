@@ -10,19 +10,26 @@ logger = logging.getLogger(__name__)
 
 
 async def schedule_messages(async_app: AsyncApp) -> None:
-    logging.info("STAGE: Beginning task schedule_messages...")
+    logger.info("STAGE: Beginning task schedule_messages...")
     messages = scheduled_message_table.all_valid_scheduled_messages
-    logging.debug(f"Retrieved {len(messages)} total valid messages to be scheduled")
+    logger.debug(f"Retrieved {len(messages)} total valid messages to be potentially be scheduled")
     for message in messages:
         if message.scheduled_next < datetime.now(tz=timezone.utc):
+            logger.debug(f"Scheduling message {message.name}")
+            if message.when_to_send < datetime.now(tz=timezone.utc):
+                logger.debug(f"Scheduling message {message.name} to be sent immediately")
+                send_message_timestamp = int(datetime.now(timezone.utc).timestamp()) + 240
+            else:
+                send_message_timestamp = int(message.when_to_send.timestamp())
+
             response = await async_app.client.chat_scheduleMessage(
                 channel=slack_team.general_channel.id,
-                post_at=int(message.when_to_send.timestamp()),
+                post_at=send_message_timestamp,
                 text=f"Announcement in {message.channel}...",
                 blocks=general_announcement_blocks(message.name, message.message_text),
             )
             if response.status_code == 200:
-                logging.debug(
+                logger.debug(
                     f"Updating the Airtable {scheduled_message_table.table_name} table for row with id: {message.airtable_id} with new value Scheduled Next: {message.when_to_send}"
                 )
                 scheduled_message_table.update_record(
@@ -56,7 +63,7 @@ async def schedule_messages(async_app: AsyncApp) -> None:
         #     else:
         #         datetime_to_send_message = int(message.when_to_send.timestamp())
         #         datetime_to_update = message.when_to_send
-        #     logging.debug(
+        #     logger.debug(
         #         f"Scheduling message with name: {message.name} to be sent at datetime: {str(datetime_to_send_message)}"
         #     )
         #     response = await async_app.client.chat_scheduleMessage(
@@ -72,7 +79,7 @@ async def schedule_messages(async_app: AsyncApp) -> None:
         #         #     next_when_to_send = datetime_to_update + timedelta(days=7)
         #         # else:
         #         #     next_when_to_send = datetime_to_update + timedelta(days=30)
-        #         logging.debug(
+        #         logger.debug(
         #             f"Updating the Airtable {scheduled_message_table.table_name} table for row with id: {message.airtable_id} with new value Last Sent: {datetime_to_update}"
         #         )
         #         scheduled_message_table.update_record(
