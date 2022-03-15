@@ -114,7 +114,7 @@ DailyProgrammerTrigger = IntervalTrigger(hours=24)
 @api.on_event("startup")
 async def startup_event() -> None:
     Scheduler.start()
-    job = Scheduler.add_job(schedule_messages(async_app=app), trigger=MessageTrigger)
+    job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger, kwargs={"async_app": app})
     logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
 
 
