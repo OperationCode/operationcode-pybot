@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from slack_bolt.async_app import AsyncApp
 
 from modules.utils import slack_team
@@ -19,7 +19,12 @@ async def schedule_messages(async_app: AsyncApp) -> None:
             if message.when_to_send < datetime.now(tz=timezone.utc):
                 logger.debug(f"Scheduling message {message.name} to be sent immediately")
                 send_message_timestamp = int(datetime.now(timezone.utc).timestamp()) + 240
-                new_scheduled_next = datetime.now(timezone.utc)
+                if message.frequency == "daily":
+                    new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=1)
+                elif message.frequency == "weekly":
+                    new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=7)
+                elif message.frequency == "monthly":
+                    new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=30)
             else:
                 send_message_timestamp = int(message.when_to_send.timestamp())
                 new_scheduled_next = message.when_to_send
