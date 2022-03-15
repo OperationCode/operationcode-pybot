@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request, Response
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.asyncio import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from modules.handlers.channel_join_handler import (
@@ -105,19 +105,18 @@ if "SENTRY_DSN" in os.environ:
 api = FastAPI()
 
 # Initialize an AsyncIOScheduler object to schedule tasks
+Scheduler = BackgroundScheduler({"apscheduler.timezone": "UTC"})
+MessageTrigger = IntervalTrigger(minutes=10)
+# DailyProgrammerTrigger = IntervalTrigger(hours=24)
 
 # Start up our job scheduler on FastAPI startup and schedule jobs as needed
 @api.on_event("startup")
 async def startup_event() -> None:
-    global Scheduler
-    Scheduler = AsyncIOScheduler({"apscheduler.timezone": "UTC"})
-    message_trigger = IntervalTrigger(minutes=10)
-    # DailyProgrammerTrigger = IntervalTrigger(hours=24)
     messages = await app.client.chat_scheduledMessages_list()
     for message in messages["scheduled_messages"]:
         await app.client.chat_deleteScheduledMessage(channel=message["channel_id"], scheduled_message_id=message["id"])
     Scheduler.start()
-    job = Scheduler.add_job(schedule_messages, trigger=message_trigger, kwargs={"async_app": app})
+    job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger, kwargs={"async_app": app})
     logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
 
 
