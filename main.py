@@ -3,8 +3,10 @@ import re
 import uvicorn
 import logging
 from typing import Any
+
+import sentry_sdk
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Response, Body
+from fastapi import FastAPI, Request, Response
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
@@ -45,6 +47,7 @@ from modules.models.slack_models.slack_models import (
 from modules.models.slack_models.command_models import SlackCommandRequestBody
 from modules.models.slack_models.view_models import SlackViewRequestBody
 from modules.models.slack_models.action_models import SlackActionRequestBody
+from modules.utils.message_scheduler import schedule_messages
 
 load_dotenv()
 logging.basicConfig(level=os.getenv("LOGGING_LEVEL", "INFO"))
@@ -94,6 +97,11 @@ app = AsyncApp(
 # Define the application handler for the async Slack Bolt application - this adapter is specific to FastAPI
 app_handler = AsyncSlackRequestHandler(app)
 
+# Sentry monitoring
+if "SENTRY_DSN" in os.environ:
+    # pylint: disable=abstract-class-instantiated
+    sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"), request_bodies="medium", environment=os.getenv("RUN_ENV", "development"))
+
 # Define the API
 api = FastAPI()
 
@@ -106,8 +114,8 @@ DailyProgrammerTrigger = IntervalTrigger(hours=24)
 @api.on_event("startup")
 async def startup_event() -> None:
     Scheduler.start()
-    # job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger)
-    # logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
+    job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger)
+    logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
 
 
 # On shutdown, shutdown the scheduler service first
@@ -307,7 +315,7 @@ async def handle_oc_greeting_coc_click_action(
 
 
 if __name__ == "__main__":
-    if os.environ.get("RUN_ENV") == "development":
+    if os.environ.get("RUN_ENVIRONMENT") == "development":
         uvicorn.run(
             "main:api",
             host="0.0.0.0",

@@ -31,7 +31,7 @@ async def schedule_messages(async_app: AsyncApp) -> None:
                 )
                 # Add on 120 seconds to the timestamp in order to not run into the "time in past" error
                 datetime_to_send_message = (
-                    int(datetime.now(timezone.utc).timestamp()) + 120
+                    int(datetime.now(timezone.utc).timestamp()) + 240
                 )
             else:
                 datetime_to_send_message = int(message.when_to_send.timestamp())
@@ -46,21 +46,20 @@ async def schedule_messages(async_app: AsyncApp) -> None:
                 blocks=general_announcement_blocks(message.name, message.message_text),
             )
             if response.status_code == 200:
-                if message.frequency == "Daily":
-                    next_when_to_send = datetime_to_update + timedelta(days=1)
-                elif message.frequency == "Weekly":
-                    next_when_to_send = datetime_to_update + timedelta(days=7)
-                else:
-                    next_when_to_send = datetime_to_update + timedelta(days=30)
+                # if message.frequency == "Daily":
+                #     next_when_to_send = datetime_to_update + timedelta(days=1)
+                # elif message.frequency == "Weekly":
+                #     next_when_to_send = datetime_to_update + timedelta(days=7)
+                # else:
+                #     next_when_to_send = datetime_to_update + timedelta(days=30)
                 logging.debug(
                     f"Updating the Airtable {scheduled_message_table.table_name} table for row with id: {message.airtable_id} with new value Last Sent: {datetime_to_update}"
-                    f"and Next Send: {next_when_to_send}"
                 )
                 scheduled_message_table.update_record(
                     message.airtable_id,
                     {
                         "Last Sent": str(datetime_to_update),
-                        "When To Send": str(next_when_to_send),
+                        # "When To Send": str(next_when_to_send),
                     },
                 )
             else:
