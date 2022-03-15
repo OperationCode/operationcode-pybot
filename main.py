@@ -115,8 +115,8 @@ async def startup_event() -> None:
     messages = await app.client.chat_scheduledMessages_list()
     for message in messages["scheduled_messages"]:
         await app.client.chat_deleteScheduledMessage(channel=message["channel_id"], scheduled_message_id=message["id"])
-    Scheduler.start()
     job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger, kwargs={"async_app": app})
+    Scheduler.start()
     logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
 
 
