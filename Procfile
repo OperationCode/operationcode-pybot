@@ -1,1 +1,1 @@
-web: uvicorn main:api --host=0.0.0.0 --port=${PORT:-5000} --workers 1 --preload
+web: uvicorn main:api --host=0.0.0.0 --port=${PORT:-5000} --workers 1
