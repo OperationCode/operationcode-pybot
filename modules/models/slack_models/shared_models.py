@@ -277,6 +277,7 @@ class SlackTeamInfo(BaseSlackTeamInfo):
 
 class SlackTeam:
     def __init__(self, team_info: SlackTeamInfo) -> None:
+        logger.debug(f"Initializing the Slack Team with team_info: {team_info}")
         self._team_info = team_info
 
     def find_channel_by_name(self, channel_name: str) -> SlackConversationInfo:
