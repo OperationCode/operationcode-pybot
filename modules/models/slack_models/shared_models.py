@@ -283,12 +283,15 @@ class SlackTeam:
     def find_channel_by_name(self, channel_name: str) -> SlackConversationInfo:
         logger.debug(f"Finding channel by name: {channel_name}")
         logger.debug(f"Full channel list: {[conversation_info.name for conversation_info in self.full_conversation_list]}")
-        return [
-            conversation
-            for conversation in self.full_conversation_list
-            if conversation.name == channel_name
-        ][0]
-
+        try:
+            return [
+                conversation
+                for conversation in self.full_conversation_list
+                if conversation.name == channel_name
+            ][0]
+        except IndexError:
+            logger.exception(f"Could not find channel by name: {channel_name}")
+            raise Exception(f"Could not find channel by name: {channel_name}")
     @property
     def slack_id(self) -> str:
         return self._team_info.id
