@@ -1,3 +1,4 @@
+"""Module for scheduling messages in a background job"""
 import logging
 from datetime import datetime, timedelta, timezone
 from slack_bolt.async_app import AsyncApp
@@ -10,6 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 async def schedule_messages(async_app: AsyncApp) -> None:
+    """Schedules messages to be sent to various channels. Pulls the messages from the Airtable table Scheduled Messages
+    As explained in the comments below, will schedule messages using the `when_to-send` field on the table,
+    which is calculated by Airtable based on the frequency and `scheduled_next` datetime
+
+    :param async_app: the Slack Bolt async application.
+    :type async_app: slack_bolt.async_app.AsyncApp
+    """
     logger.info("STAGE: Beginning task schedule_messages...")
     messages = scheduled_message_table.all_valid_scheduled_messages
     logger.debug(f"Retrieved {len(messages)} total valid messages to be potentially be scheduled")
