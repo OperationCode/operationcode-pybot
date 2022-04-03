@@ -45,7 +45,7 @@ def get_team_info() -> SlackTeam:
         )
         team_info = synchronous_app.client.team_info()
         conversations = synchronous_app.client.conversations_list(
-            exclude_archived=True, types=["public_channel", "private_channel"]
+            exclude_archived=True, types=["public_channel", "private_channel"], limit=1000
         )
         slack_team_response = SlackTeam(
             SlackTeamInfo(
