@@ -289,38 +289,38 @@ class SlackTeam:
             if conversation.name == channel_name
         ][0]
 
-    @cached_property
+    @property
     def slack_id(self) -> str:
         return self._team_info.id
 
-    @cached_property
+    @property
     def name(self) -> str:
         return self._team_info.name
 
-    @cached_property
+    @property
     def full_conversation_list(self) -> list[SlackConversationInfo]:
         return self._team_info.conversations
 
-    @cached_property
+    @property
     def greetings_channel(self) -> SlackConversationInfo:
         return self.find_channel_by_name(os.getenv("GREETINGS_CHANNEL_NAME"))
 
-    @cached_property
+    @property
     def mentors_internal_channel(self) -> SlackConversationInfo:
         return self.find_channel_by_name(os.getenv("MENTORS_CHANNEL_NAME"))
 
-    @cached_property
+    @property
     def moderators_channel(self) -> SlackConversationInfo:
         return self.find_channel_by_name(os.getenv("MODERATORS_CHANNEL_NAME"))
 
-    @cached_property
+    @property
     def general_channel(self) -> SlackConversationInfo:
         return self.find_channel_by_name(os.getenv("GENERAL_CHANNEL_NAME"))
 
-    @cached_property
+    @property
     def pride_channel(self) -> SlackConversationInfo:
         return self.find_channel_by_name(os.getenv("PRIDE_CHANNEL_NAME"))
 
-    @cached_property
+    @property
     def blacks_in_tech(self) -> SlackConversationInfo:
         return self.find_channel_by_name(os.getenv("BLACKS_IN_TECH_CHANNEL_NAME"))

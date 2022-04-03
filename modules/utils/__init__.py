@@ -36,7 +36,6 @@ def snake_case(s: str) -> str:
     ).lower()
 
 
-@lru_cache
 def get_team_info() -> SlackTeam:
     logger.info("STAGE: Retrieving team information...")
     try:
