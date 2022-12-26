@@ -146,6 +146,10 @@ async def base_endpoint(req: Request) -> Response:
     return await app_handler.handle(req)
 
 
+@api.get('/healthz')
+async def healthz() -> Response:
+    return Response(status_code=200)
+
 @app.command("/mentor_request")
 async def handle_mentor_request_command(
     context: AsyncBoltContext,
@@ -330,5 +334,6 @@ if __name__ == "__main__":
             "main:api",
             host="0.0.0.0",
             port=5001,
-            workers=1
+            workers=1,
+            lifespan="on"
         )
