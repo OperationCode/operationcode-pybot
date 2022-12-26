@@ -267,6 +267,6 @@ def request_claim_tagged_users_block(usernames: list[str]) -> SectionBlock:
     return SectionBlock(
         block_id="mentorship_request_tagged_users",
         text=MarkdownTextObject(
-            text=message_row.text.format("@" + " @".join(usernames))
+            text=message_row.text.format(" ".join([f"<@{username}>" for username in usernames]))
         ),
     )

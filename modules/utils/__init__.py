@@ -3,7 +3,6 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from re import sub
-from functools import lru_cache
 from pyairtable import Table
 from slack_bolt.app import App
 from slack_sdk.models.blocks import SectionBlock, MarkdownTextObject
@@ -135,3 +134,8 @@ def table_fields(table: Table) -> list[str]:
 load_dotenv(dotenv_path=f"{str(Path(__file__).parent.parent.parent)}/.env")
 
 slack_team = get_team_info()
+
+
+
+
+

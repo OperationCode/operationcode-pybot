@@ -1,0 +1,41 @@
+---
+DISABLE:
+  - CLOUDFORMATION
+  - CSS
+  - EDITORCONFIG
+  - JAVASCRIPT
+  - TEKTON
+DISABLE_LINTERS:
+  - JSON_PRETTIER
+  - REPOSITORY_GITLEAKS
+  - SPELL_CSPELL
+  - SPELL_PROSELINT
+  - PYTHON_BANDIT
+  # We use MyPy
+  - PYTHON_PYRIGHT
+DISABLE_ERRORS_LINTERS:
+  - REPOSITORY_DEVSKIM
+  - REPOSITORY_SEMGREP
+DOCKERFILE_HADOLINT_ARGUMENTS: "--ignore DL3008 --ignore DL3018 --ignore DL3013 --ignore DL3059 --ignore DL3005"
+MARKDOWN_MARKDOWN_LINK_CHECK_CONFIG_FILE: ".markdown-link-check-config.json"
+MARKDOWN_MARKDOWN_LINK_CHECK_DISABLE_ERRORS: true
+PRINT_ALL_FILES: false
+PYTHON_ISORT_CONFIG_FILE: "pyproject.toml"
+PYTHON_MYPY_PRE_COMMANDS:
+  - command: "yes | pip install types-redis types-urllib3 types-requests && mkdir .mypy_cache"
+    continue_on_failure: true
+    cwd: "workspace"
+PYTHON_MYPY_ARGUMENTS:
+  [
+    "--ignore-missing-imports",
+    "--follow-imports=skip",
+    "--strict-optional",
+    "--disallow-any-generics",
+  ]
+PYTHON_MYPY_CONFIG_FILE: "pyproject.toml"
+REPOSITORY_DEVSKIM_ARGUMENTS: ["-g", ".mypy_cache/*"]
+SHOW_ELAPSED_TIME: true
+SPELL_MISSPELL_FILTER_REGEX_EXCLUDE: '(\.automation/generated|docs/descriptors)'
+YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml)'
+YAML_PRETTIER_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml|mkdocs\.yml)'
+YAML_V8R_FILTER_REGEX_EXCLUDE: '(descriptors|templates/\.mega-linter\.yml|\.codecov\.yml)'

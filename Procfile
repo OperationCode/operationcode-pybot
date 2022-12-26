@@ -1,1 +1,2 @@
-web: uvicorn main:api --host=0.0.0.0 --port=${PORT:-5000} --workers 1
+# Modify this Procfile to fit your needs
+web: gunicorn server:app

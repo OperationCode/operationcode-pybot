@@ -1,0 +1,54 @@
+# fly.toml file generated for oc-pybot-staging on 2022-12-26T11:33:23-06:00
+
+app = "oc-pybot-staging"
+kill_signal = "SIGINT"
+kill_timeout = 15
+processes = []
+
+[build]
+  dockerfile = "./docker/Dockerfile"
+  build-target = "prod"
+
+[env]
+  AIRTABLE_BASE_NAME = "Pybot-Staging-Base"
+  AIRTABLE_BASE_ID = "appHcVtFOf2HaGQog"
+  BLACKS_IN_TECH_CHANNEL_NAME = "blacks-in-tech"
+  GREETINGS_CHANNEL_NAME = "greetings"
+  GENERAL_CHANNEL_NAME = "general"
+  LOGGING_LEVEL = "DEBUG"
+  MENTORS_CHANNEL_NAME = "mentors-internal"
+  MODERATORS_CHANNEL_NAME = "moderators"
+  PRIDE_CHANNEL_NAME = "operation-pride"
+  RUN_ENVIRONMENT = "staging"
+  SLACK_BOT_TOKEN="xoxb-2875898822021-3229597617521-OOTeggp3JsBEGajAWcYtFKzz"
+  SLACK_SIGNING_SECRET="181e66d74ca2527998432a830d4bef65"
+
+[experimental]
+  allowed_public_ports = []
+  auto_rollback = true
+
+[[services]]
+  http_checks = []
+  internal_port = 8080
+  processes = ["app"]
+  protocol = "tcp"
+  script_checks = []
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.ports]]
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [[services.tcp_checks]]
+    grace_period = "1s"
+    interval = "15s"
+    restart_limit = 1
+    timeout = "2s"

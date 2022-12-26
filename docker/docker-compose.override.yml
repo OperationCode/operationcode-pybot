@@ -1,9 +1,0 @@
-version: '3.9'
-services:
-  pybot:
-    container_name: pybot-dev
-    build:
-      target: dev
-      context: ..
-      dockerfile: docker/Dockerfile
-    env_file: ../.env

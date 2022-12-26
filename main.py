@@ -326,4 +326,9 @@ if __name__ == "__main__":
             workers=1
         )
     else:
-        raise ValueError("RUN_ENVIRONMENT must be set to 'development'")
+        uvicorn.run(
+            "main:api",
+            host="0.0.0.0",
+            port=5001,
+            workers=1
+        )
