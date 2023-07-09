@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 RUN apk update && \
     apk add --no-cache build-base musl-dev python3-dev libffi-dev openssl-dev
 
-WORKDIR ./app
+WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
 
@@ -24,7 +24,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK on
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR ./app
+WORKDIR /app
 
 COPY .. ./
 
@@ -36,7 +36,7 @@ ENTRYPOINT ["poetry", "run", "python3", "main.py"]
 #  settings
 FROM builder As prod
 
-WORKDIR ./app
+WORKDIR /app
 
 COPY .. ./
 
