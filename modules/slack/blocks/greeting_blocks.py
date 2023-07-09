@@ -1,11 +1,16 @@
-from slack_sdk.models.blocks.blocks import SectionBlock, ActionsBlock
-from slack_sdk.models.blocks.basic_components import MarkdownTextObject, PlainTextObject
+from slack_sdk.models.blocks.basic_components import MarkdownTextObject, PlainTextObject  # noqa: D100
 from slack_sdk.models.blocks.block_elements import ButtonElement
+from slack_sdk.models.blocks.blocks import ActionsBlock, SectionBlock
 
 from modules.models.greeting_models import UserInfo
 
 
-def initial_greet_user_blocks(user_info: UserInfo) -> list:
+def initial_greet_user_blocks(user_info: UserInfo) -> list[SectionBlock | ActionsBlock]:
+    """The blocks used for the initial greeting of a new user.
+
+    :param user_info: The user info of the new user.
+    :return: The blocks used for the initial greeting of a new user.
+    """  # noqa: D401
     return [
         greeting_blocks_title(user_info.name),
         greeting_blocks_user_info(user_info),
@@ -13,29 +18,29 @@ def initial_greet_user_blocks(user_info: UserInfo) -> list:
     ]
 
 
-def greeting_blocks_title(slack_name: str) -> SectionBlock:
+def greeting_blocks_title(slack_name: str) -> SectionBlock:  # noqa: D103
     greeting_text = MarkdownTextObject(
-        text=f"🎉 <@{slack_name}> has joined our community! 🎉"
+        text=f"🎉 <@{slack_name}> has joined our community! 🎉",
     )
     return SectionBlock(block_id="title_text", text=greeting_text)
 
 
-def greeting_blocks_user_info(user_info: UserInfo) -> SectionBlock:
+def greeting_blocks_user_info(user_info: UserInfo) -> SectionBlock:  # noqa: D103
     greeting_fields = []
     for key, value in user_info.__dict__.items():
-        if key in ("zip_code", "email", "id"):
+        if key in ("zip_code", "email", "id"):  # noqa: SIM114
             pass
         elif value is None:
             pass
         else:
             greeting_fields.append(
-                MarkdownTextObject(text=f"*{key.replace('_', ' ').title()}:*")
+                MarkdownTextObject(text=f"*{key.replace('_', ' ').title()}:*"),
             )
             greeting_fields.append(MarkdownTextObject(text=f"{value}"))
     return SectionBlock(block_id="user_info", fields=greeting_fields)
 
 
-def greeting_block_button(new_user_id: str) -> ActionsBlock:
+def greeting_block_button(new_user_id: str) -> ActionsBlock:  # noqa: D103
     button_text = PlainTextObject(text="I will greet them!", emoji=True)
     greet_button = ButtonElement(
         text=button_text,
@@ -50,13 +55,13 @@ def greeting_block_button(new_user_id: str) -> ActionsBlock:
 
 
 def greeting_block_claimed_button(claiming_user_name: str) -> ActionsBlock:
-    """Creates an ActionsBlock that contains a button showing who claimed the greeting - this button allows anyone to reset the claim
+    """Creates an ActionsBlock that contains a button showing who claimed the greeting - this button allows anyone to reset the claim.
 
     :param claiming_user_name: username of the user claiming the greeting
     :type claiming_user_name: str
     :return: an ActionsBlock with the claimed button that allows a reset
     :rtype: ActionsBlock
-    """
+    """  # noqa: E501, D401
     button_text = PlainTextObject(text=f"Greeted by {claiming_user_name}!")
     claimed_greet_button = ButtonElement(
         text=button_text,

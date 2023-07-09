@@ -1,23 +1,31 @@
-import os
+"""Channel join handler module."""
 import logging
+import os
+
 from slack_bolt.context.async_context import AsyncBoltContext
 
 from modules.models.slack_models.action_models import SlackActionRequestBody
 from modules.models.slack_models.command_models import SlackCommandRequestBody
 from modules.slack.blocks.shared_blocks import (
-    channel_join_request_blocks,
-    channel_join_request_successful_block,
-    channel_join_request_reset_action,
     channel_join_request_action,
+    channel_join_request_blocks,
+    channel_join_request_reset_action,
+    channel_join_request_successful_block,
 )
-from modules.utils import slack_team, log_to_thread
+from modules.utils import log_to_thread, slack_team
 
 logger = logging.getLogger(__name__)
 
 
 async def handle_channel_join_request(
-    parsed_body: SlackCommandRequestBody, context: AsyncBoltContext
+    parsed_body: SlackCommandRequestBody,
+    context: AsyncBoltContext,
 ) -> None:
+    """Handle the channel join request.
+
+    :param parsed_body: The parsed body of the request.
+    :param context: The Slack Bolt context.
+    """
     logger.info("STAGE: Handling channel join command...")
     await context.ack()
     channel_id = ""
@@ -25,10 +33,10 @@ async def handle_channel_join_request(
     try:
         if parsed_body.command == "/join-pride":
             channel_id = slack_team.pride_channel.id
-            channel_name = os.getenv("PRIDE_CHANNEL_NAME")
+            channel_name = os.getenv("PRIDE_CHANNEL_NAME", "")
         if parsed_body.command == "/join-blacks-in-tech":
             channel_id = slack_team.blacks_in_tech.id
-            channel_name = os.getenv("BLACKS_IN_TECH_CHANNEL_NAME")
+            channel_name = os.getenv("BLACKS_IN_TECH_CHANNEL_NAME", "")
         await context.client.chat_postMessage(
             channel=channel_id,
             blocks=channel_join_request_blocks(parsed_body.user_name),
@@ -42,15 +50,19 @@ async def handle_channel_join_request(
         )
 
     except Exception as general_exception:
-        logger.exception(
-            f"Unable to handle the channel join request, error: {general_exception}"
-        )
-        raise general_exception
+        logger.exception("Unable to handle the channel join request")
+        raise general_exception from general_exception
 
 
 async def handle_channel_join_request_claim(
-    parsed_body: SlackActionRequestBody, context: AsyncBoltContext
+    parsed_body: SlackActionRequestBody,
+    context: AsyncBoltContext,
 ) -> None:
+    """Handle the claim for a channel join request.
+
+    :param parsed_body: The parsed body of the request.
+    :param context: The Slack Bolt context.
+    """
     logger.info("STAGE: Handling channel join request claim...")
     await context.ack()
     try:
@@ -71,15 +83,19 @@ async def handle_channel_join_request_claim(
         )
 
     except Exception as general_exception:
-        logger.exception(
-            f"Unable to handle the channel join request claim, error: {general_exception}"
-        )
-        raise general_exception
+        logger.exception("Unable to handle the channel join request claim")
+        raise general_exception from general_exception
 
 
 async def handle_channel_join_request_claim_reset(
-    parsed_body: SlackActionRequestBody, context: AsyncBoltContext
+    parsed_body: SlackActionRequestBody,
+    context: AsyncBoltContext,
 ) -> None:
+    """Handle the reset of claim for a channel join request.
+
+    :param parsed_body: The parsed body of the request.
+    :param context: The Slack Bolt context.
+    """
     logger.info("STAGE: Handling channel join request claim reset...")
     await context.ack()
     try:
@@ -100,7 +116,5 @@ async def handle_channel_join_request_claim_reset(
         )
 
     except Exception as general_exception:
-        logger.exception(
-            f"Unable to handle the channel join request claim reset, error: {general_exception}"
-        )
-        raise general_exception
+        logger.exception("Unable to handle the channel join request claim reset")
+        raise general_exception from general_exception

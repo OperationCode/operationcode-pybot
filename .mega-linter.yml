@@ -11,7 +11,9 @@ DISABLE_LINTERS:
   - SPELL_CSPELL
   - SPELL_PROSELINT
   - PYTHON_BANDIT
+  - PYTHON_FLAKE8
   # We use MyPy
+  - PYTHON_PYLINT
   - PYTHON_PYRIGHT
 DISABLE_ERRORS_LINTERS:
   - REPOSITORY_DEVSKIM
@@ -36,6 +38,6 @@ PYTHON_MYPY_CONFIG_FILE: "pyproject.toml"
 REPOSITORY_DEVSKIM_ARGUMENTS: ["-g", ".mypy_cache/*"]
 SHOW_ELAPSED_TIME: true
 SPELL_MISSPELL_FILTER_REGEX_EXCLUDE: '(\.automation/generated|docs/descriptors)'
-YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml)'
+YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml/tests)'
 YAML_PRETTIER_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml|mkdocs\.yml)'
 YAML_V8R_FILTER_REGEX_EXCLUDE: '(descriptors|templates/\.mega-linter\.yml|\.codecov\.yml)'
