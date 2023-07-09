@@ -9,11 +9,13 @@ ENV PYTHONUNBUFFERED 1
 RUN apk update && \
     apk add --no-cache build-base musl-dev python3-dev libffi-dev openssl-dev
 
+WORKDIR ./app
+
 COPY pyproject.toml poetry.lock ./
 
-RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
-RUN pip install 'poetry==1.3.1'
+RUN pip install --no-cache-dir 'poetry==1.5.1'
 
 # The `dev` stage creates an image and runs the application with development settings
 FROM builder as dev
@@ -21,6 +23,8 @@ FROM builder as dev
 ENV PIP_DISABLE_PIP_VERSION_CHECK on
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+WORKDIR ./app
 
 COPY .. ./
 
@@ -31,6 +35,8 @@ ENTRYPOINT ["poetry", "run", "python3", "main.py"]
 # The `prod` stage creates an image that will run the application with production
 #  settings
 FROM builder As prod
+
+WORKDIR ./app
 
 COPY .. ./
 
