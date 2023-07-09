@@ -1,10 +1,11 @@
+from datetime import datetime  # noqa: D100
+
 from pydantic import Field
-from datetime import datetime
 
 from modules.models.shared_models import AirtableRowBaseModel
 
 
-class DailyProgrammerInfo(AirtableRowBaseModel):
+class DailyProgrammerInfo(AirtableRowBaseModel):  # noqa: D101
     name: str = Field(
         ...,
         example="Minimum Absolute Difference",
@@ -13,7 +14,7 @@ class DailyProgrammerInfo(AirtableRowBaseModel):
     slug: str = Field(
         ...,
         example="minimum_absolute_difference",
-        description="A more parseable representation of the name of the message - should be snake cased; this is set by formula in Airtable based on the Message Name field",
+        description="A more parseable representation of the name of the message - should be snake cased; this is set by formula in Airtable based on the Message Name field",  # noqa: E501
     )
     text: str = Field(
         ...,

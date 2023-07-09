@@ -1,9 +1,15 @@
+"""Models related to message text."""
 from pydantic import Field
 
 from modules.models.shared_models import AirtableRowBaseModel
 
 
 class MessageTextInfo(AirtableRowBaseModel):
+    """The message text info model.
+
+    This model represents messages that are sent to different channels in Slack.
+    """
+
     name: str = Field(
         ...,
         example="Report Received",
@@ -12,7 +18,8 @@ class MessageTextInfo(AirtableRowBaseModel):
     slug: str = Field(
         ...,
         example="report_received",
-        description="A more parseable representation of the name of the message - should be snake cased; this is set by formula in Airtable based on the Message Name field",
+        description="A more parseable representation of the name of the message - should be snake cased; "
+        "this is set by formula in Airtable based on the Message Name field",
     )
     text: str = Field(
         ...,

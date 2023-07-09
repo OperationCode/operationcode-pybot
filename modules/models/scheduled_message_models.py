@@ -1,17 +1,23 @@
+"""Models related to scheduled messages."""
 from datetime import datetime
-from pydantic import Field
 from enum import Enum
+
+from pydantic import Field, validator
 
 from modules.models.shared_models import AirtableRowBaseModel
 
 
 class FrequencyEnum(str, Enum):
+    """Enum for message frequency."""
+
     daily = "daily"
     weekly = "weekly"
     monthly = "monthly"
 
 
 class ScheduledMessageInfo(AirtableRowBaseModel):
+    """The scheduled message info model."""
+
     name: str = Field(
         ...,
         example="Mentorship Reminder",
@@ -23,7 +29,9 @@ class ScheduledMessageInfo(AirtableRowBaseModel):
         description="A more parseable representation of the name of the scheduled message - should be snake cased",
     )
     channel: str = Field(
-        ..., example="general", description="Channel to send the message to"
+        ...,
+        example="general",
+        description="Channel to send the message to",
     )
     message_text: str = Field(
         ...,
@@ -33,7 +41,8 @@ class ScheduledMessageInfo(AirtableRowBaseModel):
     initial_date_time_to_send: datetime = Field(
         ...,
         example="2021-04-23T10:20:30.400+00:00",
-        description="ISO formatted datetime in UTC to send the first message - this is used to set the schedule for this message",
+        description="ISO formatted datetime in UTC to send the first message - "
+        "this is used to set the schedule for this message",
     )
     frequency: str = Field(
         ...,
@@ -51,4 +60,17 @@ class ScheduledMessageInfo(AirtableRowBaseModel):
         description="When to send the message - this is calculated using a formula on the Airtable table",
     )
 
-    # TODO: Add in validation for the frequency to ensure it matches the Enum values
+    @validator("frequency")
+    def frequency_must_be_valid(  # noqa: N805, RUF100
+        cls: "ScheduledMessageInfo",  # noqa: N805
+        frequency: str,
+    ) -> str:
+        """Validate that the passed in frequency is valid.
+
+        :param frequency: The frequency to validate.
+        :return: The frequency if it is valid.
+        """
+        if frequency not in FrequencyEnum.__members__:
+            exception_message = f"Frequency must be one of {FrequencyEnum.__members__.keys()}"
+            raise ValueError(exception_message)
+        return frequency

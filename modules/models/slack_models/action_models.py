@@ -1,30 +1,34 @@
-from pydantic import Field
+from pydantic import Field  # noqa: D100
 
 from modules.models.slack_models.shared_models import (
-    BasicSlackRequest,
-    SlackUserInfo,
-    SlackActionContainerInfo,
     BaseSlackTeamInfo,
+    BasicSlackRequest,
+    SlackActionContainerInfo,
+    SlackActionInfo,
     SlackChannelInfo,
     SlackMessageInfo,
-    SlackActionInfo,
+    SlackUserInfo,
 )
 
 
-class SlackActionRequestBody(BasicSlackRequest):
-    type: str = Field(..., example="block_actions", description="The type of action")
+class SlackActionRequestBody(BasicSlackRequest):  # noqa: D101
+    type: str = Field(..., example="block_actions", description="The type of action")  # noqa: A003
     user: SlackUserInfo = Field(
-        ..., description="The user who triggered the action request"
+        ...,
+        description="The user who triggered the action request",
     )
     container: SlackActionContainerInfo = Field(
-        ..., description="The container where the action was triggered"
+        ...,
+        description="The container where the action was triggered",
     )
     team: BaseSlackTeamInfo = Field(..., description="Basic team information")
     channel: SlackChannelInfo = Field(
-        ..., description="The channel the action was triggered in"
+        ...,
+        description="The channel the action was triggered in",
     )
     message: SlackMessageInfo = Field(
-        ..., description="The original message where the action was triggered"
+        ...,
+        description="The original message where the action was triggered",
     )
     response_url: str = Field(
         ...,
@@ -32,5 +36,6 @@ class SlackActionRequestBody(BasicSlackRequest):
         description="The response URL where a response can be sent if needed",
     )
     actions: list[SlackActionInfo] = Field(
-        ..., description="The action information about the action that was triggered"
+        ...,
+        description="The action information about the action that was triggered",
     )

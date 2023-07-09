@@ -1,9 +1,9 @@
-from pydantic import Field
+from pydantic import Field  # noqa: D100
 
 from modules.models.slack_models.shared_models import BasicSlackRequest
 
 
-class SlackCommandRequestBody(BasicSlackRequest):
+class SlackCommandRequestBody(BasicSlackRequest):  # noqa: D101
     command: str = Field(
         ...,
         example="/mentor_request",

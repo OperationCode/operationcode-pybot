@@ -1,13 +1,16 @@
-from pydantic import Field, BaseModel
-from datetime import datetime
+from datetime import datetime  # noqa: D100
 from typing import Union
 
-from modules.models.shared_models import AirtableRowBaseModel, AirtableUser
+from pydantic import BaseModel, Field
+
+from modules.models.shared_models import AirtableRowBaseModel
 
 
-class MentorshipService(AirtableRowBaseModel):
+class MentorshipService(AirtableRowBaseModel):  # noqa: D101
     name: str = Field(
-        ..., example="Pair Programming", description="Name of the service"
+        ...,
+        example="Pair Programming",
+        description="Name of the service",
     )
     slug: str = Field(
         ...,
@@ -21,9 +24,11 @@ class MentorshipService(AirtableRowBaseModel):
     )
 
 
-class MentorshipSkillset(AirtableRowBaseModel):
+class MentorshipSkillset(AirtableRowBaseModel):  # noqa: D101
     name: str = Field(
-        ..., example="Pair Programming", description="Name of the service"
+        ...,
+        example="Pair Programming",
+        description="Name of the service",
     )
     slug: str = Field(
         ...,
@@ -37,9 +42,11 @@ class MentorshipSkillset(AirtableRowBaseModel):
     )
 
 
-class MentorshipAffiliation(AirtableRowBaseModel):
+class MentorshipAffiliation(AirtableRowBaseModel):  # noqa: D101
     name: str = Field(
-        ..., example="US Veteran", description="The name of the affiliation"
+        ...,
+        example="US Veteran",
+        description="The name of the affiliation",
     )
     slug: str = Field(
         ...,
@@ -53,12 +60,16 @@ class MentorshipAffiliation(AirtableRowBaseModel):
     )
 
 
-class Mentor(AirtableRowBaseModel):
+class Mentor(AirtableRowBaseModel):  # noqa: D101
     slack_name: str = Field(
-        ..., example="john123", description="The Slack username for the mentor"
+        ...,
+        example="john123",
+        description="The Slack username for the mentor",
     )
     full_name: str = Field(
-        ..., example="John Smith", description="The full name of the mentor"
+        ...,
+        example="John Smith",
+        description="The full name of the mentor",
     )
     email: str = Field(..., example="test@example.com", description="Email of the user")
     active: bool = Field(..., description="Whether or not the mentor is current active")
@@ -72,7 +83,9 @@ class Mentor(AirtableRowBaseModel):
         description="The number of hours the mentor has specified they would like to mentor for",
     )
     time_zone: str = Field(
-        ..., example="Indian/Maldives", description="The mentor's time zone"
+        ...,
+        example="Indian/Maldives",
+        description="The mentor's time zone",
     )
     max_mentees: int = Field(
         ...,
@@ -83,25 +96,29 @@ class Mentor(AirtableRowBaseModel):
     mentees_worked_with: list[str] = Field(
         None,
         example="['recCMMhN5j51NoagK']",
-        description="The Airtable provided IDs of the mentees that the mentor has worked with, found on the Mentor Request table",
+        description="The Airtable provided IDs of the mentees that the mentor has worked with, found on the Mentor Request table",  # noqa: E501
     )
     code_of_conduct_accepted: bool = Field(
-        ..., description="Whether or not the mentor has accepted the code of conduct"
+        ...,
+        description="Whether or not the mentor has accepted the code of conduct",
     )
     guidebook_read: bool = Field(
-        ..., description="Whether or not the mentor has read the guidebook"
+        ...,
+        description="Whether or not the mentor has read the guidebook",
     )
     row_id: int = Field(..., description="Row ID from the Airtable table")
 
 
-class MentorshipRequestBase(BaseModel):
+class MentorshipRequestBase(BaseModel):  # noqa: D101
     slack_name: str = Field(
         ...,
         example="john123",
         description="The Slack username for the user making the mentorship request",
     )
     email: str = Field(
-        ..., example="test@example.com", description="Email of the requesting user"
+        ...,
+        example="test@example.com",
+        description="Email of the requesting user",
     )
     service: str = Field(
         ...,
@@ -118,15 +135,16 @@ class MentorshipRequestBase(BaseModel):
         example="['Go', 'React', 'Code Review']",
         description="List of all skillsets selected by the user making the request - this is used to match a mentor",
     )
-    affiliation: Union[str, list[str]] = Field(
+    affiliation: str | list[str] = Field(
         ...,
         example="recCMMhN5j51NoagK",
         description="The Airtable created ID of a record on the Affiliations table",
     )
     claimed: bool = Field(
-        False, description="Whether or not the mentor request has been claimed"
+        False,  # noqa: FBT003
+        description="Whether or not the mentor request has been claimed",
     )
-    claimed_by: Union[str, list[str]] = Field(
+    claimed_by: Union[str, list[str]] = Field(  # noqa: UP007
         None,
         description="The Airtable ID of the user who has claimed the request - this is pulled from the Mentor table",
     )
@@ -146,11 +164,12 @@ class MentorshipRequestBase(BaseModel):
         description="ISO formatted UTC time when the request claim was reset",
     )
     reset_count: int = Field(
-        0, description="The number of times the request claim was reset"
+        0,
+        description="The number of times the request claim was reset",
     )
 
 
-class MentorshipRequest(MentorshipRequestBase, AirtableRowBaseModel):
+class MentorshipRequest(MentorshipRequestBase, AirtableRowBaseModel):  # noqa: D101
     row_id: int = Field(
         None,
         description="The Airtable created row ID of the row, primarily used for sorting",
@@ -162,5 +181,5 @@ class MentorshipRequest(MentorshipRequestBase, AirtableRowBaseModel):
     )
 
 
-class MentorshipRequestCreate(MentorshipRequestBase):
+class MentorshipRequestCreate(MentorshipRequestBase):  # noqa: D101
     pass

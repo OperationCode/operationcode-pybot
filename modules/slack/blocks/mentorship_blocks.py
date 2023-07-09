@@ -1,30 +1,31 @@
-import logging
-from slack_sdk.models.views import View
-from slack_sdk.models.blocks.blocks import SectionBlock, InputBlock, ActionsBlock, Block
-from slack_sdk.models.blocks.block_elements import (
-    StaticSelectElement,
-    StaticMultiSelectElement,
-    PlainTextInputElement,
-    ButtonElement,
-)
+import logging  # noqa: D100
+
 from slack_sdk.models.blocks.basic_components import (
-    Option,
     MarkdownTextObject,
+    Option,
     PlainTextObject,
 )
+from slack_sdk.models.blocks.block_elements import (
+    ButtonElement,
+    PlainTextInputElement,
+    StaticMultiSelectElement,
+    StaticSelectElement,
+)
+from slack_sdk.models.blocks.blocks import ActionsBlock, Block, DividerBlock, InputBlock, SectionBlock
+from slack_sdk.models.views import View
 
 from modules.airtable import message_text_table
 from modules.models.mentorship_models import (
+    MentorshipAffiliation,
     MentorshipService,
     MentorshipSkillset,
-    MentorshipAffiliation,
 )
 from modules.slack.blocks import shared_blocks
 
 logger = logging.getLogger(__name__)
 
 
-def mentorship_request_view(
+def mentorship_request_view(  # noqa: D103
     services: list[MentorshipService],
     skillsets: list[MentorshipSkillset],
     affiliations: list[MentorshipAffiliation],
@@ -45,10 +46,17 @@ def mentorship_request_blocks(
     services: list[MentorshipService],
     skillsets: list[MentorshipSkillset],
     affiliations: list[MentorshipAffiliation],
-) -> list:
+) -> list[SectionBlock | DividerBlock | InputBlock]:
+    """The blocks used for the mentorship request form.
+
+    :param services: The list of mentorship services.
+    :param skillsets: The list of mentorship skillsets.
+    :param affiliations: The affiliations of the requestor.
+    :return: The blocks used for the mentorship request form.
+    """  # noqa: D401
     logger.info("STAGE: Building the mentorship request blocks...")
     messages = message_text_table.retrieve_valid_messages_by_view(
-        "Valid Mentorship Requests"
+        "Valid Mentorship Requests",
     )
     return [
         request_view_main_text(messages["mentorship_request_main"].text),
@@ -76,20 +84,21 @@ def mentorship_request_blocks(
     ]
 
 
-def request_view_main_text(main_text: str) -> SectionBlock:
+def request_view_main_text(main_text: str) -> SectionBlock:  # noqa: D103
     logger.info("STAGE: Building mentorship request form main section block...")
     return SectionBlock(
-        block_id="mentorship_request_main_text", text=MarkdownTextObject(text=main_text)
+        block_id="mentorship_request_main_text",
+        text=MarkdownTextObject(text=main_text),
     )
 
 
-def request_view_services_input(
-    services: list[MentorshipService], services_label: str, services_placeholder: str
+def request_view_services_input(  # noqa: D103
+    services: list[MentorshipService],
+    services_label: str,
+    services_placeholder: str,
 ) -> InputBlock:
     logger.info("STAGE: Building mentorship request form services input block...")
-    service_options = [
-        Option(label=service.name, value=service.name) for service in services
-    ]
+    service_options = [Option(label=service.name, value=service.name) for service in services]
     input_element = StaticSelectElement(
         placeholder=PlainTextObject(text=services_placeholder, emoji=True),
         action_id="mentorship_service_selection",
@@ -102,15 +111,13 @@ def request_view_services_input(
     )
 
 
-def request_view_skillsets_input(
+def request_view_skillsets_input(  # noqa: D103
     skillsets: list[MentorshipSkillset],
     skillsets_label: str,
     skillsets_placeholder: str,
 ) -> InputBlock:
     logger.info("STAGE: Building mentorship request form skillsets input block...")
-    service_options = [
-        Option(label=skillset.name, value=skillset.name) for skillset in skillsets
-    ]
+    service_options = [Option(label=skillset.name, value=skillset.name) for skillset in skillsets]
     input_element = StaticMultiSelectElement(
         placeholder=PlainTextObject(text=skillsets_placeholder, emoji=True),
         action_id="mentorship_skillset_multi_selection",
@@ -123,8 +130,9 @@ def request_view_skillsets_input(
     )
 
 
-def request_view_details_input(
-    details_label: str, details_placeholder: str
+def request_view_details_input(  # noqa: D103
+    details_label: str,
+    details_placeholder: str,
 ) -> InputBlock:
     logger.info("STAGE: Building mentorship request form details input block...")
     input_element = PlainTextInputElement(
@@ -140,16 +148,13 @@ def request_view_details_input(
     )
 
 
-def request_view_affiliations_input(
+def request_view_affiliations_input(  # noqa: D103
     affiliations: list[MentorshipAffiliation],
     affiliations_label: str,
     affiliations_placeholder: str,
 ) -> InputBlock:
     logger.info("STAGE: Building mentorship request form affiliations input block...")
-    affiliation_options = [
-        Option(label=affiliation.name, value=affiliation.name)
-        for affiliation in affiliations
-    ]
+    affiliation_options = [Option(label=affiliation.name, value=affiliation.name) for affiliation in affiliations]
     input_element = StaticSelectElement(
         placeholder=PlainTextObject(text=affiliations_placeholder, emoji=True),
         action_id="mentorship_affiliation_selection",
@@ -162,9 +167,9 @@ def request_view_affiliations_input(
     )
 
 
-def request_successful_block() -> SectionBlock:
+def request_successful_block() -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="mentorship_request_received_successfully"
+        message_slug="mentorship_request_received_successfully",
     )
     return SectionBlock(
         block_id="mentorship_request_received_successfully",
@@ -172,9 +177,9 @@ def request_successful_block() -> SectionBlock:
     )
 
 
-def request_unsuccessful_block() -> SectionBlock:
+def request_unsuccessful_block() -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="mentorship_request_unsuccessful"
+        message_slug="mentorship_request_unsuccessful",
     )
     return SectionBlock(
         block_id="mentorship_request_unsuccessful",
@@ -182,7 +187,7 @@ def request_unsuccessful_block() -> SectionBlock:
     )
 
 
-def request_claim_blocks(
+def request_claim_blocks(  # noqa: D103
     requested_service: str,
     skillsets: list[str],
     affiliation: str,
@@ -196,23 +201,24 @@ def request_claim_blocks(
     ]
 
 
-def request_claim_service_block(
-    requesting_username: str, requested_service: str
+def request_claim_service_block(  # noqa: D103
+    requesting_username: str,
+    requested_service: str,
 ) -> SectionBlock:
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="mentorship_request_claim_service_text"
+        message_slug="mentorship_request_claim_service_text",
     )
     return SectionBlock(
         block_id="mentorship_request_service_text",
         text=MarkdownTextObject(
-            text=message_row.text.format(requesting_username, requested_service)
+            text=message_row.text.format(requesting_username, requested_service),
         ),
     )
 
 
-def request_claim_skillset_block(skillsets: list[str]) -> SectionBlock:
+def request_claim_skillset_block(skillsets: list[str]) -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="mentorship_request_claim_skillset_text"
+        message_slug="mentorship_request_claim_skillset_text",
     )
     return SectionBlock(
         block_id="mentorship_request_skillset_text",
@@ -220,9 +226,9 @@ def request_claim_skillset_block(skillsets: list[str]) -> SectionBlock:
     )
 
 
-def request_claim_affiliation_block(affiliation: str) -> SectionBlock:
+def request_claim_affiliation_block(affiliation: str) -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="mentorship_request_claim_affiliation_text"
+        message_slug="mentorship_request_claim_affiliation_text",
     )
     return SectionBlock(
         block_id="mentorship_request_affiliation_text",
@@ -230,7 +236,7 @@ def request_claim_affiliation_block(affiliation: str) -> SectionBlock:
     )
 
 
-def request_claim_button() -> ActionsBlock:
+def request_claim_button() -> ActionsBlock:  # noqa: D103
     button_element = ButtonElement(
         text=PlainTextObject(text="Claim Mentorship Request", emoji=True),
         style="primary",
@@ -239,10 +245,11 @@ def request_claim_button() -> ActionsBlock:
     return ActionsBlock(block_id="claim_button_action_block", elements=[button_element])
 
 
-def request_claim_reset_button(claiming_username: str) -> ActionsBlock:
+def request_claim_reset_button(claiming_username: str) -> ActionsBlock:  # noqa: D103
     button_element = ButtonElement(
         text=PlainTextObject(
-            text=f"Request Claimed By {claiming_username}", emoji=True
+            text=f"Request Claimed By {claiming_username}",
+            emoji=True,
         ),
         style="danger",
         action_id="reset_mentorship_request_claim",
@@ -250,9 +257,9 @@ def request_claim_reset_button(claiming_username: str) -> ActionsBlock:
     return ActionsBlock(block_id="claim_button_action_block", elements=[button_element])
 
 
-def request_claim_details_block(details: str) -> SectionBlock:
+def request_claim_details_block(details: str) -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="mentorship_request_claim_details_text"
+        message_slug="mentorship_request_claim_details_text",
     )
     return SectionBlock(
         block_id="mentorship_request_details_text",
@@ -260,13 +267,15 @@ def request_claim_details_block(details: str) -> SectionBlock:
     )
 
 
-def request_claim_tagged_users_block(usernames: list[str]) -> SectionBlock:
+def request_claim_tagged_users_block(usernames: list[str]) -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="mentorship_request_claim_tagged_users"
+        message_slug="mentorship_request_claim_tagged_users",
     )
     return SectionBlock(
         block_id="mentorship_request_tagged_users",
         text=MarkdownTextObject(
-            text=message_row.text.format(" ".join([f"<@{username}>" for username in usernames]))
+            text=message_row.text.format(
+                " ".join([f"<@{username}>" for username in usernames]),
+            ),
         ),
     )
