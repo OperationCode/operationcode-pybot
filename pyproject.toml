@@ -8,7 +8,7 @@ authors = ["Judson Stevens <judson@operationcode.org>"]
 aiohttp = "~3"
 APScheduler = "~3"
 fastapi = "~0"
-pydantic = "~1"
+pydantic = "~2"
 pyairtable = "~1"
 pytesseract = "~0"
 python = "~3.10"
@@ -25,7 +25,7 @@ pypdf = "^3.8.1"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "~22"
+black = "~23"
 mypy = "~1"
 pyaml = "~21"
 pylint = "~2"
