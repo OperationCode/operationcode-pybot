@@ -176,19 +176,29 @@ async def healthz() -> Response:  # noqa: D103
 
 
 @app.command("/mentor_request")
-async def handle_mentor_request_command(  # noqa: D103
+async def handle_mentor_request_command(
     context: AsyncBoltContext,
     body: dict[str, Any],
 ) -> None:
+    """Handle the /mentor_request command.
+
+    :param context: The context of the request from the Bolt framework
+    :param body: The body of the request
+    """
     logger.info("STAGE: Processing mentorship request...")
     await handle_mentor_request(SlackCommandRequestBody(**body), context)
 
 
 @app.view("mentorship_request_form_submit")
-async def handle_mentorship_request_form_view_submit(  # noqa: D103
+async def handle_mentorship_request_form_view_submit(
     body: dict[str, Any],
     context: AsyncBoltContext,
 ) -> None:
+    """Handle the submission of the mentorship request form.
+
+    :param body: The body of the request
+    :param context: The context of the request from the Bolt framework
+    """
     logger.info("STAGE: Processing mentorship form submission...")
     await handle_mentorship_request_form_submit(SlackViewRequestBody(**body), context)
 

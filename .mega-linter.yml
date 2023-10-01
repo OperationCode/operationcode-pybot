@@ -7,18 +7,21 @@ DISABLE:
   - TEKTON
 DISABLE_LINTERS:
   - JSON_PRETTIER
-  - REPOSITORY_GITLEAKS
-  - SPELL_CSPELL
-  - SPELL_PROSELINT
   - PYTHON_BANDIT
   - PYTHON_FLAKE8
   # We use MyPy
   - PYTHON_PYLINT
   - PYTHON_PYRIGHT
+  - REPOSITORY_GITLEAKS
+  - SPELL_CSPELL
+  - SPELL_LYCHEE
+  - SPELL_PROSELINT
 DISABLE_ERRORS_LINTERS:
   - REPOSITORY_DEVSKIM
   - REPOSITORY_SEMGREP
 DOCKERFILE_HADOLINT_ARGUMENTS: "--ignore DL3008 --ignore DL3018 --ignore DL3013 --ignore DL3059 --ignore DL3005"
+COPYPASTE_JSCPD_ARGUMENTS:
+  - "--ignore '**/handlers/**,**/vector*'"
 MARKDOWN_MARKDOWN_LINK_CHECK_CONFIG_FILE: ".markdown-link-check-config.json"
 MARKDOWN_MARKDOWN_LINK_CHECK_DISABLE_ERRORS: true
 PRINT_ALL_FILES: false
@@ -35,9 +38,10 @@ PYTHON_MYPY_ARGUMENTS:
     "--disallow-any-generics",
   ]
 PYTHON_MYPY_CONFIG_FILE: "pyproject.toml"
+PYTHON_RUFF_CONFIG_FILE: "pyproject.toml"
 REPOSITORY_DEVSKIM_ARGUMENTS: ["-g", ".mypy_cache/*"]
 SHOW_ELAPSED_TIME: true
 SPELL_MISSPELL_FILTER_REGEX_EXCLUDE: '(\.automation/generated|docs/descriptors)'
-YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml/tests)'
+YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml/tests/**\/tests\/**)'
 YAML_PRETTIER_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml|mkdocs\.yml)'
 YAML_V8R_FILTER_REGEX_EXCLUDE: '(descriptors|templates/\.mega-linter\.yml|\.codecov\.yml)'

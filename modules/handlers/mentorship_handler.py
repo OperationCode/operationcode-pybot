@@ -120,10 +120,15 @@ async def handle_mentorship_request_form_submit(  # noqa: D103
         )
 
 
-async def handle_mentorship_request_claim(  # noqa: D103
+async def handle_mentorship_request_claim(
     parsed_body: SlackActionRequestBody,
     context: AsyncBoltContext,
 ) -> None:
+    """Handle a mentorship request claim submission from Slack.
+
+    :param parsed_body: The parsed body of the Slack request.
+    :param context: The context object for the Slack request.
+    """
     logger.info("STAGE: Handling mentorship request claim...")
     await context.ack()
     blocks = parsed_body.message.blocks

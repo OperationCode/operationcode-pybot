@@ -11,8 +11,10 @@ from modules.models.slack_models.shared_models import (
 )
 
 
-class SlackActionRequestBody(BasicSlackRequest):  # noqa: D101
-    type: str = Field(..., example="block_actions", description="The type of action")  # noqa: A003
+class SlackActionRequestBody(BasicSlackRequest):
+    """The body of a Slack action request."""
+
+    type: str = Field(..., example="block_actions", description="The type of action")
     user: SlackUserInfo = Field(
         ...,
         description="The user who triggered the action request",

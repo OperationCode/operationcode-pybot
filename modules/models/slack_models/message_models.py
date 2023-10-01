@@ -1,1 +1,1 @@
-# noqa: D100
+"""Models for messages. Unused for now."""

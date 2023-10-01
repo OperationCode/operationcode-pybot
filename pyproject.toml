@@ -103,7 +103,11 @@ max-complexity = 10
 ]
 "**/schemas/*" = [
     "A003", # We should allow shadowing
-    "D106", # We should allow missing docstring in the Config class
+    "D106", # We should allow missing docstring
+]
+"**/models/*" = [
+    "A003", # We should allow shadowing
+    "D106", # We should allow missing docstring
 ]
 "**/routers/*" = [
     "BLE001", # We use broad exceptions
