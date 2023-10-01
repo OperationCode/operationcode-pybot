@@ -103,9 +103,9 @@ async def handle_mentorship_request_form_submit(
             text="Successfully sent mentorship request...",
             blocks=[request_successful_block()],
         )
-    except Exception as e:
+    except Exception as general_exception:
         logger.exception(
-            f"Unable to create the mentorship request record due to error: {e}"
+            f"Unable to create the mentorship request record due to error: {general_exception}"
         )
         await context.client.chat_postEphemeral(
             channel=parsed_body.user.id,

@@ -9,11 +9,11 @@ ENV PYTHONUNBUFFERED 1
 RUN apk update && \
     apk add --no-cache build-base musl-dev python3-dev libffi-dev openssl-dev
 
-COPY Pipfile Pipfile.lock ./
+COPY pyproject.toml poetry.lock ./
 
 RUN pip install --upgrade pip
 
-RUN pip install pipenv
+RUN pip install 'poetry==1.3.1'
 
 # The `dev` stage creates an image and runs the application with development settings
 FROM builder as dev
@@ -22,18 +22,22 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK on
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY . ./
+COPY .. ./
 
-RUN pipenv install --dev
+RUN poetry install
 
-ENTRYPOINT ["pipenv", "run", "python3", "main.py"]
+ENTRYPOINT ["poetry", "run", "python3", "main.py"]
 
 # The `prod` stage creates an image that will run the application with production
 #  settings
 FROM builder As prod
 
+COPY .. ./
+
 ENV PYTHONDONTWRITEBYTECODE 1
 
-RUN pipenv install
+RUN poetry config virtualenvs.create false
 
-ENTRYPOINT ["pipenv", "run", "python3", "main.py"]
+RUN poetry install
+
+ENTRYPOINT ["python3", "main.py"]

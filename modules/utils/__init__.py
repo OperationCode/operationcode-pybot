@@ -3,7 +3,6 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from re import sub
-from functools import lru_cache
 from pyairtable import Table
 from slack_bolt.app import App
 from slack_sdk.models.blocks import SectionBlock, MarkdownTextObject
@@ -36,7 +35,6 @@ def snake_case(s: str) -> str:
     ).lower()
 
 
-@lru_cache
 def get_team_info() -> SlackTeam:
     logger.info("STAGE: Retrieving team information...")
     try:
@@ -46,7 +44,7 @@ def get_team_info() -> SlackTeam:
         )
         team_info = synchronous_app.client.team_info()
         conversations = synchronous_app.client.conversations_list(
-            exclude_archived=True, types=["public_channel", "private_channel"]
+            exclude_archived=True, types=["public_channel", "private_channel"], limit=1000
         )
         slack_team_response = SlackTeam(
             SlackTeamInfo(
@@ -136,3 +134,8 @@ def table_fields(table: Table) -> list[str]:
 load_dotenv(dotenv_path=f"{str(Path(__file__).parent.parent.parent)}/.env")
 
 slack_team = get_team_info()
+
+
+
+
+

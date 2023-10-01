@@ -39,6 +39,7 @@ async def handle_report_submit(body: dict[str, Any], context: AsyncBoltContext) 
                 "value"
             ],
         ),
+        text="New report submitted..."
     )
     if response.data["ok"]:
         await context.client.chat_postEphemeral(

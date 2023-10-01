@@ -1,14 +1,12 @@
 import os
-# import sys
-# import yaml
-# import json
-# from slack_bolt.app import App
 import re
 import uvicorn
 import logging
 from typing import Any
+
+import sentry_sdk
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from slack_bolt.context.async_context import AsyncBoltContext
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
@@ -38,7 +36,10 @@ from modules.handlers.report_handler import (
     handle_reset_report_claim,
 )
 from modules.handlers.daily_programmer import handle_daily_programmer_post
-from modules.models.slack_models.event_models import MemberJoinedChannelEvent, MessageReceivedChannelEvent
+from modules.models.slack_models.event_models import (
+    MemberJoinedChannelEvent,
+    MessageReceivedChannelEvent,
+)
 from modules.models.slack_models.slack_models import (
     SlackResponseBody,
     SlackUserInfo,
@@ -46,13 +47,13 @@ from modules.models.slack_models.slack_models import (
 from modules.models.slack_models.command_models import SlackCommandRequestBody
 from modules.models.slack_models.view_models import SlackViewRequestBody
 from modules.models.slack_models.action_models import SlackActionRequestBody
+from modules.utils.message_scheduler import schedule_messages
 
 load_dotenv()
 logging.basicConfig(level=os.getenv("LOGGING_LEVEL", "INFO"))
 
 logger = logging.getLogger(__name__)
 
-# TODO: Add in /moderators slash command that lists the moderators pulled from Airtable
 # TODO: Change mentorship view to dynamically add descriptions for the mentorship service block - will require dispatching an action on select and updating the block
 # TODO: Allow matching mentor to mentee based on time zone, number of mentees a mentor already has (will need integration with Dreami to track long term relationships)
 # TODO: Integrate with current backend to grab information about the mentee after a request is sent to allow for better matching (could be related to time zone, zip code, etc)
@@ -95,33 +96,59 @@ app = AsyncApp(
 # Define the application handler for the async Slack Bolt application - this adapter is specific to FastAPI
 app_handler = AsyncSlackRequestHandler(app)
 
+# Sentry monitoring
+if "SENTRY_DSN" in os.environ:
+    # pylint: disable=abstract-class-instantiated
+    sentry_sdk.init(dsn=os.getenv("SENTRY_DSN"), request_bodies="medium", environment=os.getenv("RUN_ENV", "development"))
+
 # Define the API
 api = FastAPI()
 
 # Initialize an AsyncIOScheduler object to schedule tasks
 Scheduler = AsyncIOScheduler({"apscheduler.timezone": "UTC"})
-Trigger = IntervalTrigger(seconds=30)
-
+MessageTrigger = IntervalTrigger(minutes=10)
+# DailyProgrammerTrigger = IntervalTrigger(hours=24)
 
 # Start up our job scheduler on FastAPI startup and schedule jobs as needed
 @api.on_event("startup")
 async def startup_event() -> None:
+    messages = await app.client.chat_scheduledMessages_list()
+    for message in messages["scheduled_messages"]:
+        await app.client.chat_deleteScheduledMessage(channel=message["channel_id"], scheduled_message_id=message["id"])
+    job = Scheduler.add_job(schedule_messages, trigger=MessageTrigger, kwargs={"async_app": app})
     Scheduler.start()
-    # job = Scheduler.add_job(schedule_messages, trigger=Trigger)
-    # logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
+    logging.debug(f"Scheduled {job.name} with job_id: {job.id}")
 
 
 # On shutdown, shutdown the scheduler service first
 @api.on_event("shutdown")
 async def shutdown_event():
-    await Scheduler.shutdown()
+    Scheduler.shutdown()
+
+
+# Currently, handled by the old Pybot and can't be handled by us without some legacy token usage
+# @api.post("/pybot/api/v1/slack/invite")
+# async def invite_new_user(
+#     email: str = Body(
+#         ..., example="Test@test.com", description="Email address of the user to invite"
+#     )
+# ) -> None:
+#     await app.client.admin_users_invite(
+#         team_id=SlackTeam.slack_id,
+#         channel_ids=f"{SlackTeam.general_channel.id}",
+#         email=email,
+#     )
 
 
 # The base URI for Slack to communicate with our application - this URI is used for events, commands, and any other interaction
 @api.post("/slack/events")
-async def base_endpoint(req: Request):
+async def base_endpoint(req: Request) -> Response:
     return await app_handler.handle(req)
 
+
+@api.get('/healthz')
+async def healthz() -> Response:
+    return Response(status_code=200)
 
 @app.command("/mentor_request")
 async def handle_mentor_request_command(
@@ -156,13 +183,13 @@ async def handle_mentorship_request_claim_reset_click(
     await handle_mentorship_request_claim_reset(SlackActionRequestBody(**body), context)
 
 
-@app.command("/new_join")
+@app.command("/new_join")  # This is used specifically for testing in staging
 @app.event("member_joined_channel")
 async def handle_new_member_join_event(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
     logger.info("STAGE: Processing new member joining...")
-    if body['command']:
+    if "command" in body.keys() and os.getenv("RUN_ENVIRONMENT") != "production":
         await handle_new_member_join(SlackCommandRequestBody(**body), context)
     else:
         await handle_new_member_join(MemberJoinedChannelEvent(**body), context)
@@ -182,7 +209,9 @@ async def handle_resetting_greeting_new_user_claim_action(
     context: AsyncBoltContext, body: dict[str, Any]
 ) -> None:
     logger.info("STAGE: Resetting claim on new user greeting...")
-    await handle_resetting_greeting_new_user_claim(SlackActionRequestBody(**body), context)
+    await handle_resetting_greeting_new_user_claim(
+        SlackActionRequestBody(**body), context
+    )
 
 
 @app.command("/report")
@@ -254,12 +283,57 @@ async def handle_invite_to_channel_reset_action(
 async def handle_daily_programmer(
     body: dict[str, Any], context: AsyncBoltContext
 ) -> None:
+    logger.info("STAGE: Processing daily programmer post...")
     await handle_daily_programmer_post(MessageReceivedChannelEvent(**body), context)
 
 
+@app.event("message")
+async def handle_message_event(body: dict[str, Any], context: AsyncBoltContext) -> None:
+    logger.info("STAGE: Processing message event...")
+    await context.ack()
+
+@app.event("app_mention")
+async def handle_app_mention_event(body: dict[str, Any], context: AsyncBoltContext) -> None:
+    logger.info("STAGE: Processing app mention event...")
+    await context.ack()
+
+@app.action("oc_greeting_homepage_click")
+async def handle_oc_greeting_homepage_click_action(
+    body: dict[str, Any], context: AsyncBoltContext
+) -> None:
+    logger.info("STAGE: Processing OC greeting homepage click...")
+    await context.ack()
+
+@app.action("oc_greeting_slack_download_click")
+async def handle_oc_greeting_slack_download_click_action(
+    body: dict[str, Any], context: AsyncBoltContext
+) -> None:
+    logger.info("STAGE: Processing OC greeting slack download click...")
+    await context.ack()
+
+@app.action("oc_greeting_coc_click")
+async def handle_oc_greeting_coc_click_action(
+    body: dict[str, Any], context: AsyncBoltContext
+) -> None:
+    logger.info("STAGE: Processing OC greeting coc click...")
+    await context.ack()
+
+
 if __name__ == "__main__":
-    if os.environ.get("RUN_ENV") == "development":
-        uvicorn.run("main:api", host="0.0.0.0", port=8010, reload=True, reload_dirs=["./models", "./tests"])
+    if os.environ.get("RUN_ENVIRONMENT") == "development":
+        uvicorn.run(
+            "main:api",
+            host="0.0.0.0",
+            port=8010,
+            reload=True,
+            reload_dirs=["./models", "./tests"],
+            workers=1
+        )
     else:
-        # noinspection PyTypeChecker
-        uvicorn.run("main:api", host="0.0.0.0", port=5001)
+        uvicorn.run(
+            "main:api",
+            host="0.0.0.0",
+            port=5001,
+            workers=1,
+            lifespan="on"
+        )

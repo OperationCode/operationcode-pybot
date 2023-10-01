@@ -1,1 +1,2 @@
-web: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:api
+# Modify this Procfile to fit your needs
+web: gunicorn server:app

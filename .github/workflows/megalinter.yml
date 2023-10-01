@@ -1,0 +1,19 @@
+---
+name: MegaLinter
+"on": [push]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  mega-lint:
+    name: Mega Linter
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Mega Linter
+        uses: oxsecurity/megalinter/flavors/python@v6
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

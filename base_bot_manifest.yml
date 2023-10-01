@@ -2,30 +2,30 @@ _metadata:
   major_version: 1
   minor_version: 1
 display_information:
-  name: ${BOT_NAME}
+  name: OC-Community-Pybot
 features:
   bot_user:
-    display_name: ${BOT_NAME}
-    always_online: false
+    display_name: OC-Community-Pybot
+    always_online: true
   slash_commands:
-    - command: /mentor_request-${BOT_USERNAME}
-      url: ${NGROK_URL}/slack/events
+    - command: /mentor_request
+      url: https://oc-pybot-production.herokuapp.com/slack/events
       description: Request a Mentor
       should_escape: false
-    - command: /new_join-${BOT_USERNAME}
-      url: ${NGROK_URL}/slack/events
+    - command: /new_join
+      url: https://oc-pybot-production.herokuapp.com/slack/events
       description: New join testing
       should_escape: false
-    - command: /report-${BOT_USERNAME}
-      url: ${NGROK_URL}/slack/events
+    - command: /report
+      url: https://oc-pybot-production.herokuapp.com/slack/events
       description: Sends a report to the moderation team
       should_escape: false
-    - command: /join-blacks-in-tech-${BOT_USERNAME}
-      url: ${NGROK_URL}/slack/events
+    - command: /join-blacks-in-tech
+      url: https://oc-pybot-production.herokuapp.com/slack/events
       description: Sends a request to join the blacks-in-tech channel
       should_escape: false
-    - command: /join-pride-${BOT_USERNAME}
-      url: ${NGROK_URL}/slack/events
+    - command: /join-pride
+      url: https://oc-pybot-production.herokuapp.com/slack/events
       description: Sends a request to join the operation-pride channel.
       should_escape: false
 oauth_config:
@@ -57,7 +57,7 @@ oauth_config:
       - users:read.email
 settings:
   event_subscriptions:
-    request_url: ${NGROK_URL}/slack/events
+    request_url: https://oc-pybot-production.herokuapp.com/slack/events
     bot_events:
       - app_mention
       - member_joined_channel
@@ -67,7 +67,7 @@ settings:
       - team_join
   interactivity:
     is_enabled: true
-    request_url: ${NGROK_URL}/slack/events
+    request_url: https://oc-pybot-production.herokuapp.com/slack/events
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false

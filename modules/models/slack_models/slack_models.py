@@ -15,7 +15,7 @@ class SlackResponseBody(BasicSlackRequest):
     type: str = Field(
         ...,
         example="view_submission",
-        description="The type of request the reponse is responding to",
+        description="The type of request the response is responding to",
     )
     originating_user: SlackUserInfo = Field(
         ..., description="The info of the user who triggered the request"

@@ -1,4 +1,5 @@
 from typing import Union
+
 from slack_sdk.models.blocks.blocks import HeaderBlock, SectionBlock
 from slack_sdk.models.blocks.basic_components import PlainTextObject, MarkdownTextObject
 

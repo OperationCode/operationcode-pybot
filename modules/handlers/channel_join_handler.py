@@ -40,9 +40,12 @@ async def handle_channel_join_request(
             blocks=[channel_join_request_successful_block(channel_name)],
             text=f"Your request to join {channel_name} was successful...",
         )
-    except Exception as e:
-        logger.exception(f"Unable to handle the channel join request, error: {e}")
-        raise e
+
+    except Exception as general_exception:
+        logger.exception(
+            f"Unable to handle the channel join request, error: {general_exception}"
+        )
+        raise general_exception
 
 
 async def handle_channel_join_request_claim(
@@ -50,21 +53,28 @@ async def handle_channel_join_request_claim(
 ) -> None:
     logger.info("STAGE: Handling channel join request claim...")
     await context.ack()
-    blocks = parsed_body.message.blocks
-    blocks[-1] = channel_join_request_reset_action(parsed_body.user.username)
-    await log_to_thread(
-        client=context.client,
-        channel_id=parsed_body.channel.id,
-        message_ts=parsed_body.message.ts,
-        username=parsed_body.user.username,
-        action_ts=parsed_body.actions[0].action_ts,
-        claim=True,
-    )
-    await context.respond(
-        text="Someone has claimed the invite request...",
-        blocks=blocks,
-        replace_original=True,
-    )
+    try:
+        blocks = parsed_body.message.blocks
+        blocks[-1] = channel_join_request_reset_action(parsed_body.user.username)
+        await log_to_thread(
+            client=context.client,
+            channel_id=parsed_body.channel.id,
+            message_ts=parsed_body.message.ts,
+            username=parsed_body.user.username,
+            action_ts=parsed_body.actions[0].action_ts,
+            claim=True,
+        )
+        await context.respond(
+            text="Someone has claimed the invite request...",
+            blocks=blocks,
+            replace_original=True,
+        )
+
+    except Exception as general_exception:
+        logger.exception(
+            f"Unable to handle the channel join request claim, error: {general_exception}"
+        )
+        raise general_exception
 
 
 async def handle_channel_join_request_claim_reset(
@@ -72,18 +82,25 @@ async def handle_channel_join_request_claim_reset(
 ) -> None:
     logger.info("STAGE: Handling channel join request claim reset...")
     await context.ack()
-    blocks = parsed_body.message.blocks
-    blocks[-1] = channel_join_request_action()
-    await log_to_thread(
-        client=context.client,
-        channel_id=parsed_body.channel.id,
-        message_ts=parsed_body.message.ts,
-        username=parsed_body.user.username,
-        action_ts=parsed_body.actions[0].action_ts,
-        claim=False,
-    )
-    await context.respond(
-        text="Someone has reset the invite request...",
-        blocks=blocks,
-        replace_original=True,
-    )
+    try:
+        blocks = parsed_body.message.blocks
+        blocks[-1] = channel_join_request_action()
+        await log_to_thread(
+            client=context.client,
+            channel_id=parsed_body.channel.id,
+            message_ts=parsed_body.message.ts,
+            username=parsed_body.user.username,
+            action_ts=parsed_body.actions[0].action_ts,
+            claim=False,
+        )
+        await context.respond(
+            text="Someone has reset the invite request...",
+            blocks=blocks,
+            replace_original=True,
+        )
+
+    except Exception as general_exception:
+        logger.exception(
+            f"Unable to handle the channel join request claim reset, error: {general_exception}"
+        )
+        raise general_exception

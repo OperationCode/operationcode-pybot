@@ -1,14 +1,12 @@
 version: '3.9'
+
 services:
   pybot:
-    image: pybot:latest
-    container_name: pybot01
+    container_name: oc-pybot
+    restart: on-failure
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: uvicorn main:api -host 0.0.0.0 --port 5001 --reload --log-level 'debug'
     ports:
-    - "5001:5001"
-
-  ngrok:
-    image: wernight/ngrok:latest
-    environment:
-    - NGROK_PORT=pybot:5001
-    ports:
-    - "4040:4040"
+      - "5001:5001"

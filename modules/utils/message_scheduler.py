@@ -1,62 +1,69 @@
+"""Module for scheduling messages in a background job"""
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from slack_bolt.async_app import AsyncApp
 
-from modules.airtable.scheduled_message_table import ScheduledMessagesTable
-from modules.slack.blocks.announcement_blocks import general_announcement_blocks
 from modules.utils import slack_team
+from modules.airtable import scheduled_message_table
+from modules.slack.blocks.announcement_blocks import general_announcement_blocks
 
 logger = logging.getLogger(__name__)
 
 
 async def schedule_messages(async_app: AsyncApp) -> None:
-    logging.info("STAGE: Beginning task schedule_messages...")
-    scheduled_message_table = ScheduledMessagesTable()
+    """Schedules messages to be sent to various channels. Pulls the messages from the Airtable table Scheduled Messages
+    As explained in the comments below, will schedule messages using the `when_to-send` field on the table,
+    which is calculated by Airtable based on the frequency and `scheduled_next` datetime
+
+    :param async_app: the Slack Bolt async application.
+    :type async_app: slack_bolt.async_app.AsyncApp
+    """
+    logger.info("STAGE: Beginning task schedule_messages...")
     messages = scheduled_message_table.all_valid_scheduled_messages
-    logging.debug(f"Retrieved {len(messages)} total valid messages to be scheduled")
+    logger.debug(f"Retrieved {len(messages)} total valid messages to be potentially be scheduled")
     for message in messages:
-        # If the next send time is more than 119 days in the future, skip it as that's the limit for Slack
-        if message.when_to_send < message.when_to_send + timedelta(days=119):
-            # If the datetime in the table is in the past, schedule the message for now plus 2 minutes but update the
-            #  table to have a datetime that is today with the same hour and minute as the first time to send
-            # This can be readjusted in the table if need be to get the correct next send time
-            if message.when_to_send < datetime.now(timezone.utc):
-                datetime_to_update = datetime(
-                    datetime.utcnow().year,
-                    datetime.utcnow().month,
-                    datetime.utcnow().day,
-                    message.initial_date_time_to_send.hour,
-                    message.initial_date_time_to_send.minute,
-                    tzinfo=timezone.utc,
-                )
-                # Add on 120 seconds to the timestamp in order to not run into the "time in past" error
-                datetime_to_send_message = (
-                    int(datetime.now(timezone.utc).timestamp()) + 120
-                )
+        # If we had scheduled this message to be sent at a time in the past, proceed
+        if message.scheduled_next < datetime.now(tz=timezone.utc):
+            logger.debug(f"Scheduling message {message.name}")
+            # If when to send is in the past as well, that means we should send it immediately
+            if message.when_to_send < datetime.now(tz=timezone.utc):
+                logger.debug(f"Scheduling message {message.name} to be sent immediately")
+                send_message_timestamp = int(datetime.now(timezone.utc).timestamp()) + 240
+                if message.frequency == "daily":
+                    new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=1)
+                elif message.frequency == "weekly":
+                    new_scheduled_next = datetime.now(timezone.utc) + timedelta(days=7)
+                else:
+                    when_to_send_month = message.when_to_send.month + 1 if message.when_to_send.month < 12 else 1
+                    when_to_send_year = message.when_to_send.year + 1 if message.when_to_send.month == 12 else message.when_to_send.year
+                    # Should find the next Monday in the month - will have to increase the variability in frequency to post theses on different days
+                    next_month = datetime(when_to_send_year, when_to_send_month, 7)
+                    offset = -next_month.weekday()
+                    new_scheduled_next = next_month + timedelta(days=offset)
+            # Otherwise, we send it out normally using the when_to_send field
             else:
-                datetime_to_send_message = int(message.when_to_send.timestamp())
-                datetime_to_update = message.when_to_send
-            logging.debug(
-                f"Scheduling message with name: {message.name} to be sent at datetime: {str(datetime_to_send_message)}"
-            )
+                send_message_timestamp = int(message.when_to_send.timestamp())
+                new_scheduled_next = message.when_to_send
+
+            channel_to_send_to = slack_team.find_channel_by_name(message.channel)
+
             response = await async_app.client.chat_scheduleMessage(
-                channel=slack_team.general_channel.id,
-                post_at=datetime_to_send_message,
+                channel=channel_to_send_to.id,
+                post_at=send_message_timestamp,
                 text=f"Announcement in {message.channel}...",
                 blocks=general_announcement_blocks(message.name, message.message_text),
             )
             if response.status_code == 200:
-                logging.debug(
-                    f"Updating the Airtable {scheduled_message_table.table_name} table for row with id: {message.airtable_id} with new value Last Sent: {datetime_to_update}"
+                logger.debug(
+                    f"Updating the Airtable {scheduled_message_table.table_name} table for row with id: {message.airtable_id} with new value Scheduled Next: {new_scheduled_next}"
                 )
                 scheduled_message_table.update_record(
-                    message.airtable_id, {"Last Sent": str(datetime_to_update)}
+                    message.airtable_id,
+                    {
+                        "Scheduled Next": str(new_scheduled_next),
+                    },
                 )
             else:
                 logger.warning(
                     f"Issue sending the scheduled message: {message.name}, scheduling failed with slack response: {response.__dict__}"
                 )
-        else:
-            logging.warning(
-                f"Next send time for scheduled message: {message.name} is more than 119 days in the future"
-            )

@@ -1,5 +1,5 @@
 import re
-from typing import Any, Union
+from typing import Union
 from datetime import datetime, timezone, timedelta
 from slack_bolt.context.async_context import AsyncBoltContext
 
@@ -10,7 +10,7 @@ from modules.slack.blocks.new_join_blocks import (
     new_join_immediate_welcome_blocks,
     new_join_delayed_welcome_blocks,
 )
-from modules.utils import get_team_info, get_slack_user_by_id, log_to_thread, slack_team
+from modules.utils import get_slack_user_by_id, log_to_thread, slack_team
 from modules.slack.blocks.greeting_blocks import (
     initial_greet_user_blocks,
     greeting_block_claimed_button,
@@ -19,7 +19,8 @@ from modules.slack.blocks.greeting_blocks import (
 
 
 async def handle_new_member_join(
-    parsed_body: Union[MemberJoinedChannelEvent, SlackCommandRequestBody], context: AsyncBoltContext
+    parsed_body: Union[MemberJoinedChannelEvent, SlackCommandRequestBody],
+    context: AsyncBoltContext,
 ) -> None:
     await context.ack()
     user = None
@@ -60,6 +61,7 @@ async def handle_new_member_join(
         unfurl_links=False,
     )
 
+
 async def handle_greeting_new_user_claim(
     parsed_body: SlackActionRequestBody,
     context: AsyncBoltContext,
@@ -91,7 +93,7 @@ async def handle_resetting_greeting_new_user_claim(
     original_blocks = parsed_body.message.blocks
     # Extract out the username of the new user (the user we are greeting)
     original_blocks[-1] = greeting_block_button(
-        str(re.match(r"\((@.*)\)", parsed_body.message.blocks[0]['text']["text"]))
+        str(re.match(r"\((@.*)\)", parsed_body.message.blocks[0]["text"]["text"]))
     )
     modified_blocks = original_blocks
     await log_to_thread(
@@ -100,7 +102,7 @@ async def handle_resetting_greeting_new_user_claim(
         message_ts=parsed_body.message.ts,
         username=parsed_body.user.username,
         action_ts=parsed_body.actions[0].action_ts,
-        claim=True,
+        claim=False,
     )
     await context.respond(
         text="Modified the claim to greet the new user...",
