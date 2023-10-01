@@ -2,7 +2,8 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
+from pydantic_core.core_schema import FieldValidationInfo
 
 from modules.models.shared_models import AirtableRowBaseModel
 
@@ -60,17 +61,19 @@ class ScheduledMessageInfo(AirtableRowBaseModel):
         description="When to send the message - this is calculated using a formula on the Airtable table",
     )
 
-    @validator("frequency")
-    def frequency_must_be_valid(  # noqa: N805, RUF100
+    @field_validator("frequency")
+    def frequency_must_be_valid(
         cls: "ScheduledMessageInfo",  # noqa: N805
         frequency: str,
+        info: FieldValidationInfo,  # noqa: ARG002
     ) -> str:
-        """Validate that the passed in frequency is valid.
+        """Validate that the passed in frequency is a valid option.
 
         :param frequency: The frequency to validate.
+        :param info: The field validation info.
         :return: The frequency if it is valid.
         """
-        if frequency not in FrequencyEnum.__members__:
+        if frequency.lower() not in FrequencyEnum.__members__:
             exception_message = f"Frequency must be one of {FrequencyEnum.__members__.keys()}"
             raise ValueError(exception_message)
-        return frequency
+        return frequency.lower()
