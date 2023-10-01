@@ -22,11 +22,12 @@ logger = logging.getLogger(__name__)
 class MentorshipAffiliationsTable(BaseAirtableTable):
     """Airtable table for the mentorship affiliations table."""
 
-    def __init__(self) -> None:  # noqa: ANN101, D107
+    def __init__(self: "MentorshipAffiliationsTable") -> None:
+        """Initialize the mentorship affiliations table."""
         super().__init__("Affiliations")
 
     @cached_property
-    def valid_affiliations(self) -> list[MentorshipAffiliation]:  # noqa: ANN101
+    def valid_affiliations(self: "MentorshipAffiliationsTable") -> list[MentorshipAffiliation]:
         """Return the valid affiliations from the table.
 
         :return: A list of valid affiliations.
@@ -34,7 +35,12 @@ class MentorshipAffiliationsTable(BaseAirtableTable):
         return [self.parse_affiliation_row(row) for row in self.all(view="Valid")]
 
     @staticmethod
-    def parse_affiliation_row(row: dict[str, Any]) -> MentorshipAffiliation:  # noqa: D102
+    def parse_affiliation_row(row: dict[str, Any]) -> MentorshipAffiliation:
+        """Parse an affiliation row.
+
+        :param row: The row to parse.
+        :return: The parsed affiliation row.
+        """
         fields = {snake_case(k): v for k, v in row["fields"].items()}
         try:
             return MentorshipAffiliation(
@@ -47,24 +53,32 @@ class MentorshipAffiliationsTable(BaseAirtableTable):
             raise validation_exception from validation_exception
 
 
-class MentorshipMentorsTable(BaseAirtableTable):  # noqa: D101
-    def __init__(self):  # noqa: ANN101, ANN204, D107
+class MentorshipMentorsTable(BaseAirtableTable):
+    """Table containing the mentors who have signed up to mentor others."""
+
+    def __init__(self: "MentorshipMentorsTable") -> None:
+        """Initialize the mentorship mentors table."""
         super().__init__("Mentors")
 
     @cached_property
-    def valid_mentors(self) -> list[Mentor]:  # noqa: ANN101
+    def valid_mentors(self: "MentorshipMentorsTable") -> list[Mentor]:
         """Returns the mentors from the table sorted by row ID.
 
         :return: list of mentors
-        :rtype: list[Mentor]
         """
         try:
             return [self.parse_mentor_row(row) for row in self.all(view="Valid")]
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to retrieve the list of mentors")
+            raise
 
     @staticmethod
-    def parse_mentor_row(row: dict[str, Any]) -> Mentor:  # noqa: D102
+    def parse_mentor_row(row: dict[str, Any]) -> Mentor:
+        """Parse a mentor row.
+
+        :param row: The row to parse.
+        :return: The parsed row.
+        """
         fields = {snake_case(k): v for k, v in row["fields"].items()}
         try:
             return Mentor(
@@ -72,39 +86,52 @@ class MentorshipMentorsTable(BaseAirtableTable):  # noqa: D101
                 airtable_id=row["id"],
                 created_at=row["createdTime"],
             )
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to parse mentor row.", extra={"row": row})
+            raise
 
 
-class MentorshipSkillsetsTable(BaseAirtableTable):  # noqa: D101
-    def __init__(self):  # noqa: ANN101, ANN204, D107
+class MentorshipSkillsetsTable(BaseAirtableTable):
+    """Airtable table for the mentorship skillsets table."""
+
+    def __init__(self: "MentorshipSkillsetsTable") -> None:
+        """Initialize the mentorship skillsets table."""
         super().__init__("Skillsets")
 
     @cached_property
-    def valid_skillsets(self) -> list[MentorshipSkillset]:  # noqa: ANN101
+    def valid_skillsets(self: "MentorshipSkillsetsTable") -> list[MentorshipSkillset]:
         """Returns the skillsets from the table.
 
-        :return: list of skillsets
-        :rtype: list[MentorshipSkillset]
+        :return: The list of skillsets.
         """
         try:
             return [self.parse_skillset_row(row) for row in self.all(view="Valid")]
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to retrieve the list of skillsets")
+            raise
 
     @cached_property
-    def mentors_by_skillsets(self) -> dict[str, str]:  # noqa: ANN101, D102
+    def mentors_by_skillsets(self: "MentorshipSkillsetsTable") -> dict[str, str]:
+        """Returns the mentors by skillset.
+
+        :return: The mentors by skillset.
+        """
         try:
             mentors_by_skillset = {}
             for row in self.all(fields=["Name", "Mentors"], view="Valid"):
                 mentors_by_skillset[row["Name"]] = row["Mentors"]
             return mentors_by_skillset  # noqa: TRY300
-        except Exception as e:
-            logger.warning(f"Issue retrieving mentor IDs by skillset: {e}")  # noqa: G004
-            raise e  # noqa: TRY201
+        except Exception:
+            logger.exception("Issue retrieving mentor IDs by skillset")
+            raise
 
     @staticmethod
-    def parse_skillset_row(row: dict[str, Any]) -> MentorshipSkillset:  # noqa: D102
+    def parse_skillset_row(row: dict[str, Any]) -> MentorshipSkillset:
+        """Parse a skillset row.
+
+        :param row: The row to parse.
+        :return: The parsed row.
+        """
         fields = {snake_case(k): v for k, v in row["fields"].items()}
         try:
             return MentorshipSkillset(
@@ -112,10 +139,11 @@ class MentorshipSkillsetsTable(BaseAirtableTable):  # noqa: D101
                 airtable_id=row["id"],
                 created_at=row["createdTime"],
             )
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to parse skillset row.", extra={"row": row})
+            raise
 
-    def mentors_by_skillset(self, skillsets_to_search: list[str]) -> set[str]:  # noqa: ANN101
+    def mentors_by_skillset(self: "MentorshipSkillsetsTable", skillsets_to_search: list[str]) -> set[str]:
         """Retrieve mentor IDs by skillset.
 
         :param skillsets_to_search: The skillsets to search for.
@@ -134,38 +162,46 @@ class MentorshipSkillsetsTable(BaseAirtableTable):  # noqa: D101
                     mentors.append(
                         row["fields"]["Mentors"] if row["fields"]["Mentors"] else [],
                     )
-                except KeyError as key_e:
-                    logger.warning(f"Key error intercepted: {key_e}")  # noqa: G004
+                except KeyError:
+                    logger.exception("Key error intercepted retrieving mentors by skillset", extra={"row": row})
                     pass
 
             # Flatten the array and get unique values
             return set(chain(*mentors))
-        except Exception as e:
+        except Exception:
             logger.exception(
                 "Issue retrieving mentor IDs with particular skillsets",
-                extra={"error": e, "skillsets": skillsets_to_search},
+                extra={"skillsets": skillsets_to_search},
             )
-            raise e from e
+            raise
 
 
-class MentorshipServicesTable(BaseAirtableTable):  # noqa: D101
-    def __init__(self):  # noqa: ANN101, ANN204, D107
+class MentorshipServicesTable(BaseAirtableTable):
+    """Airtable table for the mentorship services table."""
+
+    def __init__(self: "MentorshipServicesTable") -> None:
+        """Initialize the mentorship services table."""
         super().__init__("Services")
 
     @cached_property
-    def valid_services(self) -> list[MentorshipService]:  # noqa: ANN101
+    def valid_services(self: "MentorshipServicesTable") -> list[MentorshipService]:
         """Returns the services from the table.
 
-        :return: list of services from the table
-        :rtype: list[MentorshipService]
+        :return: The list of services from the table.
         """
         try:
             return [self.parse_service_row(row) for row in self.all(view="Valid")]
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to retrieve the list of services")
+            raise
 
     @staticmethod
-    def parse_service_row(row: dict[str, Any]) -> MentorshipService:  # noqa: D102
+    def parse_service_row(row: dict[str, Any]) -> MentorshipService:
+        """Parse a service row.
+
+        :param row: The row to parse.
+        :return: The parsed row.
+        """
         fields = {snake_case(k): v for k, v in row["fields"].items()}
         try:
             return MentorshipService(
@@ -173,28 +209,37 @@ class MentorshipServicesTable(BaseAirtableTable):  # noqa: D101
                 airtable_id=row["id"],
                 created_at=row["createdTime"],
             )
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to parse service row.", extra={"row": row})
+            raise
 
 
-class MentorshipRequestsTable(BaseAirtableTable):  # noqa: D101
-    def __init__(self):  # noqa: ANN101, ANN204, D107
+class MentorshipRequestsTable(BaseAirtableTable):
+    """Airtable table for the mentorship requests table."""
+
+    def __init__(self: "MentorshipRequestsTable") -> None:
+        """Initialize the mentorship requests table."""
         super().__init__("Mentor Requests")
 
     @cached_property
-    def valid_services(self) -> list[MentorshipRequest]:  # noqa: ANN101
+    def valid_services(self: "MentorshipRequestsTable") -> list[MentorshipRequest]:
         """Returns the services from the table.
 
         :return: list of services from the table
-        :rtype: list[MentorshipService]
         """
         try:
             return [self.parse_request_row(row) for row in self.all(view="Valid")]
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to retrieve the list of requests")
+            raise
 
     @staticmethod
-    def parse_request_row(row: dict[str, Any]) -> MentorshipRequest:  # noqa: D102
+    def parse_request_row(row: dict[str, Any]) -> MentorshipRequest:
+        """Parse a request row.
+
+        :param row: The row to parse.
+        :return: The parsed row.
+        """
         fields = {snake_case(k): v for k, v in row["fields"].items()}
         try:
             return MentorshipRequest(
@@ -202,10 +247,21 @@ class MentorshipRequestsTable(BaseAirtableTable):  # noqa: D101
                 airtable_id=row["id"],
                 created_at=row["createdTime"],
             )
-        except ValidationError as valid_e:
-            raise valid_e  # noqa: TRY201
+        except ValidationError:
+            logger.exception("Unable to parse request row.", extra={"row": row})
+            raise
 
-    def return_record_by_slack_message_ts(self, timestamp: str) -> MentorshipRequest:  # noqa: ANN101, D102
+    def return_record_by_slack_message_ts(self: "MentorshipRequestsTable", timestamp: str) -> MentorshipRequest:
+        """Return a specific record by the recorded timestamp.
+
+        :param timestamp: The timestamp to use to find the record.
+        :return: The mentorship request found with the timestamp.
+        """
+        logger.info("Returning record using timestamp", extra={"timestamp": timestamp})
         row = self.first(formula=f"{{Slack Message TS}} = '{timestamp}'")
-        logger.debug(f"Returned row: {row}")  # noqa: G004
+        if not row:
+            logger.error("Unable to find record", extra={"timestamp": timestamp})
+            error_message = f"Unable to find record with timestamp {timestamp}"
+            raise ValueError(error_message)
+        logger.info("Found record", extra={"row": row})
         return self.parse_request_row(row)

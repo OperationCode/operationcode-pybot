@@ -11,6 +11,7 @@ from modules.models.slack_models.event_models import MessageReceivedChannelEvent
 from modules.models.slack_models.shared_models import SlackMessageInfo
 
 LOGGER = logging.getLogger(__name__)
+MATCHING_TEXT_RATIO = 0.85
 
 
 async def handle_daily_programmer_post(
@@ -45,8 +46,8 @@ def check_for_existing_post(text: str) -> tuple[str, int] | tuple[None, None]:
         fields=["Text", "Posted Count"],
     )
     for post in existing_posts:
-        if SequenceMatcher(None, post["fields"]["Text"], text).ratio() > 0.85:  # noqa: PLR2004
-            LOGGER.debug(f"Found matching post: {post}")
+        if SequenceMatcher(None, post["fields"]["Text"], text).ratio() > MATCHING_TEXT_RATIO:
+            LOGGER.info("Found matching post", extra={"post": post})
             return post["id"], int(post["fields"]["Posted Count"])
     return None, None
 

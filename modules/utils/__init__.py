@@ -165,6 +165,7 @@ def table_fields(table: Table) -> list[str]:
         first_record = table.first(view="Fields")
         return [snake_case(field) for field in first_record["fields"]]
     except Exception:
+        logger.exception("Unable to retrieve fields from Airtable.")
         raise
 
 

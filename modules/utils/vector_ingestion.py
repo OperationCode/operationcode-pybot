@@ -11,7 +11,6 @@ from unstructured.documents.elements import Text
 from unstructured.partition.pdf import partition_pdf
 from unstructured.staging.huggingface import stage_for_transformers
 
-
 load_dotenv()
 
 # Weaviate configuration
@@ -43,15 +42,13 @@ def main() -> None:
                     bullets=True,
                     extra_whitespace=True,
                 )
-                text_chunk = dict(
-                    {
+                text_chunk = {
                         "text": clean_text,
                         "cfr_title_number": 38,
                         "ingestion_date": str(datetime.datetime.now(tz=datetime.timezone.utc).isoformat()),
                         "index_number": idx,
                         "unique_id": str(uuid.uuid4()),
-                    },
-                )
+                    }
                 print("Adding object to batch. On number: " + str(idx))
                 weaviate_client.batch.add_data_object(text_chunk, "TextChunk")
                 no_items_in_batch += 1

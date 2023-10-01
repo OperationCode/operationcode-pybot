@@ -76,7 +76,11 @@ exclude = [
     "node_modules",
     "venv",
     # Exclude the one off script file
-    "one_offs.py"
+    "one_offs.py",
+    # Exclude the vector search testing
+    "vector*",
+    # Exclude the databases folder
+    "databases/**",
 ]
 
 # Same as Black.
@@ -122,6 +126,7 @@ max-complexity = 10
     "S101", # We use assert in tests
     "ANN101", # We don't need to type self in tests
 ]
+
 
 [tool.black]
 line-length = 119
