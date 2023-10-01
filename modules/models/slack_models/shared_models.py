@@ -98,7 +98,7 @@ class SlackViewInfo(BaseModel):  # noqa: D101
         description="The text object used for the title of the view",
     )
     previous_view_id: str = Field(
-        None,
+        "",
         example="V02S65HDH9Q",
         description="The previous view's ID - typically used in workflows",
     )
@@ -314,9 +314,10 @@ class SlackTeam:  # noqa: D101
             f"Full channel list: {[conversation_info.name for conversation_info in self.full_conversation_list]}",  # noqa: E501, G004
         )
         try:
-            return [conversation for conversation in self.full_conversation_list if conversation.name == channel_name][
-                0
-            ]
+            return next(
+                conversation for conversation in self.full_conversation_list if conversation.name == channel_name
+            )
+
         except IndexError:
             logger.exception(f"Could not find channel by name: {channel_name}")  # noqa: G004
             raise Exception(  # noqa: B904, TRY002, TRY003, TRY200
