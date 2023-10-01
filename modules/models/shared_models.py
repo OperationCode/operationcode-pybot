@@ -15,7 +15,7 @@ class ValidEnum(str, Enum):
 class AirtableUser(BaseModel):
     """Model for Airtable user."""
 
-    id: str = Field(  # noqa: A003
+    id: str = Field(
         ...,
         example="usrAuExK7DEWFNiI6",
         description="Airtable provided unique ID of the user",

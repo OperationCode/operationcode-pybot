@@ -3,8 +3,10 @@ from pydantic import BaseModel, Field  # noqa: D100
 from modules.models.slack_models.shared_models import SlackMessageInfo
 
 
-class MemberJoinedChannelEvent(BaseModel):  # noqa: D101
-    type: str = Field(  # noqa: A003
+class MemberJoinedChannelEvent(BaseModel):
+    """The body of a Slack member_joined_channel event."""
+
+    type: str = Field(
         ...,
         example="member_joined_channel",
         description="The type of event, should always be member_joined_channel",
@@ -32,7 +34,9 @@ class MemberJoinedChannelEvent(BaseModel):  # noqa: D101
     )
 
 
-class MessageReceivedChannelEvent(BaseModel):  # noqa: D101
+class MessageReceivedChannelEvent(BaseModel):
+    """The body of a Slack message event."""
+
     team_id: str = Field(
         ...,
         example="T024BE7LD",
@@ -47,7 +51,7 @@ class MessageReceivedChannelEvent(BaseModel):  # noqa: D101
         ...,
         description="The information about the message that was received",
     )
-    type: str = Field(  # noqa: A003
+    type: str = Field(
         ...,
         example="event_callback",
         description="The type of event, should always be event_callback",

@@ -1,9 +1,10 @@
+---
 version: '3.4'
 services:
   weaviate:
     image: semitechnologies/weaviate:1.19.6
     ports:
-     - "8055:8080"
+      - "8055:8080"
     environment:
       QUERY_DEFAULTS_LIMIT: 20
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'

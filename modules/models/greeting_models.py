@@ -1,8 +1,11 @@
-from pydantic import BaseModel, Field  # noqa: D100
+"""Models for the greeting module."""
+from pydantic import BaseModel, Field
 
 
-class UserInfo(BaseModel):  # noqa: D101
-    id: str = Field(  # noqa: A003
+class UserInfo(BaseModel):
+    """User info schema."""
+
+    id: str = Field(
         ...,
         example="U02RK2AL5LZ",
         description="The Slack ID of the new user",
