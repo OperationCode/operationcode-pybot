@@ -1,45 +1,46 @@
-import logging
+import logging  # noqa: D100
 from typing import Any
+
 from slack_bolt.context.async_context import AsyncBoltContext
 
-from modules.models.slack_models.slack_models import SlackResponseBody
 from modules.models.slack_models.shared_models import SlackUserInfo
+from modules.models.slack_models.slack_models import SlackResponseBody
 from modules.slack.blocks.report_blocks import (
-    report_form_view_elements,
     report_claim_blocks,
-    report_claim_claimed_button,
     report_claim_button,
-    report_received_ephemeral_message,
+    report_claim_claimed_button,
     report_failed_ephemeral_message,
+    report_form_view_elements,
+    report_received_ephemeral_message,
 )
 from modules.utils import get_team_info, log_to_thread
 
 logger = logging.getLogger(__name__)
 
 
-async def handle_report(body: dict[str, Any], context: AsyncBoltContext) -> None:
+async def handle_report(body: dict[str, Any], context: AsyncBoltContext) -> None:  # noqa: D103
     await context.ack()
     await context.client.views_open(
-        trigger_id=body["trigger_id"], view=report_form_view_elements()
+        trigger_id=body["trigger_id"],
+        view=report_form_view_elements(),
     )
 
 
-async def handle_report_submit(body: dict[str, Any], context: AsyncBoltContext) -> None:
+async def handle_report_submit(body: dict[str, Any], context: AsyncBoltContext) -> None:  # noqa: D103
     await context.ack()
     slack_team = get_team_info()
-    logger.debug(f"Parsing received body: {body}")
+    logger.debug(f"Parsing received body: {body}")  # noqa: G004
     parsed_body = SlackResponseBody(
-        **body, originating_user=SlackUserInfo(**body["user"])
+        **body,
+        originating_user=SlackUserInfo(**body["user"]),
     )
     response = await context.client.chat_postMessage(
         channel=slack_team.moderators_channel.id,
         blocks=report_claim_blocks(
             parsed_body.originating_user.username,
-            parsed_body.view.state["values"]["report_input"]["report_input_field"][
-                "value"
-            ],
+            parsed_body.view.state["values"]["report_input"]["report_input_field"]["value"],
         ),
-        text="New report submitted..."
+        text="New report submitted...",
     )
     if response.data["ok"]:
         await context.client.chat_postEphemeral(
@@ -57,8 +58,9 @@ async def handle_report_submit(body: dict[str, Any], context: AsyncBoltContext) 
         )
 
 
-async def handle_report_claim(
-    body: SlackResponseBody, context: AsyncBoltContext
+async def handle_report_claim(  # noqa: D103
+    body: SlackResponseBody,
+    context: AsyncBoltContext,
 ) -> None:
     await context.ack()
     blocks = body.message.blocks
@@ -78,8 +80,9 @@ async def handle_report_claim(
     )
 
 
-async def handle_reset_report_claim(
-    body: SlackResponseBody, context: AsyncBoltContext
+async def handle_reset_report_claim(  # noqa: D103
+    body: SlackResponseBody,
+    context: AsyncBoltContext,
 ) -> None:
     await context.ack()
     blocks = body.message.blocks

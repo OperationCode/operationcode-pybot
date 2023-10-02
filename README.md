@@ -2,8 +2,6 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/operation_code.svg?style=social&label=Follow&style=social)](https://twitter.com/operation_code)
 [![Code-style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-
-[![CircleCI](https://circleci.com/gh/OperationCode/operationcode-pybot.svg?style=svg)](https://circleci.com/gh/OperationCode/operationcode-pybot)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://contributor-covenant.org/)
 
 # OperationCode-Pybot
@@ -207,13 +205,13 @@ For example, in order to work on the app's functionality on a `team_join` event,
 
 In the section which says "Subscribe to events on behalf of users", you must add the following events:
 
-Event Name | Required OAuth Scope
-------- | -----------
-member_joined_channel | channels:read or groups:read
-message.channels | channels:history
-message.groups | groups:history
-message.im | im:history
-team_join | users:read
+| Event Name            | Required OAuth Scope         |
+|-----------------------|------------------------------|
+| member_joined_channel | channels:read or groups:read |
+| message.channels      | channels:history             |
+| message.groups        | groups:history               |
+| message.im            | im:history                   |
+| team_join             | users:read                   |
 
 #### Slash Commands
 
@@ -228,16 +226,15 @@ listening on followed by the text _/slack/commands_. For example:
 You'll use the same URI for each command. Here's a table listing of currently
 supported commands along with some suggested configuration text:
 
-Command | Description | Usage Hint
-------- | ----------- | ----------
-/lunch | find lunch suggestions nearby | &lt;zip code> &lt;distance in miles>
-/mentor | request mentoring |
-/mentor-volunteer | offer to mentor others |
-/repeat | parrot canned messages | &lt;10000|ask|ldap|merge|firstpr|channels|resources>
-/report | report something to the admins | <text of message>
-/roll | roll x dice with y sides | <XdY>
-/ticket | submit ticket to admins | (text of ticket)
-
+| Command           | Description                    | Usage Hint                           |
+|-------------------|--------------------------------|--------------------------------------|
+| /lunch            | find lunch suggestions nearby  | &lt;zip code> &lt;distance in miles> |
+| /mentor           | request mentoring              |                                      |
+| /mentor-volunteer | offer to mentor others         |                                      |
+| /repeat           | parrot canned messages         | &lt;10000                            |ask|ldap|merge|firstpr|channels|resources>
+| /report           | report something to the admins | <text of message>                    |
+| /roll             | roll x dice with y sides       | <XdY>                                |
+| /ticket           | submit ticket to admins        | (text of ticket)                     |
 
 **👋 IMPORTANT!**
 
@@ -261,21 +258,9 @@ is listening on followed by the text _/slack/actions_. For example:
 You'll also want to make sure to configure the report message action with the
 following parameters:
 
-Name | Description | Callback ID
----- | ----------- | -----------
-Report Message | Report this message to admins | report_message
-
-## Known Configuration Settings
-
-This application has a number of environment variables that can be set when
-launching to alter the behaviour of the application. The list below is an
-incomplete description of a number of them. Please feel free to update this
-list with more details via a PR:
-
-Name | Description | Example
----- | ----------- | -------
-SLACK_BOT_SIGNING_SECRET | The unique signing secret used by Slack for a specific app that will be validated by pybot when inspecting an inbound API request | f3b4d774b79e0fb55af624c3f376d5b4
-BOT_USER_OAUTH_ACCESS_TOKEN | The bot user specific OAuth token used to authenticate the bot when making API requests to Slack | xoxb-800506043194-810119867738-vRvgSc3rslDUgQakFbMy3wAt
+| Name           | Description                   | Callback ID    |
+|----------------|-------------------------------|----------------|
+| Report Message | Report this message to admins | report_message |
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).

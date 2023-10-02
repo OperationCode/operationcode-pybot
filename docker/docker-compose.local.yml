@@ -1,14 +1,15 @@
+---
 version: '3.9'
 services:
   pybot:
     image: pybot:latest
     container_name: pybot01
     ports:
-    - "5001:5001"
+      - "8010:8010"
 
   ngrok:
     image: wernight/ngrok:latest
     environment:
-    - NGROK_PORT=pybot:5001
+      - NGROK_PORT=pybot:8010
     ports:
-    - "4040:4040"
+      - "4040:4040"

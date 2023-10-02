@@ -1,14 +1,20 @@
-from pydantic import BaseModel, Field
+"""Shared models for Airtable tables."""
 from datetime import datetime
 from enum import Enum
 
+from pydantic import BaseModel, Field
+
 
 class ValidEnum(str, Enum):
+    """Enum for valid and invalid."""
+
     valid = "valid"
     invalid = "invalid"
 
 
 class AirtableUser(BaseModel):
+    """Model for Airtable user."""
+
     id: str = Field(
         ...,
         example="usrAuExK7DEWFNiI6",
@@ -19,6 +25,8 @@ class AirtableUser(BaseModel):
 
 
 class AirtableRowBaseModel(BaseModel):
+    """Base model for Airtable rows."""
+
     airtable_id: str = Field(
         ...,
         example="rec8CRVRJOKYBIDIL",
@@ -42,5 +50,5 @@ class AirtableRowBaseModel(BaseModel):
     valid: ValidEnum = Field(
         None,
         example="invalid",
-        description="Whether or not the record is valid - this is calculated on the Airtable table and has a value of valid if all fields are filled out",
+        description="Whether or not the record is valid - this is calculated on the Airtable table and has a value of valid if all fields are filled out",  # noqa: E501
     )

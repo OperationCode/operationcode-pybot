@@ -1,15 +1,15 @@
-from slack_sdk.models.blocks import (
+from slack_sdk.models.blocks import (  # noqa: D100
     Block,
-    SectionBlock,
-    PlainTextObject,
     ButtonElement,
     MarkdownTextObject,
+    PlainTextObject,
+    SectionBlock,
 )
 
 from modules.airtable import message_text_table
 
 
-def new_join_immediate_welcome_blocks(joining_username: str) -> list[Block]:
+def new_join_immediate_welcome_blocks(joining_username: str) -> list[Block]:  # noqa: D103
     return [
         new_join_immediate_welcome_first_text(joining_username),
         new_join_immediate_welcome_second_text(),
@@ -21,16 +21,16 @@ def new_join_immediate_welcome_blocks(joining_username: str) -> list[Block]:
     ]
 
 
-def new_join_delayed_welcome_blocks() -> list[Block]:
+def new_join_delayed_welcome_blocks() -> list[Block]:  # noqa: D103
     return [
         new_join_delayed_welcome_first_text(),
         new_join_immediate_welcome_second_text(),
     ]
 
 
-def new_join_immediate_welcome_first_text(joining_username: str) -> SectionBlock:
+def new_join_immediate_welcome_first_text(joining_username: str) -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="new_member_join_immediate_welcome_first_text"
+        message_slug="new_member_join_immediate_welcome_first_text",
     )
     return SectionBlock(
         block_id="immediate_welcome_first_text",
@@ -38,9 +38,9 @@ def new_join_immediate_welcome_first_text(joining_username: str) -> SectionBlock
     )
 
 
-def new_join_immediate_welcome_second_text() -> SectionBlock:
+def new_join_immediate_welcome_second_text() -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="new_member_join_immediate_welcome_second_text"
+        message_slug="new_member_join_immediate_welcome_second_text",
     )
     return SectionBlock(
         block_id="immediate_welcome_second_text",
@@ -48,9 +48,9 @@ def new_join_immediate_welcome_second_text() -> SectionBlock:
     )
 
 
-def new_join_immediate_welcome_third_text() -> SectionBlock:
+def new_join_immediate_welcome_third_text() -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="new_member_join_immediate_welcome_third_text"
+        message_slug="new_member_join_immediate_welcome_third_text",
     )
     return SectionBlock(
         block_id="immediate_welcome_third_text",
@@ -58,9 +58,9 @@ def new_join_immediate_welcome_third_text() -> SectionBlock:
     )
 
 
-def new_join_immediate_welcome_fourth_text() -> SectionBlock:
+def new_join_immediate_welcome_fourth_text() -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="new_member_join_immediate_welcome_fourth_text"
+        message_slug="new_member_join_immediate_welcome_fourth_text",
     )
     return SectionBlock(
         block_id="immediate_welcome_fourth_text",
@@ -68,7 +68,7 @@ def new_join_immediate_welcome_fourth_text() -> SectionBlock:
     )
 
 
-def new_join_immediate_welcome_oc_homepage_button() -> SectionBlock:
+def new_join_immediate_welcome_oc_homepage_button() -> SectionBlock:  # noqa: D103
     accessory = ButtonElement(
         text=PlainTextObject(text="OC Homepage", emoji=True),
         value="oc_home_page",
@@ -83,7 +83,7 @@ def new_join_immediate_welcome_oc_homepage_button() -> SectionBlock:
     )
 
 
-def new_join_immediate_welcome_slack_download_button() -> SectionBlock:
+def new_join_immediate_welcome_slack_download_button() -> SectionBlock:  # noqa: D103
     accessory = ButtonElement(
         text=PlainTextObject(text="Slack Download", emoji=True),
         value="slack_download",
@@ -98,7 +98,7 @@ def new_join_immediate_welcome_slack_download_button() -> SectionBlock:
     )
 
 
-def new_join_immediate_welcome_oc_coc_button() -> SectionBlock:
+def new_join_immediate_welcome_oc_coc_button() -> SectionBlock:  # noqa: D103
     accessory = ButtonElement(
         text=PlainTextObject(text="Operation Code CoC", emoji=True),
         value="operation_code_coc",
@@ -113,9 +113,9 @@ def new_join_immediate_welcome_oc_coc_button() -> SectionBlock:
     )
 
 
-def new_join_delayed_welcome_first_text() -> SectionBlock:
+def new_join_delayed_welcome_first_text() -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="new_member_join_delayed_welcome_first_text"
+        message_slug="new_member_join_delayed_welcome_first_text",
     )
     return SectionBlock(
         block_id="delayed_welcome_first_text",
@@ -123,9 +123,9 @@ def new_join_delayed_welcome_first_text() -> SectionBlock:
     )
 
 
-def new_join_delayed_welcome_second_text() -> SectionBlock:
+def new_join_delayed_welcome_second_text() -> SectionBlock:  # noqa: D103
     message_row = message_text_table.retrieve_valid_message_row(
-        message_slug="new_member_join_delayed_welcome_second_text"
+        message_slug="new_member_join_delayed_welcome_second_text",
     )
     return SectionBlock(
         block_id="delayed_welcome_second_text",

@@ -1,9 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field  # noqa: D100
 
 from modules.models.slack_models.shared_models import SlackMessageInfo
 
 
 class MemberJoinedChannelEvent(BaseModel):
+    """The body of a Slack member_joined_channel event."""
+
     type: str = Field(
         ...,
         example="member_joined_channel",
@@ -28,19 +30,26 @@ class MemberJoinedChannelEvent(BaseModel):
     inviter: str = Field(
         None,
         example="U123456789",
-        description="The Slack user ID of the user who invited the joining user - is optional and won't show up for default channels, for example",
+        description="The Slack user ID of the user who invited the joining user - is optional and won't show up for default channels, for example",  # noqa: E501
     )
 
 
 class MessageReceivedChannelEvent(BaseModel):
+    """The body of a Slack message event."""
+
     team_id: str = Field(
-        ..., example="T024BE7LD", description="The Slack ID of the team"
+        ...,
+        example="T024BE7LD",
+        description="The Slack ID of the team",
     )
     api_app_id: str = Field(
-        ..., example="A02R6C6S9JN", description="The Slack application ID"
+        ...,
+        example="A02R6C6S9JN",
+        description="The Slack application ID",
     )
     event: SlackMessageInfo = Field(
-        ..., description="The information about the message that was received"
+        ...,
+        description="The information about the message that was received",
     )
     type: str = Field(
         ...,
@@ -48,10 +57,14 @@ class MessageReceivedChannelEvent(BaseModel):
         description="The type of event, should always be event_callback",
     )
     event_id: str = Field(
-        ..., example="Ev02UJP6HDBR", description="The Slack provided ID of the event"
+        ...,
+        example="Ev02UJP6HDBR",
+        description="The Slack provided ID of the event",
     )
     event_time: int = Field(
-        ..., example=1642732981, description="The Unix timestamp of the event"
+        ...,
+        example=1642732981,
+        description="The Unix timestamp of the event",
     )
     event_context: str = Field(
         ...,

@@ -1,7 +1,6 @@
+import logging  # noqa: D100
 import os
-import logging
-from functools import cached_property
-from typing import Any, Union
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -9,22 +8,32 @@ logger = logging.getLogger(__name__)
 
 
 class SlackUserInfo(BaseModel):
+    """Information about a Slack user."""
+
     id: str = Field(
         ...,
         example="U01RN31JSTD",
         description="Slack ID of the user",
     )
     username: str = Field(
-        ..., example="julio123", description="The Slack username of the user"
+        ...,
+        example="julio123",
+        description="The Slack username of the user",
     )
     name: str = Field(
-        ..., example="JulioMendez", description="The Slack display name of the user"
+        ...,
+        example="JulioMendez",
+        description="The Slack display name of the user",
     )
 
 
 class SlackEditedInfo(BaseModel):
+    """Information about when a Slack message was last edited."""
+
     user: str = Field(
-        ..., example="B02QRQ4KU5V", description="The user who last edited the message"
+        ...,
+        example="B02QRQ4KU5V",
+        description="The user who last edited the message",
     )
     ts: str = Field(
         ...,
@@ -34,6 +43,8 @@ class SlackEditedInfo(BaseModel):
 
 
 class SlackTextObjectInfo(BaseModel):
+    """A Slack text object is a piece of text that can be used in a Slack message or block."""
+
     type: str = Field(..., example="mrkdwn", description="The type of text object")
     text: str = Field(
         ...,
@@ -43,14 +54,17 @@ class SlackTextObjectInfo(BaseModel):
 
 
 class SlackBlockInfo(BaseModel):
+    """A Slack block is a section of a message."""
+
     type: str = Field(..., example="section", description="The type of block")
     block_id: str = Field(
         ...,
         example="report_title_block",
-        description="ID of the block - must be unique within the immediate set of blocks. Will be added by Slack if it's missing in the definition",
+        description="ID of the block - must be unique within the immediate set of blocks. Will be added by Slack if it's missing in the definition",  # noqa: E501
     )
-    text: SlackTextObjectInfo = Field(
-        None, description="Optional text object for this block"
+    text: SlackTextObjectInfo | None = Field(
+        None,
+        description="Optional text object for this block",
     )
 
     class Config:
@@ -59,6 +73,8 @@ class SlackBlockInfo(BaseModel):
 
 
 class SlackViewInfo(BaseModel):
+    """A Slack view is a modal that can be used to collect information from a user."""
+
     id: str = Field(
         ...,
         example="V02S65HDH9Q",
@@ -66,9 +82,10 @@ class SlackViewInfo(BaseModel):
     )
     type: str = Field(..., example="modal", description="The type of view")
     blocks: list[SlackBlockInfo] = Field(
-        ..., description="List of blocks in the view - there must be at least one"
+        ...,
+        description="List of blocks in the view - there must be at least one",
     )
-    private_metadata: str = Field(
+    private_metadata: str | None = Field(
         None,
         description="Private data that can be included on a view and sent with a submission - not visible to the user",
     )
@@ -77,87 +94,95 @@ class SlackViewInfo(BaseModel):
         example="report_form_submit",
         description="Callback for the submission action of the view, used to handle the submission",
     )
-    state: dict[str, Any] = Field(
+    state: dict[str, Any] | None = Field(
         None,
         description="State of a view, if it exists - contains the value of the input elements in the view",
     )
     hash: str = Field(
         ...,
         example="1640903702.u8C2NM3Y",
-        description="Hash string sent with the submission of the view, this is used by the update and publish views API calls to ensure that only the most recent view is updated or published",
+        description="Hash string sent with the submission of the view, this is used by the update and publish views API calls to ensure that only the most recent view is updated or published",  # noqa: E501
     )
-    title: SlackTextObjectInfo = Field(
-        None, description="The text object used for the title of the view"
+    title: SlackTextObjectInfo | None = Field(
+        None,
+        description="The text object used for the title of the view",
     )
-    previous_view_id: str = Field(
+    previous_view_id: str | None = Field(
         None,
         example="V02S65HDH9Q",
         description="The previous view's ID - typically used in workflows",
     )
-    root_view_id: str = Field(
-        None, example="V02S65HDH9Q", description="The root view's ID"
+    root_view_id: str | None = Field(
+        None,
+        example="V02S65HDH9Q",
+        description="The root view's ID",
     )
-    external_id: str = Field(
+    external_id: str | None = Field(
         None,
         example="report_form_modal",
-        description="The optional external ID for the view, must be unique across all views - this is added by the bot",
+        description="The optional external ID for the view, must be unique across all views - this is added by the bot",  # noqa: E501
     )
-    bot_id: str = Field(
+    bot_id: str | None = Field(
         None,
         example="B02QRQ4KU5V",
         description="The ID of the bot that generated the view",
     )
 
 
-class SlackMessageInfo(BaseModel):
-    client_msg_id: str = Field(None, example="de437daf-67fd-48a6-b9bd-03f9336509e9")
-    bot_id: str = Field(
+class SlackMessageInfo(BaseModel):  # noqa: D101
+    client_msg_id: str | None = Field(None, example="de437daf-67fd-48a6-b9bd-03f9336509e9")
+    bot_id: str | None = Field(
         None,
         example="B02QRQ4KU5V",
-        description="Slack ID of the bot that sent the message - provided that the original message was sent from a bot",
+        description="Slack ID of the bot that sent the message - provided that the original message was sent "
+        "from a bot",
     )
     type: str = Field(..., example="message", description="The type of message")
-    text: str = Field(
+    text: str | None = Field(
         None,
         example="Typical fallback text...",
-        description="If blocks are provided, this is the fallback text for the message. If no blocks are present, this is the message",
+        description="If blocks are provided, this is the fallback text for the message. If no blocks are present, "
+        "this is the message",
     )
     user: str = Field(
         ...,
         example="U02RK2AL5LZ",
         description="Slack user ID of the user who triggered the action",
     )
-    blocks: list[Union[Any, SlackBlockInfo]] = Field(
-        None, description="The list of blocks for a particular message"
+    blocks: list[Any | SlackBlockInfo] | None = Field(
+        None,
+        description="The list of blocks for a particular message",
     )
     ts: str = Field(
         ...,
         example="1640727423.003500",
         description="Unix Epoch timestamp the message was received by Slack - typically used to locate the message",
     )
-    edited: SlackEditedInfo = Field(
-        None, description="Information about who and when the message was last edited"
+    edited: SlackEditedInfo | None = Field(
+        None,
+        description="Information about who and when the message was last edited",
     )
-    thread_ts: str = Field(
+    thread_ts: str | None = Field(
         None,
         example="1640727423.003500",
         description="The Unix Epoch timestamp the thread was created",
     )
-    reply_count: int = Field(None, description="The number of replies the message has")
-    reply_users_count: int = Field(
-        None, description="The number of users who have replied to the message"
+    reply_count: int | None = Field(None, description="The number of replies the message has")
+    reply_users_count: int | None = Field(
+        None,
+        description="The number of users who have replied to the message",
     )
-    latest_reply: str = Field(
+    latest_reply: str | None = Field(
         None,
         example="1640727423.003500",
         description="The Unix Epoch timestamp of when the latest reply was created",
     )
-    reply_users: list[str] = Field(
+    reply_users: list[str] | None = Field(
         None,
         example=["U02RK2AL5LZ"],
         description="A list of Slack user IDs of users who have replied to the message",
     )
-    last_read: str = Field(
+    last_read: str | None = Field(
         None,
         example="1640727423.003500",
         description="The Unix Epoch timestamp of when the message was last read",
@@ -168,25 +193,28 @@ class SlackMessageInfo(BaseModel):
 
 
 class SlackActionInfo(BaseModel):
+    """The action information for a Slack action."""
+
     action_id: str = Field(
         ...,
         example="reset_greet_new_user_claim",
-        description="The ID that identifies this particular action and allows the application to handle it when triggered",
+        description="The ID that identifies this particular action and allows the application to"
+        " handle it when triggered",
     )
-    block_id: str = Field(
+    block_id: str | None = Field(
         None,
         example="reset_claim_action",
         description="The ID that identifies the block the action is part of",
     )
-    text: SlackTextObjectInfo = Field(
+    text: SlackTextObjectInfo | None = Field(
         None,
         description="The text object that represents the text on the action (button, etc)",
     )
-    value: Union[dict[str, Any], str] = Field(
+    value: dict[str, Any] | str | None = Field(
         None,
         description="The value sent to the application when the action is triggered",
     )
-    style: str = Field(
+    style: str | None = Field(
         None,
         example="danger",
         description="The style of the action, typically the style of the button",
@@ -200,8 +228,12 @@ class SlackActionInfo(BaseModel):
 
 
 class SlackActionContainerInfo(BaseModel):
+    """The container information for a Slack action."""
+
     type: str = Field(
-        ..., example="message", description="The type of container the action came from"
+        ...,
+        example="message",
+        description="The type of container the action came from",
     )
     message_ts: str = Field(
         ...,
@@ -209,31 +241,43 @@ class SlackActionContainerInfo(BaseModel):
         description="Unix Epoch timestamp of when the message was sent to Slack, typically used to locate the message",
     )
     channel_id: str = Field(
-        ..., example="C01S0K034TB", description="The channel ID the message came from"
+        ...,
+        example="C01S0K034TB",
+        description="The channel ID the message came from",
     )
     is_ephemeral: bool = Field(
-        ..., description="Whether or not the message is ephemeral"
+        ...,
+        description="Whether or not the message is ephemeral",
     )
 
 
 class SlackChannelInfo(BaseModel):
+    """Information about a Slack channel."""
+
     id: str = Field(..., example="C01S0K034TB", description="Slack ID of the channel")
     name: str = Field(..., example="general", description="Name of the channel")
 
 
 class BasicSlackRequest(BaseModel):
+    """The basic information that is included in all Slack requests."""
+
     trigger_id: str = Field(
         ...,
         example="2875577934983.1895692821248.5b6bb2ed4127b90954e8d32a86e2cafc",
         description="The ID of the trigger for this request, typically used to respond to the correct place and user",
     )
     api_app_id: str = Field(
-        ..., example="A02R6C6S9JN", description="The Slack application ID"
+        ...,
+        example="A02R6C6S9JN",
+        description="The Slack application ID",
     )
 
 
 class SlackConversationInfo(BaseModel):
-    """Slack used to call these channels, but now they are called conversations, of which channels are a subset along with IMs and MPIMs (Multi Person IMs)"""
+    """Slack used to call these channels, but now they are called conversations.
+
+    Of which channels are a subset along with IMs and MPIMs (Multi Person IMs).
+    """
 
     id: str = Field(
         ...,
@@ -242,88 +286,143 @@ class SlackConversationInfo(BaseModel):
     )
     name: str = Field(..., example="general", description="Name of the conversation")
     is_channel: bool = Field(
-        ..., description="Whether the conversation is a channel or not"
+        ...,
+        description="Whether the conversation is a channel or not",
     )
     is_im: bool = Field(..., description="Whether the conversation is an IM or not")
     is_mpim: bool = Field(
-        ..., description="Whether the conversation is a Multi Person IM or not"
+        ...,
+        description="Whether the conversation is a Multi Person IM or not",
     )
     is_private: bool = Field(
-        ..., description="Whether the conversation is private or not"
+        ...,
+        description="Whether the conversation is private or not",
     )
 
 
 class BaseSlackTeamInfo(BaseModel):
+    """Basic information about a Slack team."""
+
     id: str = Field(
         ...,
         example="T01SBLCQ57A",
         description="Slack ID of the team",
     )
-    domain: str = Field(
-        None, example="bot-testing-field", description="The domain of the team"
+    domain: str | None = Field(
+        None,
+        example="bot-testing-field",
+        description="The domain of the team",
     )
 
 
 class SlackTeamInfo(BaseSlackTeamInfo):
-    """Slack used to call these workspaces, but they are referred to as teams now"""
+    """Slack used to call these workspaces, but they are referred to as teams now."""
 
     name: str = Field(
-        ..., example="Bot-Testing-Field", description="The name of the Slack workspace"
+        ...,
+        example="Bot-Testing-Field",
+        description="The name of the Slack workspace",
     )
     conversations: list[SlackConversationInfo] = Field(
-        ..., description="The list of Slack channels in this workspace"
+        ...,
+        description="The list of Slack channels in this workspace",
     )
 
 
 class SlackTeam:
-    def __init__(self, team_info: SlackTeamInfo) -> None:
-        logger.debug(f"Initializing the Slack Team with team_info: {team_info}")
+    """A Slack team is a workspace that contains channels and users."""
+
+    def __init__(self: "SlackTeam", team_info: SlackTeamInfo) -> None:
+        """Initialize the Slack team with the team information."""
+        logger.info("Initializing the Slack Team with team_info", extra={"team_info": team_info})
         self._team_info = team_info
 
-    def find_channel_by_name(self, channel_name: str) -> SlackConversationInfo:
-        logger.debug(f"Finding channel by name: {channel_name}")
-        logger.debug(f"Full channel list: {[conversation_info.name for conversation_info in self.full_conversation_list]}")
+    def find_channel_by_name(self: "SlackTeam", channel_name: str) -> SlackConversationInfo:
+        """Find a Slack channel by name.
+
+        :param channel_name: The name of the channel to find
+        :return: The Slack channel information
+        """
+        logger.info("Finding channel by name", extra={"channel_name": channel_name})
+        full_channel_list = [conversation_info.name for conversation_info in self.full_conversation_list]
+        logger.info("Full channel list:", extra={"full_channel_list": full_channel_list})
         try:
-            return [
-                conversation
-                for conversation in self.full_conversation_list
-                if conversation.name == channel_name
-            ][0]
+            return next(
+                conversation for conversation in self.full_conversation_list if conversation.name == channel_name
+            )
+
         except IndexError:
-            logger.exception(f"Could not find channel by name: {channel_name}")
-            raise Exception(f"Could not find channel by name: {channel_name}")
+            logger.exception("Could not find channel by name", extra={"channel_name": channel_name})
+            raise
+
     @property
-    def slack_id(self) -> str:
+    def slack_id(self: "SlackTeam") -> str:
+        """Return the Slack ID of the team.
+
+        :return: The Slack ID of the team
+        """
         return self._team_info.id
 
     @property
-    def name(self) -> str:
+    def name(self: "SlackTeam") -> str:
+        """Return the name of the team.
+
+        :return: The name of the team
+        """
         return self._team_info.name
 
     @property
-    def full_conversation_list(self) -> list[SlackConversationInfo]:
+    def full_conversation_list(self: "SlackTeam") -> list[SlackConversationInfo]:
+        """Return the full list of conversations in the team.
+
+        :return: The full list of conversations in the team
+        """
         return self._team_info.conversations
 
     @property
-    def greetings_channel(self) -> SlackConversationInfo:
-        return self.find_channel_by_name(os.getenv("GREETINGS_CHANNEL_NAME"))
+    def greetings_channel(self: "SlackTeam") -> SlackConversationInfo:
+        """Return the greeting channel.
+
+        :return: The greeting channel
+        """
+        return self.find_channel_by_name(os.getenv("GREETINGS_CHANNEL_NAME", ""))
 
     @property
-    def mentors_internal_channel(self) -> SlackConversationInfo:
-        return self.find_channel_by_name(os.getenv("MENTORS_CHANNEL_NAME"))
+    def mentors_internal_channel(self: "SlackTeam") -> SlackConversationInfo:
+        """Return the mentor internal channel.
+
+        :return: The mentor internal channel
+        """
+        return self.find_channel_by_name(os.getenv("MENTORS_CHANNEL_NAME", ""))
 
     @property
-    def moderators_channel(self) -> SlackConversationInfo:
-        return self.find_channel_by_name(os.getenv("MODERATORS_CHANNEL_NAME"))
+    def moderators_channel(self: "SlackTeam") -> SlackConversationInfo:
+        """Return the moderator channel.
+
+        :return: The moderator channel
+        """
+        return self.find_channel_by_name(os.getenv("MODERATORS_CHANNEL_NAME", ""))
 
     @property
-    def general_channel(self) -> SlackConversationInfo:
-        return self.find_channel_by_name(os.getenv("GENERAL_CHANNEL_NAME"))
+    def general_channel(self: "SlackTeam") -> SlackConversationInfo:
+        """Return the general channel.
+
+        :return: The general channel
+        """
+        return self.find_channel_by_name(os.getenv("GENERAL_CHANNEL_NAME", ""))
 
     @property
-    def pride_channel(self) -> SlackConversationInfo:
-        return self.find_channel_by_name(os.getenv("PRIDE_CHANNEL_NAME"))
+    def pride_channel(self: "SlackTeam") -> SlackConversationInfo:
+        """Return the pride channel.
+
+        :return: The pride channel
+        """
+        return self.find_channel_by_name(os.getenv("PRIDE_CHANNEL_NAME", ""))
 
     @property
-    def blacks_in_tech(self) -> SlackConversationInfo:
-        return self.find_channel_by_name(os.getenv("BLACKS_IN_TECH_CHANNEL_NAME"))
+    def blacks_in_tech(self: "SlackTeam") -> SlackConversationInfo:
+        """Return the blacks_in_tech channel.
+
+        :return: The blacks_in_tech channel
+        """
+        return self.find_channel_by_name(os.getenv("BLACKS_IN_TECH_CHANNEL_NAME", ""))

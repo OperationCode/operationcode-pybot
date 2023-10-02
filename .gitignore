@@ -107,3 +107,5 @@ venv.bak/
 .idea/*
 env*
 fly.toml
+
+.ruff_cache
