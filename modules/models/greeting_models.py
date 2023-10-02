@@ -1,21 +1,34 @@
+"""Models for the greeting module."""
 from pydantic import BaseModel, Field
 
 
 class UserInfo(BaseModel):
+    """User info schema."""
+
     id: str = Field(
-        ..., example="U02RK2AL5LZ", description="The Slack ID of the new user"
+        ...,
+        example="U02RK2AL5LZ",
+        description="The Slack ID of the new user",
     )
     name: str = Field(
-        ..., example="julio123", description="The Slack name of the new user"
+        ...,
+        example="julio123",
+        description="The Slack name of the new user",
     )
     first_name: str = Field(
-        None, example="Julio", description="The first name of the new user"
+        None,
+        example="Julio",
+        description="The first name of the new user",
     )
     last_name: str = Field(
-        None, example="Mendez", description="The last name of the new user"
+        None,
+        example="Mendez",
+        description="The last name of the new user",
     )
     display_name: str = Field(
-        None, example="julio123", description="The display name chosen by the user"
+        None,
+        example="julio123",
+        description="The display name chosen by the user",
     )
     real_name: str = Field(
         None,
@@ -25,5 +38,7 @@ class UserInfo(BaseModel):
     email: str = Field(..., example="test@example.com", description="Email of the user")
     zip_code: str = Field(None, example="12345", description="The zip code of the user")
     joined_date: str = Field(
-        None, example="2013-01-30", description="The date the user joined the OC Slack"
+        None,
+        example="2013-01-30",
+        description="The date the user joined the OC Slack",
     )

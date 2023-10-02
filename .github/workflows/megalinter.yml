@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Mega Linter
-        uses: oxsecurity/megalinter/flavors/python@v6
+        uses: oxsecurity/megalinter/flavors/python@v7
         env:
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

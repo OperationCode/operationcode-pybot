@@ -1,20 +1,24 @@
+"""Tests for the Airtable module."""
 import pytest
 
 from modules.airtable import (
+    daily_programmer_table,
     mentor_table,
-    mentorship_services_table,
-    mentorship_skillsets_table,
     mentorship_affiliations_table,
     mentorship_requests_table,
-    scheduled_message_table,
+    mentorship_services_table,
+    mentorship_skillsets_table,
     message_text_table,
-    daily_programmer_table,
+    scheduled_message_table,
 )
 
 
 @pytest.mark.vcr()
 class TestMentorTableBasic:
-    def setup(self):
+    """Tests for the mentor table in Airtable."""
+
+    def setup(self) -> None:
+        """Set up for the tests."""
         self.desired_fields = {
             "row_id",
             "valid",
@@ -37,16 +41,21 @@ class TestMentorTableBasic:
         self.airtable_fields = mentor_table.table_fields
 
     def test_mentor_table_has_all_desired_fields(self) -> None:
+        """Test that the mentor table has all the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
     def test_mentor_table_has_correct_number_of_fields(self) -> None:
+        """Test that the mentor table has the correct number of fields."""
         assert len(self.airtable_fields) == len(self.desired_fields)
 
 
 @pytest.mark.vcr()
 class TestMentorshipServicesTableBasic:
-    def setup(self):
+    """Tests for the mentorship services table in Airtable."""
+
+    def setup(self) -> None:
+        """Set up for the tests."""
         self.desired_fields = {
             "name",
             "slug",
@@ -58,16 +67,21 @@ class TestMentorshipServicesTableBasic:
         self.airtable_fields = mentorship_services_table.table_fields
 
     def test_mentorship_services_table_has_all_desired_fields(self) -> None:
+        """Test that the mentorship services table has all the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
     def test_mentorship_services_table_has_correct_number_of_fields(self) -> None:
+        """Test that the mentorship services table has the correct number of fields."""
         assert len(self.airtable_fields) == len(self.desired_fields)
 
 
 @pytest.mark.vcr()
 class TestMentorshipSkillsetsTableBasic:
-    def setup(self):
+    """Tests for the mentorship skillsets table in Airtable."""
+
+    def setup(self) -> None:
+        """Set up for the tests."""
         self.desired_fields = {
             "name",
             "slug",
@@ -80,16 +94,21 @@ class TestMentorshipSkillsetsTableBasic:
         self.airtable_fields = mentorship_skillsets_table.table_fields
 
     def test_mentorship_skillsets_table_has_all_desired_fields(self) -> None:
+        """Test that the mentorship skillsets table has all the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
     def test_mentorship_skillsets_table_has_correct_number_of_fields(self) -> None:
+        """Test that the mentorship skillsets table has the correct number of fields."""
         assert len(self.airtable_fields) == len(self.desired_fields)
 
 
 @pytest.mark.vcr()
 class TestMentorshipAffiliationTableBasic:
-    def setup(self):
+    """Tests for the mentorship affiliation table in Airtable."""
+
+    def setup(self) -> None:
+        """Set up for the tests."""
         self.desired_fields = {
             "name",
             "slug",
@@ -102,16 +121,21 @@ class TestMentorshipAffiliationTableBasic:
         self.airtable_fields = mentorship_affiliations_table.table_fields
 
     def test_mentorship_affiliation_table_has_all_desired_fields(self) -> None:
+        """Test that the mentorship affiliation table has all the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
     def test_mentorship_affiliation_table_has_correct_number_of_fields(self) -> None:
+        """Test that the mentorship affiliation table has the correct number of fields."""
         assert len(self.airtable_fields) == len(self.desired_fields)
 
 
 @pytest.mark.vcr()
 class TestMentorshipRequestsTableBasic:
-    def setup(self):
+    """Tests for the mentorship requests table in Airtable."""
+
+    def setup(self) -> None:
+        """Set up for the tests."""
         self.desired_fields = {
             "slack_name",
             "email",
@@ -133,16 +157,21 @@ class TestMentorshipRequestsTableBasic:
         self.airtable_fields = mentorship_requests_table.table_fields
 
     def test_mentorship_affiliation_table_has_all_desired_fields(self) -> None:
+        """Test that the mentorship affiliation table has all the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
     def test_mentorship_affiliation_table_has_correct_number_of_fields(self) -> None:
+        """Test that the mentorship affiliation table has the correct number of fields."""
         assert len(self.airtable_fields) == len(self.desired_fields)
 
 
 @pytest.mark.vcr()
 class TestScheduledMessagesTableBasic:
-    def setup(self):
+    """Test the scheduled messages table."""
+
+    def setup(self) -> None:
+        """Set up the test."""
         self.desired_fields = {
             "name",
             "slug",
@@ -158,17 +187,22 @@ class TestScheduledMessagesTableBasic:
         }
         self.airtable_fields = scheduled_message_table.table_fields
 
-    def test_mentorship_affiliation_table_has_all_desired_fields(self) -> None:
+    def test_scheduled_message_table_has_all_desired_fields(self) -> None:
+        """Ensure that the scheduled message table has the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
-    def test_mentorship_affiliation_table_has_correct_number_of_fields(self) -> None:
+    def test_scheduled_message_table_has_correct_number_of_fields(self) -> None:
+        """Ensure that the scheduled message table has the correct number of fields."""
         assert len(self.airtable_fields) == len(self.desired_fields)
 
 
 @pytest.mark.vcr()
 class TestMessageTextTableBasic:
-    def setup(self):
+    """Test the message text table."""
+
+    def setup(self) -> None:
+        """Set up the test."""
         self.desired_fields = {
             "name",
             "slug",
@@ -180,17 +214,22 @@ class TestMessageTextTableBasic:
         }
         self.airtable_fields = message_text_table.table_fields
 
-    def test_mentorship_affiliation_table_has_all_desired_fields(self) -> None:
+    def test_message_text_table_has_all_desired_fields(self) -> None:
+        """Ensure that the message text table has the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
-    def test_mentorship_affiliation_table_has_correct_number_of_fields(self) -> None:
+    def test_message_test_table_has_correct_number_of_fields(self) -> None:
+        """Ensure that the message text table has the desired fields."""
         assert len(self.airtable_fields) == len(self.desired_fields)
 
 
 @pytest.mark.vcr()
 class TestDailyProgrammerTableBasic:
-    def setup(self):
+    """Test the Daily Programmer table."""
+
+    def setup(self) -> None:
+        """Set up the test class."""
         self.desired_fields = {
             "name",
             "slug",
@@ -207,9 +246,11 @@ class TestDailyProgrammerTableBasic:
         }
         self.airtable_fields = daily_programmer_table.table_fields
 
-    def test_mentorship_affiliation_table_has_all_desired_fields(self) -> None:
+    def test_daily_programmer_table_has_all_desired_fields(self) -> None:
+        """Ensure that the affiliation table has the desired fields."""
         for field in self.airtable_fields:
             assert field in self.desired_fields
 
-    def test_mentorship_affiliation_table_has_correct_number_of_fields(self) -> None:
+    def test_daily_programmer_table_has_correct_number_of_fields(self) -> None:
+        """Ensure that the number of fields in the Airtable matches the number of fields in the desired fields set."""
         assert len(self.airtable_fields) == len(self.desired_fields)

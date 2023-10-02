@@ -1,10 +1,10 @@
-from modules.airtable.daily_programmer_table import DailyProgrammerTable
+from modules.airtable.daily_programmer_table import DailyProgrammerTable  # noqa: D104
 from modules.airtable.mentorship_tables import (
+    MentorshipAffiliationsTable,
+    MentorshipMentorsTable,
+    MentorshipRequestsTable,
     MentorshipServicesTable,
     MentorshipSkillsetsTable,
-    MentorshipRequestsTable,
-    MentorshipMentorsTable,
-    MentorshipAffiliationsTable,
 )
 from modules.airtable.message_text_table import MessageTextTable
 from modules.airtable.scheduled_message_table import ScheduledMessagesTable

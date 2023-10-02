@@ -1,9 +1,14 @@
-from pydantic import Field
+from pydantic import Field  # noqa: D100
 
 from modules.models.slack_models.shared_models import BasicSlackRequest
 
 
 class SlackCommandRequestBody(BasicSlackRequest):
+    """The body of a Slack command request.
+
+    These are typically received from the Slack application after a slash command is used.
+    """
+
     command: str = Field(
         ...,
         example="/mentor_request",
@@ -29,7 +34,7 @@ class SlackCommandRequestBody(BasicSlackRequest):
         example="directmessage",
         description="The name of the channel where the command was triggered",
     )
-    response_url: str = Field(
+    response_url: str | None = Field(
         None,
         example="https://hooks.slack.com/actions/T01SBLfdsaQ57A/2902419552385/BiWpNhRSURKF9CvqujZ3x1MQ",
         description="The URL to send the response to that will automatically put the response in the right place",

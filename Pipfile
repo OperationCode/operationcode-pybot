@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+slack-bolt = "*"
+requests = "*"
+slack-sdk = "*"
+airtable = "*"
+pyairtable = "*"
+pydantic = "*"
+apscheduler = "*"
+dailyprogrammer = "*"
+aiohttp = "==3.8.1"
+gunicorn = "*"
+
+[dev-packages]
+pytest = "*"
+black = "*"
+pytest-vcr = "*"
+pyyaml = "*"
+
+[requires]
+python_version = "3.10"
+
+[pipenv]
+allow_prereleases = true
