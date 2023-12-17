@@ -110,10 +110,8 @@ app_handler = AsyncSlackRequestHandler(app)
 
 # Sentry monitoring
 if "SENTRY_DSN" in os.environ:
-    # pylint: disable=abstract-class-instantiated
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN"),
-        request_bodies="medium",
         environment=os.getenv("RUN_ENV", "development"),
     )
 
@@ -128,7 +126,8 @@ MessageTrigger = IntervalTrigger(minutes=10)
 
 # Start up our job scheduler on FastAPI startup and schedule jobs as needed
 @api.on_event("startup")
-async def startup_event() -> None:  # noqa: D103
+async def startup_event() -> None:
+    """Startup events for the FastAPI application."""
     messages = await app.client.chat_scheduledMessages_list()
     for message in messages["scheduled_messages"]:
         await app.client.chat_deleteScheduledMessage(
@@ -171,7 +170,8 @@ async def base_endpoint(req: Request) -> Response:  # noqa: D103
 
 
 @api.get("/healthz")
-async def healthz() -> Response:  # noqa: D103
+async def healthz() -> Response:
+    """Health check endpoint for Render."""
     return Response(status_code=200)
 
 

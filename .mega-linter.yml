@@ -42,6 +42,6 @@ PYTHON_RUFF_CONFIG_FILE: "pyproject.toml"
 REPOSITORY_DEVSKIM_ARGUMENTS: ["-g", ".mypy_cache/*"]
 SHOW_ELAPSED_TIME: true
 SPELL_MISSPELL_FILTER_REGEX_EXCLUDE: '(\.automation/generated|docs/descriptors)'
-YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml/tests/**\/tests\/**)'
-YAML_PRETTIER_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml|mkdocs\.yml)'
+YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/|\.mega-linter\.yml|/tests/**)'
+YAML_PRETTIER_FILTER_REGEX_EXCLUDE: '(templates/|\.mega-linter\.yml|mkdocs\.yml)'
 YAML_V8R_FILTER_REGEX_EXCLUDE: '(descriptors|templates/\.mega-linter\.yml|\.codecov\.yml)'
