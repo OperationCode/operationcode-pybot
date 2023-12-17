@@ -2,7 +2,7 @@
 import logging
 from typing import Any
 
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from modules.airtable.shared_table import BaseAirtableTable
 from modules.models.scheduled_message_models import ScheduledMessageInfo

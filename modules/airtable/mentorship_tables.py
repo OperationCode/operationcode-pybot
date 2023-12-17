@@ -1,10 +1,10 @@
-"""This module contains the Airtable tables for the mentorship program."""  # noqa: D404
+"""Airtable tables for the mentorship program."""
 import logging
 from functools import cached_property
 from itertools import chain
 from typing import Any
 
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 
 from modules.airtable.shared_table import BaseAirtableTable
 from modules.models.mentorship_models import (
@@ -48,9 +48,9 @@ class MentorshipAffiliationsTable(BaseAirtableTable):
                 airtable_id=row["id"],
                 created_at=row["createdTime"],
             )
-        except ValidationError as validation_exception:
+        except ValidationError:
             logger.exception("Error parsing affiliation row", extra={"row": row})
-            raise validation_exception from validation_exception
+            raise
 
 
 class MentorshipMentorsTable(BaseAirtableTable):
@@ -164,7 +164,6 @@ class MentorshipSkillsetsTable(BaseAirtableTable):
                     )
                 except KeyError:
                     logger.exception("Key error intercepted retrieving mentors by skillset", extra={"row": row})
-                    pass
 
             # Flatten the array and get unique values
             return set(chain(*mentors))
