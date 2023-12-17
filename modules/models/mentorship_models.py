@@ -181,5 +181,5 @@ class MentorshipRequest(MentorshipRequestBase, AirtableRowBaseModel):  # noqa: D
     )
 
 
-class MentorshipRequestCreate(MentorshipRequestBase):  # noqa: D101
-    pass
+class MentorshipRequestCreate(MentorshipRequestBase):
+    """Create a new mentorship request."""

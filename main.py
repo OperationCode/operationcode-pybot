@@ -153,7 +153,7 @@ async def shutdown_event():  # noqa: ANN201, D103
 # @api.post("/pybot/api/v1/slack/invite")
 # async def invite_new_user(
 #     email: str = Body(
-#         ..., example="Test@test.com", description="Email address of the user to invite"  # noqa: ERA001
+#         ..., example="Test@test.com", description="Email address of the user to invite"
 #     )  # noqa: ERA001, RUF100
 # ) -> None:
 #     await app.client.admin_users_invite(
