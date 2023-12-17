@@ -78,9 +78,9 @@ exclude = [
     # Exclude the one off script file
     "one_offs.py",
     # Exclude the vector search testing
-    "vector*",
+    "**/vector*",
     # Exclude the databases folder
-    "databases/**",
+    "**/databases/**",
 ]
 
 # Same as Black.

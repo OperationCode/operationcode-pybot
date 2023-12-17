@@ -164,7 +164,6 @@ class MentorshipSkillsetsTable(BaseAirtableTable):
                     )
                 except KeyError:
                     logger.exception("Key error intercepted retrieving mentors by skillset", extra={"row": row})
-                    pass
 
             # Flatten the array and get unique values
             return set(chain(*mentors))
