@@ -25,7 +25,7 @@ pypdf = "^3.8.1"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "~23"
+black = "~24"
 mypy = "~1"
 pyaml = "~21"
 pylint = "~2"
