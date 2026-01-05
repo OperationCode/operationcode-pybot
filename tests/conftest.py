@@ -44,6 +44,11 @@ async def bot() -> SirBot:
     b.load_plugin(airtable)
     b.load_plugin(api)
 
+    # Manually initialize the Slack API for tests that don't use aiohttp_client
+    # (which would trigger startup callbacks automatically).
+    # The _initialize_api method is idempotent, so it won't overwrite mocks.
+    await slack._initialize_api(b)
+
     yield b
 
     # Cleanup session
@@ -51,7 +56,7 @@ async def bot() -> SirBot:
 
 
 @pytest.fixture
-def slack_bot(bot: SirBot):
+async def slack_bot(bot: SirBot):
     slack = SlackPlugin(
         token="token",
         verify="supersecuretoken",
@@ -60,4 +65,6 @@ def slack_bot(bot: SirBot):
     )
     endpoints.slack.create_endpoints(slack)
     bot.load_plugin(slack)
+    # Manually initialize the Slack API (idempotent, won't overwrite existing)
+    await slack._initialize_api(bot)
     return bot

@@ -1,5 +1,11 @@
 #!/bin/sh -ex
 
+# Refresh AWS ECR login
+AWS_REGION=${AWS_REGION:-us-east-2}
+echo "Refreshing AWS ECR login for region ${AWS_REGION}..."
+aws ecr get-login-password --region ${AWS_REGION} | \
+  docker login --username AWS --password-stdin 633607774026.dkr.ecr.${AWS_REGION}.amazonaws.com
+
 # Build and push ARM64 image using buildx with provenance disabled
 docker buildx build \
   --platform linux/arm64 \

@@ -91,14 +91,24 @@ class SlackPlugin:
 
     def load(self, sirbot: Any) -> None:
         LOG.info("Loading slack plugin")
-        self.api = SlackAPI(session=sirbot.http_session, token=self.token)
+        # Store reference to sirbot for later initialization
+        self._sirbot = sirbot
 
         sirbot.router.add_route("POST", "/slack/events", endpoints.incoming_event)
         sirbot.router.add_route("POST", "/slack/commands", endpoints.incoming_command)
         sirbot.router.add_route("POST", "/slack/actions", endpoints.incoming_action)
 
+        # Initialize API after session is created
+        sirbot.on_startup.append(self._initialize_api)
+
         if self.bot_user_id and not self.bot_id:
             sirbot.on_startup.append(self.find_bot_id)
+
+    async def _initialize_api(self, app: Any) -> None:
+        """Initialize SlackAPI after http_session is created."""
+        if self.api is None:
+            LOG.info("Initializing Slack API client")
+            self.api = SlackAPI(session=self._sirbot.http_session, token=self.token)
 
     def on_event(self, event_type: str, handler: AsyncHandler, wait: bool = True) -> None:
         """Register handler for an event."""
