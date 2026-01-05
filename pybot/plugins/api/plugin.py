@@ -1,10 +1,23 @@
 import asyncio
 import logging
 from collections import defaultdict
+from typing import Any, Callable, Coroutine
 
 from pybot.plugins.api import endpoints
 
 logger = logging.getLogger(__name__)
+
+# Type alias for async handlers
+AsyncHandler = Callable[..., Coroutine[Any, Any, Any]]
+
+
+def _ensure_async(handler: Callable) -> AsyncHandler:
+    """Ensure handler is an async function."""
+    if not asyncio.iscoroutinefunction(handler):
+        raise TypeError(
+            f"Handler {handler.__name__} must be an async function (defined with 'async def')"
+        )
+    return handler
 
 
 class APIPlugin:
@@ -14,7 +27,7 @@ class APIPlugin:
         self.session = None
         self.routers = {"slack": SlackAPIRequestRouter()}
 
-    def load(self, sirbot):
+    def load(self, sirbot: Any) -> None:
         self.session = sirbot.http_session
 
         sirbot.router.add_route(
@@ -24,9 +37,8 @@ class APIPlugin:
             "POST", "/pybot/api/v1/slack/{resource}", endpoints.slack_api
         )
 
-    def on_get(self, request, handler, **kwargs):
-        if not asyncio.iscoroutinefunction(handler):
-            handler = asyncio.coroutine(handler)
+    def on_get(self, request: str, handler: AsyncHandler, **kwargs: Any) -> None:
+        handler = _ensure_async(handler)
         options = {**kwargs, "wait": False}
         self.routers["slack"].register(request, (handler, options))
 
