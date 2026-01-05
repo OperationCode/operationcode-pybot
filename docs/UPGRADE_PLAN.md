@@ -10,10 +10,13 @@ This document provides a step-by-step plan to upgrade operationcode-pybot from P
 
 ---
 
-## Phase 0: Establish Test Baseline (Days 1-4)
+## Phase 0: Establish Test Baseline (Days 1-4) ✅ COMPLETE
 
 > **Why Docker?** Python 3.7 cannot be installed on modern macOS (especially Apple Silicon).
 > We must run the existing tests in a Docker container to establish a baseline before upgrading.
+>
+> **Status**: Completed January 4, 2026
+> **Result**: 57 tests passing, 0 failures, 1 warning (deprecation warning is expected)
 
 ### 0.1 Create Test Dockerfile
 
@@ -35,8 +38,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install poetry
-RUN pip install poetry
+# Install specific poetry version compatible with Python 3.7
+RUN pip install "poetry==1.1.15"
 
 # Copy dependency files
 COPY pyproject.toml poetry.lock ./
@@ -457,35 +460,62 @@ class TestActionMessages:
 # Example: "15 passed, 0 failed"
 ```
 
-### 0.7 Document Baseline
+### 0.7 Document Baseline ✅
 
-Create `docs/TEST_BASELINE.md`:
+**Baseline Test Results - Python 3.7.17**
 
-```markdown
-# Test Baseline (Pre-Upgrade)
-
-**Date**: [DATE]
-**Python Version**: 3.7.x
+**Date**: January 4, 2026
+**Python Version**: 3.7.17
 **Test Command**: `./scripts/test-py37.sh`
+**Docker Image**: python:3.7-slim
 
-## Results
+## Results Summary
 
-| Test File | Passed | Failed | Skipped |
-|-----------|--------|--------|---------|
-| test_slack_actions.py | X | X | X |
-| test_slack_events.py | X | X | X |
-| test_slack_api_endpoint.py | X | X | X |
-| test_upgrade_safety.py | X | X | X |
-| test_lunch_command.py | X | X | X |
-| test_roll_command.py | X | X | X |
-| test_action_messages.py | X | X | X |
-| **Total** | **X** | **X** | **X** |
+**Total: 57 tests passed, 0 failed, 1 warning**
 
-## Notes
+| Test Category | Tests | Status |
+|--------------|-------|--------|
+| **Upgrade Safety Tests** | 23 | ✅ All Passed |
+| - Module imports | 18 | ✅ |
+| - Async handler verification | 3 | ✅ |
+| - Plugin loading | 2 | ✅ |
+| **Existing Integration Tests** | 11 | ✅ All Passed |
+| - API endpoint tests | 4 | ✅ |
+| - Slack action tests | 4 | ✅ |
+| - Slack event tests | 4 | ✅ |
+| **New Unit Tests** | 23 | ✅ All Passed |
+| - Action message tests | 3 | ✅ |
+| - Lunch command tests | 8 | ✅ |
+| - Roll command tests | 11 | ✅ |
 
-- [Any tests that fail and why]
-- [Any skipped tests and why]
+## Test Coverage by Module
+
+- **test_upgrade_safety.py**: 23 tests - Verifies all modules import correctly and handlers are async
+- **test_slack_api_endpoint.py**: 4 tests - API credential detection and verification
+- **test_slack_actions.py**: 4 tests - Mentor claim/unclaim actions
+- **test_slack_events.py**: 4 tests - Team join and message logging
+- **test_action_messages.py**: 3 tests - Message attachment builders
+- **test_lunch_command.py**: 8 tests - Lunch command parsing and Yelp integration
+- **test_roll_command.py**: 11 tests - Dice roll input validation
+
+## Warnings
+
+1 deprecation warning (expected, will be addressed in upgrade):
 ```
+DeprecationWarning: Inheritance class SirBot from web.Application is discouraged
+```
+
+This warning is expected and relates to aiohttp's deprecation patterns. It will be resolved during the Python 3.12 upgrade when we modernize the vendored sirbot code.
+
+## Key Findings
+
+1. ✅ All async handlers are properly defined with `async def`
+2. ✅ All modules import without syntax errors
+3. ✅ Both custom plugins instantiate correctly
+4. ✅ All existing integration tests pass
+5. ✅ New safety net tests provide comprehensive coverage
+
+**Baseline is stable and ready for upgrade work.**
 
 ---
 

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  test-py37:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.test
+    environment:
+      - SLACK_TOKEN=test_token
+      - SLACK_VERIFY=supersecuretoken
+      - SLACK_BOT_USER_ID=bot_user_id
+      - SLACK_BOT_ID=bot_id
+      - AIRTABLE_API_KEY=test_key
+      - AIRTABLE_BASE_KEY=test_base
+      - YELP_TOKEN=test_yelp
+      - BACKEND_AUTH_TOKEN=devBackendToken
+    volumes:
+      - ../tests:/app/tests:ro
+      - ../pybot:/app/pybot:ro
+    command: poetry run pytest -v --tb=short
+
+  test-py312:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.test.py312
+    environment:
+      - SLACK_TOKEN=test_token
+      - SLACK_VERIFY=supersecuretoken
+      - SLACK_BOT_USER_ID=bot_user_id
+      - SLACK_BOT_ID=bot_id
+      - AIRTABLE_API_KEY=test_key
+      - AIRTABLE_BASE_KEY=test_base
+      - YELP_TOKEN=test_yelp
+      - BACKEND_AUTH_TOKEN=devBackendToken
+    volumes:
+      - ../tests:/app/tests:ro
+      - ../pybot:/app/pybot:ro
+    command: poetry run pytest -v --tb=short

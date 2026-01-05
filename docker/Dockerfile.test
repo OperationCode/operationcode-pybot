@@ -1,0 +1,30 @@
+# docker/Dockerfile.test
+# For running tests in Python 3.7 (required since 3.7 won't install on modern macOS)
+
+FROM python:3.7-slim
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install specific poetry version compatible with Python 3.7
+RUN pip install "poetry==1.1.15"
+
+# Copy dependency files
+COPY pyproject.toml poetry.lock ./
+
+# Install dependencies (including dev)
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-interaction
+
+# Copy source code
+COPY . .
+
+# Default command: run tests
+CMD ["poetry", "run", "pytest", "-v"]
