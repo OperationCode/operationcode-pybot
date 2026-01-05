@@ -1,4 +1,6 @@
-FROM python:3.12-slim AS base
+FROM python:3.14-slim AS base
+
+RUN apt-get update && apt-get upgrade -y && apt clean
 
 FROM base AS builder
 
@@ -24,7 +26,7 @@ COPY pyproject.toml poetry.lock README.md logging.yml ./
 COPY pybot ./pybot
 
 # Install dependencies into .venv in project
-RUN poetry install --only=main --no-interaction --no-cache && \
+RUN poetry install --only=main --no-interaction --no-cache --compile && \
     rm -rf $POETRY_CACHE_DIR
 
 # Production image
