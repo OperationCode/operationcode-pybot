@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from sirbot import SirBot
+from pybot._vendor.sirbot import SirBot
 
 from pybot.endpoints.airtable.utils import (
     _create_messages,

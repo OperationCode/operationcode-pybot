@@ -4,8 +4,8 @@ import os
 import sentry_sdk
 import yaml
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
-from sirbot import SirBot
-from sirbot.plugins.slack import SlackPlugin
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 
 from pybot.endpoints import handle_health_check
 from pybot.endpoints.slack.utils import HOST, PORT, slack_configs

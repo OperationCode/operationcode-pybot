@@ -1,10 +1,10 @@
 from typing import List, Optional, Tuple
 
-from sirbot import SirBot
-from slack import ROOT_URL, methods
-from slack.events import Message
-from slack.exceptions import SlackAPIError
-from slack.io.aiohttp import SlackAPI
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.slack import ROOT_URL, methods
+from pybot._vendor.slack.events import Message
+from pybot._vendor.slack.exceptions import SlackAPIError
+from pybot._vendor.slack.io.aiohttp import SlackAPI
 
 from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 from pybot.plugins.airtable.api import AirtableAPI

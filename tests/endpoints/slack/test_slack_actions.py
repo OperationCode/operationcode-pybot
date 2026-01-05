@@ -1,5 +1,5 @@
 from asynctest import CoroutineMock
-from sirbot import SirBot
+from pybot._vendor.sirbot import SirBot
 
 
 async def test_claim_mentee_response_attachment_is_list(

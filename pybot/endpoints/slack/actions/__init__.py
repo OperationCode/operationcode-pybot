@@ -1,4 +1,4 @@
-from sirbot.plugins.slack import SlackPlugin
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 
 from .general_actions import claimed, delete_message, reset_claim
 from .mentor_request import (

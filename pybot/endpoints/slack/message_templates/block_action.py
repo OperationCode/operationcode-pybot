@@ -3,9 +3,9 @@ from __future__ import annotations
 from enum import IntEnum
 from typing import Any, Coroutine, MutableMapping, Optional
 
-from slack import methods
-from slack.actions import Action
-from slack.io.abc import SlackAPI
+from pybot._vendor.slack import methods
+from pybot._vendor.slack.actions import Action
+from pybot._vendor.slack.io.abc import SlackAPI
 
 
 class BlockAction(Action):

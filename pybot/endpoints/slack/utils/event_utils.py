@@ -2,9 +2,9 @@ import logging
 from typing import Dict, List, Tuple
 
 from aiohttp import ClientSession
-from slack import methods
-from slack.events import Message
-from slack.io.abc import SlackAPI
+from pybot._vendor.slack import methods
+from pybot._vendor.slack.events import Message
+from pybot._vendor.slack.io.abc import SlackAPI
 
 from pybot.endpoints.slack.utils import (
     BACKEND_PASS,

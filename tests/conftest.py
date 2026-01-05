@@ -1,14 +1,14 @@
 import copy
 
 import pytest
-from sirbot import SirBot
-from sirbot.plugins.slack import SlackPlugin
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 
 from pybot import endpoints
 from pybot.plugins import AirtablePlugin, APIPlugin
 from tests import data
 
-pytest_plugins = ("slack.tests.plugin",)
+pytest_plugins = ("pybot._vendor.slack.tests.plugin",)
 
 
 @pytest.fixture(params={**data.Action.__members__})

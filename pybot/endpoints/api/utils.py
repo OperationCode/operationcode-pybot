@@ -1,10 +1,10 @@
 import logging
 from typing import Optional
 
-from slack import ROOT_URL
-from slack.exceptions import SlackAPIError
-from slack.io.abc import SlackAPI
-from slack.methods import Methods
+from pybot._vendor.slack import ROOT_URL
+from pybot._vendor.slack.exceptions import SlackAPIError
+from pybot._vendor.slack.io.abc import SlackAPI
+from pybot._vendor.slack.methods import Methods
 
 from pybot.endpoints.slack.utils import OPS_CHANNEL, PYBOT_ENV
 from pybot.endpoints.slack.utils.action_messages import (

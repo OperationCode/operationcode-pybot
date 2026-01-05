@@ -1,10 +1,10 @@
 import logging
 import random
 
-from sirbot import SirBot
-from sirbot.plugins.slack import SlackPlugin
-from slack import methods
-from slack.commands import Command
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
+from pybot._vendor.slack import methods
+from pybot._vendor.slack.commands import Command
 
 from pybot.endpoints.slack.message_templates.commands import (
     mentor_request_blocks,
