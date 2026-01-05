@@ -21,8 +21,12 @@ def action(request):
 
 
 @pytest.fixture
-async def bot(loop) -> SirBot:
+async def bot() -> SirBot:
+    import aiohttp
     b = SirBot()
+    # Manually create session for testing (normally done on startup)
+    b["http_session"] = aiohttp.ClientSession()
+
     slack = SlackPlugin(
         token="token",
         verify="supersecuretoken",
@@ -39,7 +43,10 @@ async def bot(loop) -> SirBot:
     b.load_plugin(airtable)
     b.load_plugin(api)
 
-    return b
+    yield b
+
+    # Cleanup session
+    await b["http_session"].close()
 
 
 @pytest.fixture

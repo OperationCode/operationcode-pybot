@@ -1,4 +1,4 @@
-from asynctest import CoroutineMock
+from unittest.mock import AsyncMock as CoroutineMock
 from pybot._vendor.sirbot import SirBot
 
 

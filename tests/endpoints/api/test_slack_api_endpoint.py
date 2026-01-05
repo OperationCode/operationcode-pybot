@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from asynctest import CoroutineMock
+from unittest.mock import AsyncMock as CoroutineMock
 from pybot._vendor.sirbot import SirBot
 
 MOCK_USER_NAME = "userName"

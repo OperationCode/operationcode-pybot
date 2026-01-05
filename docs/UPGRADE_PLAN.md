@@ -1123,6 +1123,28 @@ def slack_bot(bot: SirBot) -> SirBot:
 
 > **Status**: Completed January 4, 2026
 > **Result**: Updated to Python 3.12+, removed vendored deps, modernized all dependencies
+> **Test Results**: 57/57 tests passing in Python 3.13! ✅
+
+### Additional Fixes Applied
+
+**1. Package Mode Configuration**
+- Added `packages = [{include = "pybot"}]` to fix poetry installation
+
+**2. Updated to Latest Versions**
+- pytest: 7.4 → 9.0.2
+- pytest-asyncio: 0.23 → 1.3.0
+- black: 24.10 → 25.12.0
+- ruff: 0.1 → 0.14.10
+- sentry-sdk: 1.45 → 2.48.0
+
+**3. Replaced Deprecated `asynctest` Library**
+- Replaced `asynctest.CoroutineMock` with `unittest.mock.AsyncMock`
+- Replaced `asynctest.asyncio` with standard `asyncio`
+- Fixed test fixtures to remove deprecated `loop` parameter
+
+**4. Fixed Test Fixtures**
+- Updated `bot` fixture to manually create/cleanup aiohttp session
+- Removed deprecated `loop` fixture dependency
 
 ### 6.1 New pyproject.toml
 
