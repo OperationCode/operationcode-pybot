@@ -1,6 +1,3 @@
-from typing import List
-
-
 def ticket_dialog(clicker_email, text):
     return {
         "callback_id": "open_ticket",
@@ -142,7 +139,7 @@ def mentor_request_blocks(services, skillsets):
     ]
 
 
-def mentor_volunteer_blocks(skillsets: List[str]) -> List[dict]:
+def mentor_volunteer_blocks(skillsets: list[str]) -> list[dict]:
     return [
         {
             "type": "section",

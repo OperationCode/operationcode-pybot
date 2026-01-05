@@ -1,0 +1,37 @@
+# docker/Dockerfile.test.py314
+# For testing Python 3.14 compatibility
+
+FROM python:3.14-slim
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install poetry
+RUN pip install poetry
+
+# Copy dependency files
+COPY pyproject.toml poetry.lock README.md ./
+COPY pybot ./pybot
+
+# Install dependencies (including dev) in venv
+RUN pip install --upgrade pip poetry && \
+    python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install poetry && \
+    /opt/venv/bin/poetry install --no-interaction
+
+# Set PATH to use venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy test files
+COPY tests ./tests
+
+# Default command: run tests
+CMD ["poetry", "run", "pytest", "-v", "--tb=short"]

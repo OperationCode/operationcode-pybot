@@ -1,45 +1,44 @@
-FROM python:3.7-alpine AS base
+FROM python:3.14-slim AS base
 
-FROM base as builder
+RUN apt-get update && apt-get upgrade -y && apt clean
 
-ENV PIP_DISABLE_PIP_VERSION_CHECK on
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+FROM base AS builder
 
-RUN apk update && \
-    apk add --no-cache build-base musl-dev python3-dev libffi-dev openssl-dev
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PYTHONUNBUFFERED=1 \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
-RUN python -m venv /opt/venv
-# Make sure we use the virtualenv:
-ENV PATH="/opt/venv/bin:$PATH"
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY poetry.lock pyproject.toml ./
+WORKDIR /app
 
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev --no-interaction
+# Install poetry
+RUN pip install --no-cache-dir poetry
 
-# The `built-image` stage is the base for all remaining images
-# Pulls all of the built dependencies from the builder stage
-FROM base as built-image
-ENV PIP_DISABLE_PIP_VERSION_CHECK on
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Copy dependency files
+COPY pyproject.toml poetry.lock README.md logging.yml ./
+COPY pybot ./pybot
 
-# copy installed deps from builder image
-COPY --from=builder /opt/venv /opt/venv
+# Install dependencies into .venv in project
+RUN poetry install --only=main --no-interaction --no-cache --compile && \
+    rm -rf $POETRY_CACHE_DIR
 
-# Make sure we use the virtualenv
-ENV PATH="/opt/venv/bin:$PATH"
+# Production image
+FROM base AS prod
 
-# The `app` stage is used as the base for images that don't
-# need the development dependencies
-FROM built-image as app
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH"
 
-COPY . /src
-WORKDIR /src
+WORKDIR /app
 
-# The `Prod` stage creates an image that will run the application using a
-# production webserver and the `environments/production.py` configuration
-FROM app As Prod
-ENTRYPOINT ["python3", "-m", "pybot"]
+# Copy application and virtual environment from builder
+COPY --from=builder /app ./
+
+CMD ["python", "-m", "pybot"]

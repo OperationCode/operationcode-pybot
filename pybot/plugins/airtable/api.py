@@ -67,9 +67,7 @@ class AirtableAPI:
             res_json = await self.get(url)
             return res_json["fields"]
         except Exception as ex:
-            logger.exception(
-                f"Couldn't get row from record id {record_id} in {table_name}", ex
-            )
+            logger.exception(f"Couldn't get row from record id {record_id} in {table_name}", ex)
             return {}
 
     async def get_all_records(self, table_name, field=None):
@@ -84,9 +82,7 @@ class AirtableAPI:
 
     async def find_mentors_with_matching_skillsets(self, skillsets):
         url = self.table_url("Mentors")
-        params = MultiDict(
-            [("fields", "Email"), ("fields", "Skillsets"), ("fields", "Slack Name")]
-        )
+        params = MultiDict([("fields", "Email"), ("fields", "Skillsets"), ("fields", "Slack Name")])
         skillsets = skillsets.split(",")
         response = await self.get(url, params=params)
         offset = response.get("offset")
@@ -100,10 +96,7 @@ class AirtableAPI:
         complete_match = []
         try:
             for mentor in mentors:
-                if all(
-                    skillset in mentor["fields"].get("Skillsets", [])
-                    for skillset in skillsets
-                ):
+                if all(skillset in mentor["fields"].get("Skillsets", []) for skillset in skillsets):
                     complete_match.append(mentor["fields"])
                 if any(
                     mentor["fields"] not in complete_match
@@ -112,9 +105,7 @@ class AirtableAPI:
                 ):
                     partial_match.append(mentor["fields"])
         except Exception as e:
-            logger.exception(
-                "Exception while trying to find filter mentors by skillset", e
-            )
+            logger.exception("Exception while trying to find filter mentors by skillset", e)
             return []
 
         if len(complete_match) < 5:
@@ -131,9 +122,7 @@ class AirtableAPI:
             response = await self.get(url, params=params)
             return response["records"]
         except Exception as ex:
-            logger.exception(
-                f"Exception when attempting to get {field} from {table_name}.", ex
-            )
+            logger.exception(f"Exception when attempting to get {field} from {table_name}.", ex)
             return []
 
     async def update_request(self, request_record, mentor_id):

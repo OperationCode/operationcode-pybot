@@ -1,9 +1,9 @@
 import functools
 
-from sirbot import SirBot
-from slack.commands import Command
-from slack.exceptions import SlackAPIError
-from slack.methods import Methods
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.slack.commands import Command
+from pybot._vendor.slack.exceptions import SlackAPIError
+from pybot._vendor.slack.methods import Methods
 
 
 def catch_command_slack_error(func):
@@ -32,10 +32,7 @@ def catch_command_slack_error(func):
                     user=slack_id,
                     channel=slack_id,
                     as_user=True,
-                    text=(
-                        f"Could not post result of `{slash_command}` "
-                        f"to channel <#{channel_id}>"
-                    ),
+                    text=(f"Could not post result of `{slash_command}` to channel <#{channel_id}>"),
                 ),
             )
 

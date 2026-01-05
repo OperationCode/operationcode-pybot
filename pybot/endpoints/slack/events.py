@@ -1,9 +1,8 @@
 import asyncio
 import logging
 
-from sirbot import SirBot
-from slack.events import Event
-
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.slack.events import Event
 from pybot.endpoints.slack.utils.event_utils import (
     build_messages,
     get_backend_auth_headers,

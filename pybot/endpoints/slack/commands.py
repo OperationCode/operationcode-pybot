@@ -1,15 +1,12 @@
 import logging
 import random
 
-from sirbot import SirBot
-from sirbot.plugins.slack import SlackPlugin
-from slack import methods
-from slack.commands import Command
-
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
+from pybot._vendor.slack import methods
+from pybot._vendor.slack.commands import Command
 from pybot.endpoints.slack.message_templates.commands import (
     mentor_request_blocks,
-    mentor_volunteer_blocks,
-    ticket_dialog,
 )
 from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 from pybot.endpoints.slack.utils.action_messages import not_claimed_attachment
@@ -48,7 +45,6 @@ async def slash_mentor(command: Command, app: SirBot):
 
 @catch_command_slack_error
 async def slash_mentor_volunteer(command: Command, app: SirBot) -> None:
-
     response = {
         "text": "Please fill up the Mentor Sign up Form here: https://op.co.de/volunteer-signup",
         "channel": command["user_id"],
@@ -110,9 +106,7 @@ async def slash_repeat(command: Command, app: SirBot):
     slack_id = command["user_id"]
     slack = app["plugins"]["slack"].api
 
-    method_type, message = get_slash_repeat_messages(
-        slack_id, channel_id, command["text"]
-    )
+    method_type, message = get_slash_repeat_messages(slack_id, channel_id, command["text"])
 
     await slack.query(method_type, message)
 

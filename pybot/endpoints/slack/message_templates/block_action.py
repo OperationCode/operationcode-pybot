@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Coroutine, MutableMapping
 from enum import IntEnum
-from typing import Any, Coroutine, MutableMapping, Optional
+from typing import Any
 
-from slack import methods
-from slack.actions import Action
-from slack.io.abc import SlackAPI
+from pybot._vendor.slack import methods
+from pybot._vendor.slack.actions import Action
+from pybot._vendor.slack.io.abc import SlackAPI
 
 
 class BlockAction(Action):
@@ -51,7 +52,7 @@ class BlockAction(Action):
         return self["actions"]
 
     @property
-    def selected_option(self) -> Optional[dict]:
+    def selected_option(self) -> dict | None:
         if "selected_option" in self.actions[0]:
             return self.actions[0]["selected_option"]
         return None

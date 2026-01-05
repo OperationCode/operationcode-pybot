@@ -1,4 +1,4 @@
-from sirbot.plugins.slack import SlackPlugin
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 
 from .general_actions import claimed, delete_message, reset_claim
 from .mentor_request import (
@@ -57,22 +57,12 @@ def create_endpoints(plugin: SlackPlugin):
         action_id="mentor_service_select",
     )
     plugin.on_block("skillset", add_skillset, action_id="skillset_select", wait=False)
-    plugin.on_block(
-        "clear_skillsets", clear_skillsets, action_id="clear_skillsets_btn", wait=False
-    )
-    plugin.on_block(
-        "mentor", set_requested_mentor, action_id="mentor_select", wait=False
-    )
-    plugin.on_block(
-        "comments", open_details_dialog, action_id="comments_btn", wait=False
-    )
+    plugin.on_block("clear_skillsets", clear_skillsets, action_id="clear_skillsets_btn", wait=False)
+    plugin.on_block("mentor", set_requested_mentor, action_id="mentor_select", wait=False)
+    plugin.on_block("comments", open_details_dialog, action_id="comments_btn", wait=False)
     plugin.on_block("mentor_details_submit", mentor_details_submit, wait=False)
-    plugin.on_block(
-        "affiliation", set_group, action_id="affiliation_select", wait=False
-    )
-    plugin.on_block(
-        "submission", mentor_request_submit, action_id="submit_mentor_btn", wait=False
-    )
+    plugin.on_block("affiliation", set_group, action_id="affiliation_select", wait=False)
+    plugin.on_block("submission", mentor_request_submit, action_id="submit_mentor_btn", wait=False)
 
     # mentor volunteer actions
     plugin.on_block("volunteer_skillset", add_volunteer_skillset, wait=False)

@@ -1,11 +1,9 @@
 import logging
-from typing import Optional
 
-from slack import ROOT_URL
-from slack.exceptions import SlackAPIError
-from slack.io.abc import SlackAPI
-from slack.methods import Methods
-
+from pybot._vendor.slack import ROOT_URL
+from pybot._vendor.slack.exceptions import SlackAPIError
+from pybot._vendor.slack.io.abc import SlackAPI
+from pybot._vendor.slack.methods import Methods
 from pybot.endpoints.slack.utils import OPS_CHANNEL, PYBOT_ENV
 from pybot.endpoints.slack.utils.action_messages import (
     TICKET_OPTIONS,
@@ -16,13 +14,9 @@ from pybot.plugins.api.request import SlackApiRequest
 logger = logging.getLogger(__name__)
 
 
-async def _slack_info_from_email(
-    email: str, slack: SlackAPI, fallback: Optional[dict] = None
-) -> dict:
+async def _slack_info_from_email(email: str, slack: SlackAPI, fallback: dict | None = None) -> dict:
     try:
-        response = await slack.query(
-            url=ROOT_URL + "users.lookupByEmail", data={"email": email}
-        )
+        response = await slack.query(url=ROOT_URL + "users.lookupByEmail", data={"email": email})
         return response["user"]
     except SlackAPIError:
         return fallback
@@ -44,12 +38,9 @@ def invite_failure_attachments(email: str, error: str) -> list:
                     "name": "status",
                     "text": "Current Status",
                     "type": "select",
-                    "selected_options": [
-                        {"text": "Not Started", "value": "notStarted"}
-                    ],
+                    "selected_options": [{"text": "Not Started", "value": "notStarted"}],
                     "options": [
-                        {"text": text, "value": value}
-                        for value, text in TICKET_OPTIONS.items()
+                        {"text": text, "value": value} for value, text in TICKET_OPTIONS.items()
                     ],
                 }
             ],
@@ -94,9 +85,7 @@ def production_only(func):
     """
 
     async def not_prod(request: SlackApiRequest, app):
-        logger.info(
-            f"Received request on staging to {request.request.raw_path}.  Returning 200"
-        )
+        logger.info(f"Received request on staging to {request.request.raw_path}.  Returning 200")
         return {"ok": True, "details": "Development environment, returning 200"}
 
     if PYBOT_ENV != "PRODUCTION":

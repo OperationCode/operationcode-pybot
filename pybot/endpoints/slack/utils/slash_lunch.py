@@ -1,6 +1,5 @@
 import logging
 from random import randint
-from typing import List
 
 from zipcodes import is_real
 
@@ -15,7 +14,6 @@ class LunchCommand:
     AUTH_HEADER = {"Authorization": f"Bearer {YELP_TOKEN}"}
 
     def __init__(self, channel: str, user: str, input_text: str, user_name: str):
-
         self.channel_id = channel
         self.user_id = user
         self.input_text = input_text
@@ -56,7 +54,7 @@ class LunchCommand:
             distance = self._get_distance(split_items)
             return {"location": zipcode, "range": distance, "term": "lunch"}
 
-    def _get_distance(self, split_items: List[str]):
+    def _get_distance(self, split_items: list[str]):
         distance_index = min(len(split_items), 2) - 1
 
         str_distance = split_items[distance_index]
@@ -72,15 +70,14 @@ class LunchCommand:
             "user": self.user_id,
             "channel": self.channel_id,
             "text": (
-                f'The Wheel of Lunch has selected {loc_dict["name"]} '
-                + f'at {" ".join(loc_dict["location"]["display_address"])}'
+                f"The Wheel of Lunch has selected {loc_dict['name']} "
+                + f"at {' '.join(loc_dict['location']['display_address'])}"
             ),
         }
 
     @classmethod
     def _get_zipcode(cls, zipcode: str) -> int:
         try:
-
             if is_real(zipcode):
                 return int(zipcode)
         except TypeError:
@@ -97,8 +94,8 @@ class LunchCommand:
         """
         random_zip = 0
         while not is_real(str(random_zip)):
-            range_start = 10 ** 4
-            range_end = (10 ** 5) - 1
+            range_start = 10**4
+            range_end = (10**5) - 1
             random_zip = randint(range_start, range_end)
 
         return random_zip
@@ -107,7 +104,6 @@ class LunchCommand:
         return input_number <= self.DEFAULT_LUNCH_DISTANCE
 
     def _convert_max_distance(self, user_param: str) -> int:
-
         try:
             distance = int(user_param)
 

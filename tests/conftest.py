@@ -1,14 +1,14 @@
 import copy
 
 import pytest
-from sirbot import SirBot
-from sirbot.plugins.slack import SlackPlugin
 
 from pybot import endpoints
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 from pybot.plugins import AirtablePlugin, APIPlugin
 from tests import data
 
-pytest_plugins = ("slack.tests.plugin",)
+pytest_plugins = ("pybot._vendor.slack.tests.plugin",)
 
 
 @pytest.fixture(params={**data.Action.__members__})
@@ -21,8 +21,13 @@ def action(request):
 
 
 @pytest.fixture
-async def bot(loop) -> SirBot:
+async def bot() -> SirBot:
+    import aiohttp
+
     b = SirBot()
+    # Manually create session for testing (normally done on startup)
+    b["http_session"] = aiohttp.ClientSession()
+
     slack = SlackPlugin(
         token="token",
         verify="supersecuretoken",
@@ -39,7 +44,10 @@ async def bot(loop) -> SirBot:
     b.load_plugin(airtable)
     b.load_plugin(api)
 
-    return b
+    yield b
+
+    # Cleanup session
+    await b["http_session"].close()
 
 
 @pytest.fixture

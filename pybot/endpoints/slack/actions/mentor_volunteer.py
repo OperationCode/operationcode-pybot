@@ -1,10 +1,9 @@
 import logging
 
-from sirbot import SirBot
-from slack import methods
-from slack.actions import Action
-from slack.exceptions import SlackAPIError
-
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.slack import methods
+from pybot._vendor.slack.actions import Action
+from pybot._vendor.slack.exceptions import SlackAPIError
 from pybot.endpoints.slack.message_templates.mentor_volunteer import MentorVolunteer
 from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 
@@ -46,14 +45,11 @@ async def submit_mentor_volunteer(action: Action, app: SirBot) -> None:
     user_info = await slack.query(methods.USERS_INFO, {"user": user_id})
     airtable_fields = await build_airtable_fields(action, request, user_info)
 
-    airtable_response = await airtable.add_record(
-        "Mentors", {"fields": airtable_fields}
-    )
+    airtable_response = await airtable.add_record("Mentors", {"fields": airtable_fields})
 
     if "error" in airtable_response:
         request.airtable_error(airtable_response)
     else:
-
         try:
             await admin_slack.query(
                 methods.CONVERSATIONS_INVITE,
