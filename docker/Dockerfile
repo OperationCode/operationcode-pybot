@@ -1,48 +1,42 @@
-FROM python:3.7-alpine AS base
+FROM python:3.12-slim AS base
 
 FROM base AS builder
 
-ENV PIP_DISABLE_PIP_VERSION_CHECK=on
-ENV PYTHONUNBUFFERED=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PYTHONUNBUFFERED=1 \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
-RUN apk update
-RUN apk upgrade
-RUN apk add --no-cache build-base musl-dev python3-dev libffi-dev openssl-dev
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN python -m venv /opt/venv
-# Make sure we use the virtualenv:
-ENV PATH="/opt/venv/bin:$PATH"
+WORKDIR /app
 
-COPY poetry.lock pyproject.toml ./
+# Install poetry
+RUN pip install --no-cache-dir poetry
 
-RUN pip install poetry
-RUN poetry config virtualenvs.create false
-RUN poetry install --only=main --compile --no-interaction --no-cache
+# Copy dependency files
+COPY pyproject.toml poetry.lock README.md ./
+COPY pybot ./pybot
 
-# The `built-image` stage is the base for all remaining images
-# Pulls all of the built dependencies from the builder stage
-FROM base AS built-image
-ENV PIP_DISABLE_PIP_VERSION_CHECK=on
-ENV PYTHONUNBUFFERED=1
+# Install dependencies into .venv in project
+RUN poetry install --only=main --no-interaction --no-cache && \
+    rm -rf $POETRY_CACHE_DIR
 
-RUN apk update
-RUN apk upgrade
-RUN rm -rf /var/cache/apk/*
+# Production image
+FROM base AS prod
 
-# copy installed deps from builder image
-COPY --from=builder /opt/venv /opt/venv
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH"
 
-# Make sure we use the virtualenv
-ENV PATH="/opt/venv/bin:$PATH"
+WORKDIR /app
 
-# The `app` stage is used as the base for images that don't
-# need the development dependencies
-FROM built-image AS app
+# Copy application and virtual environment from builder
+COPY --from=builder /app ./
 
-COPY . /src
-WORKDIR /src
-
-# The `prod` stage creates an image that will run the application using a
-# production webserver and the `environments/production.py` configuration
-FROM app AS prod
-ENTRYPOINT ["python3", "-m", "pybot"]
+CMD ["python", "-m", "pybot"]
