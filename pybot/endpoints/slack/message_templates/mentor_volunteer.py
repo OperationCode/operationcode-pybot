@@ -1,5 +1,5 @@
+from collections.abc import MutableMapping
 from enum import IntEnum
-from typing import MutableMapping
 
 from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 
@@ -60,8 +60,8 @@ class MentorVolunteer(BlockAction):
         error_attachment = {
             "text": (
                 f"Something went wrong.\n"
-                f'Error Type:{airtable_response["error"]["type"]}\n'
-                f'Error Message: {airtable_response["error"]["message"]}'
+                f"Error Type:{airtable_response['error']['type']}\n"
+                f"Error Message: {airtable_response['error']['message']}"
             ),
             "color": "danger",
         }

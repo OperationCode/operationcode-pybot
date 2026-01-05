@@ -4,9 +4,9 @@ import os
 import sentry_sdk
 import yaml
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
+
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.sirbot.plugins.slack import SlackPlugin
-
 from pybot.endpoints import handle_health_check
 from pybot.endpoints.slack.utils import HOST, PORT, slack_configs
 
@@ -20,9 +20,7 @@ if __name__ == "__main__":
         with open(
             os.path.join(os.path.dirname(os.path.realpath(__file__)), "../logging.yml")
         ) as log_configfile:
-            logging.config.dictConfig(
-                yaml.load(log_configfile.read(), Loader=yaml.SafeLoader)
-            )
+            logging.config.dictConfig(yaml.load(log_configfile.read(), Loader=yaml.SafeLoader))
     except Exception as e:
         logging.basicConfig(level=logging.DEBUG)
         logger.exception(e)

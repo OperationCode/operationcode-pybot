@@ -1,5 +1,5 @@
 import http
-from typing import MutableMapping
+from collections.abc import MutableMapping
 
 
 class HTTPException(Exception):
@@ -12,16 +12,14 @@ class HTTPException(Exception):
         status: Response status
     """
 
-    def __init__(
-        self, status: int, headers: MutableMapping, data: MutableMapping
-    ) -> None:
+    def __init__(self, status: int, headers: MutableMapping, data: MutableMapping) -> None:
         self.headers = headers
         self.data = data
 
         self.status = http.HTTPStatus(status)
 
     def __str__(self):
-        return "{}, {}".format(self.status.value, self.status.phrase)
+        return f"{self.status.value}, {self.status.phrase}"
 
 
 class SlackAPIError(Exception):
@@ -34,9 +32,7 @@ class SlackAPIError(Exception):
         error: Slack API error
     """
 
-    def __init__(
-        self, error: str, headers: MutableMapping, data: MutableMapping
-    ) -> None:
+    def __init__(self, error: str, headers: MutableMapping, data: MutableMapping) -> None:
         self.headers = headers
         self.data = data
         self.error = error
@@ -66,7 +62,7 @@ class RateLimited(HTTPException, SlackAPIError):
         self.retry_after = retry_after
 
     def __str__(self):
-        return HTTPException.__str__(self) + ", retry in {}s".format(self.retry_after)
+        return HTTPException.__str__(self) + f", retry in {self.retry_after}s"
 
 
 class InvalidRequest(Exception):

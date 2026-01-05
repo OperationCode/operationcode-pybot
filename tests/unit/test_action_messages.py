@@ -1,7 +1,5 @@
 """Unit tests for action message builders."""
 
-import pytest
-
 from pybot.endpoints.slack.utils.action_messages import (
     base_response,
     claimed_attachment,
@@ -30,9 +28,7 @@ class TestActionMessages:
         mock_action = {
             "channel": {"id": "C123"},
             "message_ts": "123456.789",
-            "original_message": {
-                "text": "Test message"
-            }
+            "original_message": {"text": "Test message"},
         }
 
         response = base_response(mock_action)

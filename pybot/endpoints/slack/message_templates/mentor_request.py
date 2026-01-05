@@ -1,10 +1,10 @@
+from collections.abc import Coroutine, MutableMapping
 from enum import IntEnum
-from typing import Any, Coroutine, MutableMapping, Optional
+from typing import Any
 
 from pybot._vendor.slack import methods
 from pybot._vendor.slack.actions import Action
 from pybot._vendor.slack.io.abc import SlackAPI
-
 from pybot.endpoints.slack.utils.action_messages import now
 from pybot.plugins.airtable.api import AirtableAPI
 
@@ -51,9 +51,7 @@ class MentorRequest(BlockAction):
         """
         if skillset not in self.skillsets:
             new_field = {"type": "plain_text", "text": skillset, "emoji": True}
-            self.blocks[BlockIndex.SELECTED_SKILLSETS].setdefault("fields", []).append(
-                new_field
-            )
+            self.blocks[BlockIndex.SELECTED_SKILLSETS].setdefault("fields", []).append(new_field)
 
     @property
     def details(self) -> str:
@@ -73,9 +71,7 @@ class MentorRequest(BlockAction):
 
     @affiliation.setter
     def affiliation(self, new_affiliation: str) -> None:
-        self.blocks[BlockIndex.AFFILIATION]["accessory"][
-            "initial_option"
-        ] = new_affiliation
+        self.blocks[BlockIndex.AFFILIATION]["accessory"]["initial_option"] = new_affiliation
 
         if self.validate_self():
             self.clear_errors()
@@ -104,14 +100,12 @@ class MentorRequest(BlockAction):
         params["Service"] = [service_records[0]["id"]]
         return await airtable.add_record("Mentor Request", {"fields": params})
 
-    def submission_error(
-        self, airtable_response, slack: SlackAPI
-    ) -> Coroutine[Any, Any, dict]:
+    def submission_error(self, airtable_response, slack: SlackAPI) -> Coroutine[Any, Any, dict]:
         error_attachment = {
             "text": (
                 f"Something went wrong.\n"
-                f'Error Type:{airtable_response["error"]["type"]}\n'
-                f'Error Message: {airtable_response["error"]["message"]}'
+                f"Error Type:{airtable_response['error']['type']}\n"
+                f"Error Message: {airtable_response['error']['message']}"
             ),
             "color": "danger",
         }
@@ -144,9 +138,7 @@ class MentorRequest(BlockAction):
 
 
 class MentorRequestClaim(Action):
-    def __init__(
-        self, raw_action: MutableMapping, slack: SlackAPI, airtable: AirtableAPI
-    ):
+    def __init__(self, raw_action: MutableMapping, slack: SlackAPI, airtable: AirtableAPI):
         super().__init__(raw_action)
         self.slack = slack
         self.airtable = airtable
@@ -203,9 +195,9 @@ class MentorRequestClaim(Action):
         if mentor_record:
             self.attachment = self.mentee_claimed_attachment()
         else:
-            self.attachment[
-                "text"
-            ] = f":warning: <@{self.clicker}>'s slack Email not found in Mentor table. :warning:"
+            self.attachment["text"] = (
+                f":warning: <@{self.clicker}>'s slack Email not found in Mentor table. :warning:"
+            )
             self.should_update = False
 
         return self.update_airtable(mentor_record)
@@ -218,7 +210,7 @@ class MentorRequestClaim(Action):
         self.attachment = self.mentee_unclaimed_attachment()
         return self.update_airtable("")
 
-    async def update_airtable(self, mentor_id: Optional[str]):
+    async def update_airtable(self, mentor_id: str | None):
         if mentor_id is not None:
             return await self.airtable.update_request(self.record, mentor_id)
 

@@ -1,8 +1,8 @@
-import typing
 import logging
-from typing import Any, Dict, Iterator, Optional
+import typing
 from collections import defaultdict
-from collections.abc import MutableMapping
+from collections.abc import Iterator, MutableMapping
+from typing import Any
 
 from . import exceptions
 
@@ -24,20 +24,16 @@ class Command(MutableMapping):
     def __init__(
         self,
         raw_command: typing.MutableMapping,
-        verification_token: Optional[str] = None,
-        team_id: Optional[str] = None,
+        verification_token: str | None = None,
+        team_id: str | None = None,
     ) -> None:
         self.command = raw_command
 
         if verification_token and self.command["token"] != verification_token:
-            raise exceptions.FailedVerification(
-                self.command["token"], self.command["team_id"]
-            )
+            raise exceptions.FailedVerification(self.command["token"], self.command["team_id"])
 
         if team_id and self.command["team_id"] != team_id:
-            raise exceptions.FailedVerification(
-                self.command["token"], self.command["team_id"]
-            )
+            raise exceptions.FailedVerification(self.command["token"], self.command["team_id"])
 
     def __getitem__(self, item):
         return self.command[item]
@@ -66,7 +62,7 @@ class Router:
     """
 
     def __init__(self):
-        self._routes: Dict[str, list] = defaultdict(list)
+        self._routes: dict[str, list] = defaultdict(list)
 
     def register(self, command: str, handler: Any):
         """

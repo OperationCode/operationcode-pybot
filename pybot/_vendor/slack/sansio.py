@@ -2,16 +2,16 @@
 Collection of functions for sending and decoding request to or from the slack API
 """
 
+import hashlib
 import hmac
 import json
-import time
-import hashlib
 import logging
+import time
+from collections.abc import MutableMapping
 from email.message import Message
-from typing import Tuple, Union, Optional, MutableMapping
 
 from . import HOOK_URL, ROOT_URL, events, exceptions
-from .methods import Methods, method
+from .methods import Methods
 
 LOG = logging.getLogger(__name__)
 
@@ -25,9 +25,7 @@ ITERMODE = ("cursor", "page", "timeline")
 """Supported pagination mode"""
 
 
-def raise_for_status(
-    status: int, headers: MutableMapping, data: MutableMapping
-) -> None:
+def raise_for_status(status: int, headers: MutableMapping, data: MutableMapping) -> None:
     """
     Check request response status
 
@@ -105,7 +103,7 @@ def decode_body(headers: MutableMapping, body: bytes) -> dict:
     return payload
 
 
-def parse_content_type(headers: MutableMapping) -> Tuple[Optional[str], str]:
+def parse_content_type(headers: MutableMapping) -> tuple[str | None, str]:
     """
     Find content-type and encoding of the response
 
@@ -121,20 +119,20 @@ def parse_content_type(headers: MutableMapping) -> Tuple[Optional[str], str]:
     else:
         # Parse content-type header (replacement for deprecated cgi.parse_header)
         msg = Message()
-        msg['content-type'] = content_type
+        msg["content-type"] = content_type
         type_ = msg.get_content_type()
-        encoding = msg.get_param('charset', 'utf-8')
+        encoding = msg.get_param("charset", "utf-8")
         return type_, encoding
 
 
 def prepare_request(
-    url: Union[str, Methods],
-    data: Optional[MutableMapping],
-    headers: Optional[MutableMapping],
+    url: str | Methods,
+    data: MutableMapping | None,
+    headers: MutableMapping | None,
     global_headers: MutableMapping,
     token: str,
-    as_json: Optional[bool] = None,
-) -> Tuple[str, Union[str, MutableMapping], MutableMapping]:
+    as_json: bool | None = None,
+) -> tuple[str, str | MutableMapping, MutableMapping]:
     """
     Prepare outgoing request
 
@@ -163,7 +161,7 @@ def prepare_request(
     else:
         headers = {**global_headers, **headers}
 
-    payload: Optional[Union[str, MutableMapping]] = None
+    payload: str | MutableMapping | None = None
     if real_url.startswith(HOOK_URL) or (real_url.startswith(ROOT_URL) and as_json):
         payload, headers = _prepare_json_request(data, token, headers)
     elif real_url.startswith(ROOT_URL) and not as_json:
@@ -176,8 +174,8 @@ def prepare_request(
 
 
 def _prepare_json_request(
-    data: Optional[MutableMapping], token: str, headers: MutableMapping
-) -> Tuple[str, MutableMapping]:
+    data: MutableMapping | None, token: str, headers: MutableMapping
+) -> tuple[str, MutableMapping]:
     headers["Authorization"] = f"Bearer {token}"
     headers["Content-type"] = "application/json; charset=utf-8"
 
@@ -189,9 +187,7 @@ def _prepare_json_request(
     return payload, headers
 
 
-def _prepare_form_encoded_request(
-    data: Optional[MutableMapping], token: str
-) -> MutableMapping:
+def _prepare_form_encoded_request(data: MutableMapping | None, token: str) -> MutableMapping:
     if isinstance(data, events.Message):
         data = data.serialize()
 
@@ -223,10 +219,10 @@ def decode_response(status: int, headers: MutableMapping, body: bytes) -> dict:
 
 
 def find_iteration(
-    url: Union[Methods, str],
-    itermode: Optional[str] = None,
-    iterkey: Optional[str] = None,
-) -> Tuple[str, str]:
+    url: Methods | str,
+    itermode: str | None = None,
+    iterkey: str | None = None,
+) -> tuple[str, str]:
     """
     Find iteration mode and iteration key for a given :class:`slack.methods`
 
@@ -245,22 +241,22 @@ def find_iteration(
             iterkey = url.value.iterkey
 
     if not iterkey or not itermode:
-        raise ValueError("Iteration not supported for: {}".format(url))
+        raise ValueError(f"Iteration not supported for: {url}")
     elif itermode not in ITERMODE:
-        raise ValueError("Iteration not supported for: {}".format(itermode))
+        raise ValueError(f"Iteration not supported for: {itermode}")
 
     return itermode, iterkey
 
 
 def prepare_iter_request(
-    url: Union[Methods, str],
+    url: Methods | str,
     data: MutableMapping,
     *,
-    iterkey: Optional[str] = None,
-    itermode: Optional[str] = None,
+    iterkey: str | None = None,
+    itermode: str | None = None,
     limit: int = 200,
-    itervalue: Optional[Union[str, int]] = None,
-) -> Tuple[MutableMapping, str, str]:
+    itervalue: str | int | None = None,
+) -> tuple[MutableMapping, str, str]:
     """
     Prepare outgoing iteration request
 
@@ -292,7 +288,7 @@ def prepare_iter_request(
     return data, iterkey, itermode
 
 
-def decode_iter_request(data: dict) -> Optional[Union[str, int]]:
+def decode_iter_request(data: dict) -> str | int | None:
     """
     Decode incoming response from an iteration request
 
@@ -355,9 +351,7 @@ def need_reconnect(event: events.Event) -> bool:
         return False
 
 
-def validate_request_signature(
-    body: str, headers: MutableMapping, signing_secret: str
-) -> None:
+def validate_request_signature(body: str, headers: MutableMapping, signing_secret: str) -> None:
     """
     Validate incoming request signature using the application signing secret.
 
@@ -383,7 +377,7 @@ def validate_request_signature(
         "v0="
         + hmac.new(
             signing_secret.encode("utf-8"),
-            f"""v0:{headers["X-Slack-Request-Timestamp"]}:{body}""".encode("utf-8"),
+            f"""v0:{headers["X-Slack-Request-Timestamp"]}:{body}""".encode(),
             digestmod=hashlib.sha256,
         ).hexdigest()
     )

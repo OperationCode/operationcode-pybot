@@ -1,7 +1,8 @@
 import asyncio
 import logging
 from collections import defaultdict
-from typing import Any, Callable, Coroutine
+from collections.abc import Callable, Coroutine
+from typing import Any
 
 from pybot.plugins.api import endpoints
 
@@ -30,12 +31,8 @@ class APIPlugin:
     def load(self, sirbot: Any) -> None:
         self.session = sirbot.http_session
 
-        sirbot.router.add_route(
-            "GET", "/pybot/api/v1/slack/{resource}", endpoints.slack_api
-        )
-        sirbot.router.add_route(
-            "POST", "/pybot/api/v1/slack/{resource}", endpoints.slack_api
-        )
+        sirbot.router.add_route("GET", "/pybot/api/v1/slack/{resource}", endpoints.slack_api)
+        sirbot.router.add_route("POST", "/pybot/api/v1/slack/{resource}", endpoints.slack_api)
 
     def on_get(self, request: str, handler: AsyncHandler, **kwargs: Any) -> None:
         handler = _ensure_async(handler)
@@ -55,7 +52,6 @@ class SlackAPIRequestRouter:
         resource = request.resource
         logger.debug(f"Dispatching request {resource}")
         if resource in self._routes:
-            for handler in self._routes.get(resource):
-                yield handler
+            yield from self._routes.get(resource)
         else:
             return

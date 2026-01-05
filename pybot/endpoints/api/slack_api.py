@@ -3,7 +3,6 @@ import logging
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.slack import ROOT_URL
 from pybot._vendor.slack.exceptions import SlackAPIError
-
 from pybot.endpoints.api.utils import (
     _slack_info_from_email,
     handle_slack_invite_error,

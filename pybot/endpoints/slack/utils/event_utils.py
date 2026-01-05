@@ -1,11 +1,10 @@
 import logging
-from typing import Dict, List, Tuple
 
 from aiohttp import ClientSession
+
 from pybot._vendor.slack import methods
 from pybot._vendor.slack.events import Message
 from pybot._vendor.slack.io.abc import SlackAPI
-
 from pybot.endpoints.slack.utils import (
     BACKEND_PASS,
     BACKEND_URL,
@@ -33,7 +32,7 @@ def base_user_message(user_id: str) -> Message:
     return message
 
 
-def build_messages(user_id) -> Tuple[Message, Message, Message, Message, Message]:
+def build_messages(user_id) -> tuple[Message, Message, Message, Message, Message]:
     initial_message = base_user_message(user_id)
     initial_message["text"] = team_join_initial_message(user_id)
 
@@ -67,22 +66,18 @@ def build_messages(user_id) -> Tuple[Message, Message, Message, Message, Message
     )
 
 
-async def send_user_greetings(
-    user_messages: List[Message], slack_api: SlackAPI
-) -> None:
+async def send_user_greetings(user_messages: list[Message], slack_api: SlackAPI) -> None:
     for message in user_messages:
         await slack_api.query(url=methods.CHAT_POST_MESSAGE, data=message)
 
 
-async def send_community_notification(
-    community_message: Message, slack_api: SlackAPI
-) -> dict:
+async def send_community_notification(community_message: Message, slack_api: SlackAPI) -> dict:
     return await slack_api.query(url=methods.CHAT_POST_MESSAGE, data=community_message)
 
 
 async def link_backend_user(
     slack_id: str,
-    auth_header: Dict[str, str],
+    auth_header: dict[str, str],
     slack_api: SlackAPI,
     session: ClientSession,
 ) -> None:
@@ -103,7 +98,7 @@ async def link_backend_user(
         logger.info(f"Backend response from user linking: {data}")
 
 
-async def get_backend_auth_headers(session: ClientSession) -> Dict[str, str]:
+async def get_backend_auth_headers(session: ClientSession) -> dict[str, str]:
     """
     Authenticates with the OC Backend server
 

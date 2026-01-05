@@ -1,5 +1,5 @@
 import asyncio
-from typing import Tuple, Union, Optional, AsyncIterator, MutableMapping
+from collections.abc import AsyncIterator, MutableMapping
 
 import aiohttp
 
@@ -22,12 +22,10 @@ class SlackAPI(abc.SlackAPI):
         self,
         method: str,
         url: str,
-        headers: Optional[MutableMapping],
-        body: Optional[Union[str, MutableMapping]],
-    ) -> Tuple[int, bytes, MutableMapping]:
-        async with self._session.request(
-            method, url, headers=headers, data=body
-        ) as response:
+        headers: MutableMapping | None,
+        body: str | MutableMapping | None,
+    ) -> tuple[int, bytes, MutableMapping]:
+        async with self._session.request(method, url, headers=headers, data=body) as response:
             return response.status, await response.read(), response.headers
 
     async def _rtm(self, url: str) -> AsyncIterator[str]:
@@ -41,5 +39,5 @@ class SlackAPI(abc.SlackAPI):
                 elif data.type == aiohttp.WSMsgType.ERROR:
                     break
 
-    async def sleep(self, seconds: Union[int, float]) -> None:
+    async def sleep(self, seconds: int | float) -> None:
         await asyncio.sleep(seconds)

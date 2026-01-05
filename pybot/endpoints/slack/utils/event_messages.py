@@ -1,6 +1,3 @@
-from typing import List
-
-
 def team_join_initial_message(user_id: str) -> str:
     return (
         f"Hi <@{user_id}>,\n\n"
@@ -25,7 +22,7 @@ def second_team_join_message() -> str:
     )
 
 
-def external_button_attachments() -> List[dict]:
+def external_button_attachments() -> list[dict]:
     return [
         {
             "text": "",

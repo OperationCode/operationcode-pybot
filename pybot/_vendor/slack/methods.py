@@ -1,5 +1,5 @@
-from enum import Enum
 from collections import namedtuple
+from enum import Enum
 
 ROOT_URL: str = "https://slack.com/api/"
 HOOK_URL: str = "https://hooks.slack.com"
@@ -17,12 +17,8 @@ class Methods(Enum):
     API_TEST = method(ROOT_URL + "api.test", None, None, True)
 
     # apps.permissions
-    APPS_PERMISSIONS_INFO = method(
-        ROOT_URL + "apps.permissions.info", None, None, False
-    )
-    APPS_PERMISSIONS_REQUEST = method(
-        ROOT_URL + "apps.permissions.request", None, None, False
-    )
+    APPS_PERMISSIONS_INFO = method(ROOT_URL + "apps.permissions.info", None, None, False)
+    APPS_PERMISSIONS_REQUEST = method(ROOT_URL + "apps.permissions.request", None, None, False)
 
     # auth
     AUTH_REVOKE = method(ROOT_URL + "auth.revoke", None, None, False)
@@ -34,9 +30,7 @@ class Methods(Enum):
     # channels
     CHANNELS_ARCHIVE = method(ROOT_URL + "channels.archive", None, None, True)
     CHANNELS_CREATE = method(ROOT_URL + "channels.create", None, None, True)
-    CHANNELS_HISTORY = method(
-        ROOT_URL + "channels.history", "timeline", "messages", False
-    )
+    CHANNELS_HISTORY = method(ROOT_URL + "channels.history", "timeline", "messages", False)
     CHANNELS_INFO = method(ROOT_URL + "channels.info", None, None, False)
     CHANNELS_INVITE = method(ROOT_URL + "channels.invite", None, None, True)
     CHANNELS_JOIN = method(ROOT_URL + "channels.join", None, None, True)
@@ -63,34 +57,20 @@ class Methods(Enum):
     CONVERSATIONS_ARCHIVE = method(ROOT_URL + "conversations.archive", None, None, True)
     CONVERSATIONS_CLOSE = method(ROOT_URL + "conversations.close", None, None, True)
     CONVERSATIONS_CREATE = method(ROOT_URL + "conversations.create", None, None, True)
-    CONVERSATIONS_HISTORY = method(
-        ROOT_URL + "conversations.history", "cursor", "messages", False
-    )
+    CONVERSATIONS_HISTORY = method(ROOT_URL + "conversations.history", "cursor", "messages", False)
     CONVERSATIONS_INFO = method(ROOT_URL + "conversations.info", None, None, False)
     CONVERSATIONS_INVITE = method(ROOT_URL + "conversations.invite", None, None, True)
     CONVERSATIONS_JOIN = method(ROOT_URL + "conversations.join", None, None, True)
     CONVERSATIONS_KICK = method(ROOT_URL + "conversations.kick", None, None, True)
     CONVERSATIONS_LEAVE = method(ROOT_URL + "conversations.leave", None, None, True)
-    CONVERSATIONS_LIST = method(
-        ROOT_URL + "conversations.list", "cursor", "channels", False
-    )
-    CONVERSATIONS_MEMBERS = method(
-        ROOT_URL + "conversations.members", "cursor", "members", False
-    )
+    CONVERSATIONS_LIST = method(ROOT_URL + "conversations.list", "cursor", "channels", False)
+    CONVERSATIONS_MEMBERS = method(ROOT_URL + "conversations.members", "cursor", "members", False)
     CONVERSATIONS_OPEN = method(ROOT_URL + "conversations.open", None, None, True)
     CONVERSATIONS_RENAME = method(ROOT_URL + "conversations.rename", None, None, True)
-    CONVERSATIONS_REPLIES = method(
-        ROOT_URL + "conversations.replies", "cursor", "messages", False
-    )
-    CONVERSATIONS_SET_PURPOSE = method(
-        ROOT_URL + "conversations.setPurpose", None, None, True
-    )
-    CONVERSATIONS_SET_TOPIC = method(
-        ROOT_URL + "conversations.setTopic", None, None, True
-    )
-    CONVERSATIONS_UNARCHIVE = method(
-        ROOT_URL + "conversations.unarchive", None, None, True
-    )
+    CONVERSATIONS_REPLIES = method(ROOT_URL + "conversations.replies", "cursor", "messages", False)
+    CONVERSATIONS_SET_PURPOSE = method(ROOT_URL + "conversations.setPurpose", None, None, True)
+    CONVERSATIONS_SET_TOPIC = method(ROOT_URL + "conversations.setTopic", None, None, True)
+    CONVERSATIONS_UNARCHIVE = method(ROOT_URL + "conversations.unarchive", None, None, True)
 
     # dialog
     DIALOG_OPEN = method(ROOT_URL + "dialog.open", None, None, True)
@@ -114,12 +94,8 @@ class Methods(Enum):
     FILES_DELETE = method(ROOT_URL + "files.delete", None, None, True)
     FILES_INFO = method(ROOT_URL + "files.info", None, None, False)
     FILES_LIST = method(ROOT_URL + "files.list", "page", "files", False)
-    FILES_REVOKE_PUBLIC_URL = method(
-        ROOT_URL + "files.revokePublicURL", None, None, True
-    )
-    FILES_SHARED_PUBLIC_URL = method(
-        ROOT_URL + "files.sharedPublicURL", None, None, True
-    )
+    FILES_REVOKE_PUBLIC_URL = method(ROOT_URL + "files.revokePublicURL", None, None, True)
+    FILES_SHARED_PUBLIC_URL = method(ROOT_URL + "files.sharedPublicURL", None, None, True)
     FILES_UPLOAD = method(ROOT_URL + "files.upload", None, None, False)
 
     # groups
@@ -197,9 +173,7 @@ class Methods(Enum):
     TEAM_ACCESS_LOGS = method(ROOT_URL + "teams.accessLogs", None, None, False)
     TEAM_BILLABLE_INFO = method(ROOT_URL + "teams.billableInfo", None, None, False)
     TEAM_INFO = method(ROOT_URL + "teams.info", None, None, False)
-    TEAM_INTEGRATION_LOGS = method(
-        ROOT_URL + "teams.integrationLogs", None, None, False
-    )
+    TEAM_INTEGRATION_LOGS = method(ROOT_URL + "teams.integrationLogs", None, None, False)
 
     # team profile
     TEAM_PROFILE_GET = method(ROOT_URL + "teams.profile.get", None, None, False)
@@ -212,12 +186,8 @@ class Methods(Enum):
     USERGROUPS_UPDATE = method(ROOT_URL + "usergroups.update", None, None, True)
 
     # usergroups users
-    USERGROUPS_USERS_LIST = method(
-        ROOT_URL + "usergroups.users.list", None, None, False
-    )
-    USERGROUPS_USERS_UPDATE = method(
-        ROOT_URL + "usergroups.users.update", None, None, True
-    )
+    USERGROUPS_USERS_LIST = method(ROOT_URL + "usergroups.users.list", None, None, False)
+    USERGROUPS_USERS_UPDATE = method(ROOT_URL + "usergroups.users.update", None, None, True)
 
     # users
     USERS_DELETE_PHOTO = method(ROOT_URL + "users.deletePhoto", None, None, False)

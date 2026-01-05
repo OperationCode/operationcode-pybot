@@ -70,14 +70,12 @@ class TestAsyncHandlers:
         for handler in handlers:
             # Get the wrapped function if decorated
             func = getattr(handler, "__wrapped__", handler)
-            assert asyncio.iscoroutinefunction(func), \
-                f"{handler.__name__} must be async"
+            assert asyncio.iscoroutinefunction(func), f"{handler.__name__} must be async"
 
     def test_event_handlers_are_async(self):
         from pybot.endpoints.slack.events import team_join
 
-        assert asyncio.iscoroutinefunction(team_join), \
-            "team_join must be async"
+        assert asyncio.iscoroutinefunction(team_join), "team_join must be async"
 
     def test_action_handlers_are_async(self):
         from pybot.endpoints.slack.actions.general_actions import (
@@ -88,8 +86,7 @@ class TestAsyncHandlers:
 
         handlers = [claimed, delete_message, reset_claim]
         for handler in handlers:
-            assert asyncio.iscoroutinefunction(handler), \
-                f"{handler.__name__} must be async"
+            assert asyncio.iscoroutinefunction(handler), f"{handler.__name__} must be async"
 
 
 class TestPluginLoading:
@@ -97,10 +94,12 @@ class TestPluginLoading:
 
     def test_airtable_plugin_instantiates(self):
         from pybot.plugins.airtable.plugin import AirtablePlugin
+
         plugin = AirtablePlugin()
         assert plugin.__name__ == "airtable"
 
     def test_api_plugin_instantiates(self):
         from pybot.plugins.api.plugin import APIPlugin
+
         plugin = APIPlugin()
         assert plugin.__name__ == "api"

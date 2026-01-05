@@ -2,7 +2,8 @@ import asyncio
 import logging
 import os
 from collections import defaultdict
-from typing import Any, Callable, Coroutine
+from collections.abc import Callable, Coroutine
+from typing import Any
 
 from pybot.plugins.airtable import endpoints
 from pybot.plugins.airtable.api import AirtableAPI
@@ -39,7 +40,7 @@ class AirtablePlugin:
         sirbot: Any,
         api_key: str | None = None,
         base_key: str | None = None,
-        verify: str | None = None
+        verify: str | None = None,
     ) -> None:
         self.session = sirbot.http_session
         self.api_key = api_key or os.environ.get("AIRTABLE_API_KEY", "")
@@ -67,7 +68,6 @@ class RequestRouter:
     def dispatch(self, request):
         logger.debug('Dispatching request "%s"', request.get("type"))
         if request["type"] in self._routes:
-            for handler in self._routes.get(request["type"]):
-                yield handler
+            yield from self._routes.get(request["type"])
         else:
             return

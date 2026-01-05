@@ -1,6 +1,6 @@
 import copy
 import os
-from typing import MutableMapping
+from collections.abc import MutableMapping
 
 BACKEND_AUTH_TOKEN = os.environ.get("BACKEND_AUTH_TOKEN", "devBackendToken")
 

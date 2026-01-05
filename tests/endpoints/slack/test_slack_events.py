@@ -1,12 +1,8 @@
 import asyncio
 import logging
 
-from unittest.mock import AsyncMock
-from unittest.mock import AsyncMock as CoroutineMock
-
 from pybot import endpoints
-from pybot.endpoints.slack.events import create_endpoints, team_join
-from tests.data.events import MESSAGE_DELETE, MESSAGE_EDIT, PLAIN_MESSAGE, TEAM_JOIN
+from tests.data.events import MESSAGE_DELETE, MESSAGE_EDIT, PLAIN_MESSAGE
 
 
 async def test_team_join_handler_exists(bot):

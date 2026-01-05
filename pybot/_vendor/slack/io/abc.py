@@ -1,9 +1,9 @@
 import json
-import time
 import logging
-from typing import Tuple, Union, Optional, AsyncIterator, MutableMapping
+import time
+from collections.abc import AsyncIterator, MutableMapping
 
-from .. import events, sansio, methods, exceptions
+from .. import events, methods, sansio
 
 LOG = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class SlackAPI:
         headers: Default headers for all request
     """
 
-    def __init__(self, *, token: str, headers: Optional[MutableMapping] = None) -> None:
+    def __init__(self, *, token: str, headers: MutableMapping | None = None) -> None:
         self._token = token
         self._headers = headers or {}
 
@@ -27,23 +27,23 @@ class SlackAPI:
         self,
         method: str,
         url: str,
-        headers: Optional[MutableMapping],
-        body: Optional[Union[str, MutableMapping]],
-    ) -> Tuple[int, bytes, MutableMapping]:
+        headers: MutableMapping | None,
+        body: str | MutableMapping | None,
+    ) -> tuple[int, bytes, MutableMapping]:
         raise NotImplementedError()
 
     async def _rtm(self, url: str) -> AsyncIterator[str]:
         yield ""
         raise NotImplementedError()
 
-    async def sleep(self, seconds: Union[int, float]):
+    async def sleep(self, seconds: int | float):
         raise NotImplementedError()
 
     async def _make_query(
         self,
         url: str,
-        body: Optional[Union[str, MutableMapping]],
-        headers: Optional[MutableMapping],
+        body: str | MutableMapping | None,
+        headers: MutableMapping | None,
     ) -> dict:
 
         LOG.debug("Querying %s with %s, %s", url, headers, body)
@@ -55,10 +55,10 @@ class SlackAPI:
 
     async def query(
         self,
-        url: Union[str, methods],
-        data: Optional[MutableMapping] = None,
-        headers: Optional[MutableMapping] = None,
-        as_json: Optional[bool] = None,
+        url: str | methods,
+        data: MutableMapping | None = None,
+        headers: MutableMapping | None = None,
+        as_json: bool | None = None,
     ) -> dict:
         """
         Query the slack API
@@ -87,15 +87,15 @@ class SlackAPI:
 
     async def iter(
         self,
-        url: Union[str, methods],
-        data: Optional[MutableMapping] = None,
-        headers: Optional[MutableMapping] = None,
+        url: str | methods,
+        data: MutableMapping | None = None,
+        headers: MutableMapping | None = None,
         *,
         limit: int = 200,
-        iterkey: Optional[str] = None,
-        itermode: Optional[str] = None,
-        minimum_time: Optional[int] = None,
-        as_json: Optional[bool] = None
+        iterkey: str | None = None,
+        itermode: str | None = None,
+        minimum_time: int | None = None,
+        as_json: bool | None = None,
     ) -> AsyncIterator[dict]:
         """
         Iterate over a slack API method supporting pagination
@@ -149,7 +149,7 @@ class SlackAPI:
                 break
 
     async def rtm(
-        self, url: Optional[str] = None, bot_id: Optional[str] = None
+        self, url: str | None = None, bot_id: str | None = None
     ) -> AsyncIterator[events.Event]:
         """
         Iterate over event from the RTM API
@@ -192,9 +192,7 @@ class SlackAPI:
         response = await self.query(methods.RTM_CONNECT)
         return response["url"]
 
-    async def _incoming_from_rtm(
-        self, url: str, bot_id: str
-    ) -> AsyncIterator[events.Event]:
+    async def _incoming_from_rtm(self, url: str, bot_id: str) -> AsyncIterator[events.Event]:
         """
         Connect and discard incoming RTM event if necessary.
 

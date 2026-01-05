@@ -1,10 +1,10 @@
 import copy
 
 import pytest
-from pybot._vendor.sirbot import SirBot
-from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 
 from pybot import endpoints
+from pybot._vendor.sirbot import SirBot
+from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 from pybot.plugins import AirtablePlugin, APIPlugin
 from tests import data
 
@@ -23,6 +23,7 @@ def action(request):
 @pytest.fixture
 async def bot() -> SirBot:
     import aiohttp
+
     b = SirBot()
     # Manually create session for testing (normally done on startup)
     b["http_session"] = aiohttp.ClientSession()

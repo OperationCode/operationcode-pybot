@@ -1,11 +1,11 @@
-import re
 import copy
+import itertools
 import json
 import logging
-import itertools
-from typing import Any, Dict, Iterator, Optional
+import re
 from collections import defaultdict
-from collections.abc import MutableMapping
+from collections.abc import Iterator, MutableMapping
+from typing import Any
 
 from . import exceptions
 
@@ -21,9 +21,7 @@ class Event(MutableMapping):
                   (see `slack event API documentation <https://api.slack.com/events-api#receiving_events>`_)
     """
 
-    def __init__(
-        self, raw_event: MutableMapping, metadata: Optional[MutableMapping] = None
-    ) -> None:
+    def __init__(self, raw_event: MutableMapping, metadata: MutableMapping | None = None) -> None:
         self.event = raw_event
         self.metadata = metadata
 
@@ -77,8 +75,8 @@ class Event(MutableMapping):
     def from_http(
         cls,
         raw_body: MutableMapping,
-        verification_token: Optional[str] = None,
-        team_id: Optional[str] = None,
+        verification_token: str | None = None,
+        team_id: str | None = None,
     ) -> "Event":
         """
         Create an event with data coming from the HTTP Event API.
@@ -116,8 +114,8 @@ class Message(Event):
 
     def __init__(
         self,
-        msg: Optional[MutableMapping] = None,
-        metadata: Optional[MutableMapping] = None,
+        msg: MutableMapping | None = None,
+        metadata: MutableMapping | None = None,
     ) -> None:
         if not msg:
             msg = {}
@@ -126,7 +124,7 @@ class Message(Event):
     def __repr__(self) -> str:
         return "Slack Message: " + str(self.event)
 
-    def response(self, in_thread: Optional[bool] = None) -> "Message":
+    def response(self, in_thread: bool | None = None) -> "Message":
         """
         Create a response message.
 
@@ -143,9 +141,7 @@ class Message(Event):
 
         if in_thread:
             if "message" in self:
-                data["thread_ts"] = (
-                    self["message"].get("thread_ts") or self["message"]["ts"]
-                )
+                data["thread_ts"] = self["message"].get("thread_ts") or self["message"]["ts"]
             else:
                 data["thread_ts"] = self.get("thread_ts") or self["ts"]
         elif in_thread is None:
@@ -180,7 +176,7 @@ class EventRouter:
     """
 
     def __init__(self):
-        self._routes: Dict[str, Dict] = defaultdict(dict)
+        self._routes: dict[str, dict] = defaultdict(dict)
 
     def register(self, event_type: str, handler: Any, **detail: Any) -> None:
         """
@@ -223,9 +219,7 @@ class EventRouter:
         """
         LOG.debug('Dispatching event "%s"', event.get("type"))
         if event["type"] in self._routes:
-            for detail_key, detail_values in self._routes.get(
-                event["type"], {}
-            ).items():
+            for detail_key, detail_values in self._routes.get(event["type"], {}).items():
                 event_value = event.get(detail_key, "*")
                 yield from detail_values.get(event_value, [])
         else:
@@ -242,7 +236,7 @@ class MessageRouter:
     """
 
     def __init__(self):
-        self._routes: Dict[str, Dict] = defaultdict(dict)
+        self._routes: dict[str, dict] = defaultdict(dict)
 
     def register(
         self,
@@ -250,7 +244,7 @@ class MessageRouter:
         handler: Any,
         flags: int = 0,
         channel: str = "*",
-        subtype: Optional[str] = None,
+        subtype: str | None = None,
     ) -> None:
         """
         Register a new handler for a specific :class:`slack.events.Message`.

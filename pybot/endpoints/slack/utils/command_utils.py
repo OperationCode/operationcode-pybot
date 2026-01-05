@@ -1,5 +1,4 @@
 from pybot._vendor.slack import methods
-
 from pybot.endpoints.slack.utils.slash_repeat import repeat_items
 
 

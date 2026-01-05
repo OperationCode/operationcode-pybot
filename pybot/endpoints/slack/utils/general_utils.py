@@ -32,10 +32,7 @@ def catch_command_slack_error(func):
                     user=slack_id,
                     channel=slack_id,
                     as_user=True,
-                    text=(
-                        f"Could not post result of `{slash_command}` "
-                        f"to channel <#{channel_id}>"
-                    ),
+                    text=(f"Could not post result of `{slash_command}` to channel <#{channel_id}>"),
                 ),
             )
 

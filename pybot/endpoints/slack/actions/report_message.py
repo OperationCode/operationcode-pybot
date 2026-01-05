@@ -3,7 +3,6 @@ import json
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.slack import methods
 from pybot._vendor.slack.actions import Action
-
 from pybot.endpoints.slack.utils.action_messages import (
     build_report_message,
     report_dialog,

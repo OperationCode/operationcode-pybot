@@ -1,13 +1,14 @@
 import copy
 import json
 import time
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
-from pybot._vendor.slack.events import EventRouter, MessageRouter
-from pybot._vendor.slack.io.abc import SlackAPI
+
 from pybot._vendor.slack.actions import Router as ActionRouter
 from pybot._vendor.slack.commands import Router as CommandRouter
+from pybot._vendor.slack.events import EventRouter, MessageRouter
+from pybot._vendor.slack.io.abc import SlackAPI
 
 from . import data
 
@@ -157,12 +158,20 @@ def slack_client(request):
 
     if all(
         isinstance(value, list)
-        for value in (parameters["status"], parameters["body"], parameters["headers"],)
+        for value in (
+            parameters["status"],
+            parameters["body"],
+            parameters["headers"],
+        )
     ):
         _slack_client_multiple_mock_request(slackclient, parameters)
     elif any(
         isinstance(value, list)
-        for value in (parameters["status"], parameters["body"], parameters["headers"],)
+        for value in (
+            parameters["status"],
+            parameters["body"],
+            parameters["headers"],
+        )
     ):
         _slack_client_multiple_mock_request_with_default(slackclient, parameters)
     else:
@@ -177,9 +186,7 @@ def _fill_body(body):
     return body
 
 
-@pytest.fixture(
-    params={**data.Events.__members__, **data.Messages.__members__}  # type: ignore
-)
+@pytest.fixture(params={**data.Events.__members__, **data.Messages.__members__})  # type: ignore
 def slack_event(request):
     if isinstance(request.param, str):
         try:

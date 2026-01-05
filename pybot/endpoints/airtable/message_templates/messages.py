@@ -1,9 +1,4 @@
-from typing import List
-
-
-def mentor_request_text(
-    user_id, service, skillsets, affiliation, requested_mentor_message=None
-):
+def mentor_request_text(user_id, service, skillsets, affiliation, requested_mentor_message=None):
     if not skillsets:
         skillsets = "None provided"
     text = (
@@ -18,7 +13,7 @@ def mentor_request_text(
     return text
 
 
-def claim_mentee_attachment(record: str) -> List[dict]:
+def claim_mentee_attachment(record: str) -> list[dict]:
     return [
         {
             "text": "",

@@ -33,10 +33,13 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 
 [tool.ruff]
-select = ["E", "F", "I", "UP"]
-ignore = []
 line-length = 100
 target-version = "py312"
+extend-exclude = ["pybot/_vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["F401", "E501"]  # Allow re-exports and longer lines for now
 
 [tool.black]
 line-length = 100

@@ -4,11 +4,15 @@ import logging
 import aiohttp.web
 from aiohttp.web import Response
 
-from pybot._vendor.slack.events import Event
-from pybot._vendor.slack.sansio import validate_request_signature
 from pybot._vendor.slack.actions import Action
 from pybot._vendor.slack.commands import Command
-from pybot._vendor.slack.exceptions import InvalidTimestamp, FailedVerification, InvalidSlackSignature
+from pybot._vendor.slack.events import Event
+from pybot._vendor.slack.exceptions import (
+    FailedVerification,
+    InvalidSlackSignature,
+    InvalidTimestamp,
+)
+from pybot._vendor.slack.sansio import validate_request_signature
 
 LOG = logging.getLogger(__name__)
 

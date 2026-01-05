@@ -1,6 +1,5 @@
 import json
 from time import time
-from typing import List
 
 from pybot.endpoints.slack.utils import MODERATOR_CHANNEL
 
@@ -76,12 +75,9 @@ def ticket_attachments(action):
                     "name": "status",
                     "text": "Current Status",
                     "type": "select",
-                    "selected_options": [
-                        {"text": "Not Started", "value": "notStarted"}
-                    ],
+                    "selected_options": [{"text": "Not Started", "value": "notStarted"}],
                     "options": [
-                        {"text": text, "value": value}
-                        for value, text in TICKET_OPTIONS.items()
+                        {"text": text, "value": value} for value, text in TICKET_OPTIONS.items()
                     ],
                 }
             ],
@@ -91,7 +87,7 @@ def ticket_attachments(action):
     return attachments
 
 
-def greeted_attachment(user_id: str) -> List[dict]:
+def greeted_attachment(user_id: str) -> list[dict]:
     return [
         {
             "text": f":100:<@{user_id}> has greeted the new user!:100:\n"
@@ -134,7 +130,7 @@ def not_greeted_attachment():
     ]
 
 
-def direct_messaged_attachment(user_id: str) -> List[dict]:
+def direct_messaged_attachment(user_id: str) -> list[dict]:
     return [
         {
             "text": f":100:<@{user_id}> has DMed the new user!:100:\n"
@@ -146,7 +142,7 @@ def direct_messaged_attachment(user_id: str) -> List[dict]:
             "actions": [
                 {
                     "name": "reset_message",
-                    "text": f"Reset DM",
+                    "text": "Reset DM",
                     "type": "button",
                     "style": "danger",
                     "value": "reset_message",
@@ -219,8 +215,7 @@ def claimed_attachment(user_id):
 
 def reset_greet_message(user_id):
     return (
-        f"Reset by <@{user_id}> at"
-        f" <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>"
+        f"Reset by <@{user_id}> at <!date^{now()}^ {{date_num}} {{time_secs}}|Failed to parse time>"
     )
 
 
@@ -244,9 +239,7 @@ def suggestion_dialog(trigger_id):
 def report_dialog(action):
     trigger_id = action["trigger_id"]
 
-    user = action["message"].get("user") or action["message"].get(
-        "username"
-    )  # for bots
+    user = action["message"].get("user") or action["message"].get("username")  # for bots
     message_data = {
         "text": action["message"]["text"],
         "user": user,

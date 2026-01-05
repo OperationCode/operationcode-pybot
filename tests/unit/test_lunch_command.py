@@ -33,10 +33,9 @@ class TestLunchCommandParsing:
 
     def test_invalid_zipcode_raises_error(self):
         """Invalid zipcode input should raise ValueError from zipcodes library."""
-        import pytest
 
         with pytest.raises(ValueError, match="Invalid format"):
-            cmd = LunchCommand("C123", "U456", "not-a-zip", "testuser")
+            LunchCommand("C123", "U456", "not-a-zip", "testuser")
 
     def test_negative_distance_converted_to_positive(self):
         cmd = LunchCommand("C123", "U456", "90210 -5", "testuser")
@@ -61,9 +60,7 @@ class TestLunchCommandResponse:
 
         mock_location = {
             "name": "Test Restaurant",
-            "location": {
-                "display_address": ["123 Main St", "Los Angeles, CA 90210"]
-            }
+            "location": {"display_address": ["123 Main St", "Los Angeles, CA 90210"]},
         }
 
         response = cmd._build_response_text(mock_location)

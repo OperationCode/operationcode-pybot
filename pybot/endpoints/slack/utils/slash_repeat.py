@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 
 # TODO: use the github api to find the file even if location changes
@@ -38,7 +38,7 @@ def modify_params(modify_options: dict) -> dict:
 
     message["attachments"][0][
         "pretext"
-    ] = f'<@{modify_options["slack_id"]}>: {modify_options["pretext"]}'
+    ] = f"<@{modify_options['slack_id']}>: {modify_options['pretext']}"
     message["attachments"][0]["title"] = modify_options["title"]
     message["attachments"][0]["title_link"] = modify_options["link"]
 

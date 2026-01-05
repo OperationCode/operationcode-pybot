@@ -1,10 +1,9 @@
 from unittest.mock import AsyncMock as CoroutineMock
+
 from pybot._vendor.sirbot import SirBot
 
 
-async def test_claim_mentee_response_attachment_is_list(
-    action: dict, aiohttp_client, bot: SirBot
-):
+async def test_claim_mentee_response_attachment_is_list(action: dict, aiohttp_client, bot: SirBot):
     client, slack_mock = await create_mocks(aiohttp_client, bot)
 
     await client.post("/slack/actions", data=action)
@@ -21,9 +20,7 @@ async def test_claim_mentee_response_contains_original_text(
 
 
 async def create_mocks(aiohttp_client, bot):
-    slack_mock = CoroutineMock(
-        return_value={"user": {"profile": {"email": "email@email.com"}}}
-    )
+    slack_mock = CoroutineMock(return_value={"user": {"profile": {"email": "email@email.com"}}})
     airtable_mock = CoroutineMock(return_value="U123")
     bot["plugins"]["slack"].api.query = slack_mock
     bot["plugins"]["airtable"].api.find_records = CoroutineMock(return_value=[])

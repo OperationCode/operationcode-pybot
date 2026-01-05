@@ -5,12 +5,13 @@ Vendored sirbot Slack plugin for Python 3.12+
 import asyncio
 import logging
 import os
-from typing import Any, Callable, Coroutine
+from collections.abc import Callable, Coroutine
+from typing import Any
 
 from pybot._vendor.slack import methods
-from pybot._vendor.slack.events import EventRouter, MessageRouter
 from pybot._vendor.slack.actions import Router as ActionRouter
 from pybot._vendor.slack.commands import Router as CommandRouter
+from pybot._vendor.slack.events import EventRouter, MessageRouter
 from pybot._vendor.slack.io.aiohttp import SlackAPI
 
 from . import endpoints
@@ -124,9 +125,7 @@ class SlackPlugin:
         handler = _ensure_async(handler)
 
         if admin and not self.admins:
-            LOG.warning(
-                "Slack admin IDs are not set. Admin-limited endpoints will not work."
-            )
+            LOG.warning("Slack admin IDs are not set. Admin-limited endpoints will not work.")
 
         configuration = {"mention": mention, "admin": admin, "wait": wait}
         self.routers["message"].register(
@@ -155,9 +154,7 @@ class SlackPlugin:
         """Register handler for a block_actions type action."""
         handler = _ensure_async(handler)
         configuration = {"wait": wait}
-        self.routers["action"].register_block_action(
-            block_id, (handler, configuration), action_id
-        )
+        self.routers["action"].register_block_action(block_id, (handler, configuration), action_id)
 
     def on_dialog_submission(
         self,
@@ -168,14 +165,10 @@ class SlackPlugin:
         """Register handler for a dialog_submission type action."""
         handler = _ensure_async(handler)
         configuration = {"wait": wait}
-        self.routers["action"].register_dialog_submission(
-            callback_id, (handler, configuration)
-        )
+        self.routers["action"].register_dialog_submission(callback_id, (handler, configuration))
 
     async def find_bot_id(self, app: Any) -> None:
-        rep = await self.api.query(
-            url=methods.USERS_INFO, data={"user": self.bot_user_id}
-        )
+        rep = await self.api.query(url=methods.USERS_INFO, data={"user": self.bot_user_id})
         self.bot_id = rep["user"]["profile"]["bot_id"]
         LOG.warning(
             '`SLACK_BOT_ID` not set. For a faster start time set it to: "%s"',

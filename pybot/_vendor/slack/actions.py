@@ -1,9 +1,9 @@
 import json
-import typing
 import logging
-from typing import Any, Dict, Iterator, Optional
+import typing
 from collections import defaultdict
-from collections.abc import MutableMapping
+from collections.abc import Iterator, MutableMapping
+from typing import Any
 
 from . import exceptions
 
@@ -26,20 +26,16 @@ class Action(MutableMapping):
     def __init__(
         self,
         raw_action: typing.MutableMapping,
-        verification_token: Optional[str] = None,
-        team_id: Optional[str] = None,
+        verification_token: str | None = None,
+        team_id: str | None = None,
     ) -> None:
         self.action = raw_action
 
         if verification_token and self.action["token"] != verification_token:
-            raise exceptions.FailedVerification(
-                self.action["token"], self.action["team"]["id"]
-            )
+            raise exceptions.FailedVerification(self.action["token"], self.action["team"]["id"])
 
         if team_id and self.action["team"]["id"] != team_id:
-            raise exceptions.FailedVerification(
-                self.action["token"], self.action["team"]["id"]
-            )
+            raise exceptions.FailedVerification(self.action["token"], self.action["team"]["id"])
 
     def __getitem__(self, item):
         return self.action[item]
@@ -63,8 +59,8 @@ class Action(MutableMapping):
     def from_http(
         cls,
         payload: typing.MutableMapping,
-        verification_token: Optional[str] = None,
-        team_id: Optional[str] = None,
+        verification_token: str | None = None,
+        team_id: str | None = None,
     ) -> "Action":
         action = json.loads(payload["payload"])
         return cls(action, verification_token=verification_token, team_id=team_id)
@@ -77,7 +73,7 @@ class Router:
     """
 
     def __init__(self):
-        self._routes: Dict[str, Dict] = defaultdict(dict)
+        self._routes: dict[str, dict] = defaultdict(dict)
 
     def register(self, callback_id: str, handler: Any, name: str = "*") -> None:
         """
@@ -98,9 +94,7 @@ class Router:
 
         self._routes[callback_id][name].append(handler)
 
-    def register_interactive_message(
-        self, callback_id: str, handler: Any, name: str = "*"
-    ) -> None:
+    def register_interactive_message(self, callback_id: str, handler: Any, name: str = "*") -> None:
         """
         Register a new handler for a specific :class:`slack.actions.Action` `callback_id`.
         Optional routing based on the action name too.
@@ -118,9 +112,7 @@ class Router:
         """
         self.register(callback_id, handler, name)
 
-    def register_block_action(
-        self, block_id: str, handler: Any, action_id: str = "*"
-    ) -> None:
+    def register_block_action(self, block_id: str, handler: Any, action_id: str = "*") -> None:
         """
         Register a new handler for a block-based :class:`slack.actions.Action`.
         Internally uses the base `register` method for actual registration.
@@ -158,9 +150,7 @@ class Router:
             handler
         """
         if "callback_id" in action:
-            LOG.debug(
-                "Dispatching action %s, %s", action["type"], action["callback_id"]
-            )
+            LOG.debug("Dispatching action %s, %s", action["type"], action["callback_id"])
         else:
             LOG.debug(
                 "Dispatching action %s, %s",

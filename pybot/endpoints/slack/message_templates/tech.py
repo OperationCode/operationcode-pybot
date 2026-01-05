@@ -1,17 +1,16 @@
 import logging
 import re
+from collections.abc import Generator
 from datetime import datetime, timedelta
 from random import choice, random
-from typing import Dict, Generator, List, Pattern
+from re import Pattern
 
 logger = logging.getLogger(__name__)
 
 
 class TechTermsGrabber:
     # shared across all instances
-    TERM_URL = (
-        "https://raw.githubusercontent.com/togakangaroo/tech-terms/master/terms.org"
-    )
+    TERM_URL = "https://raw.githubusercontent.com/togakangaroo/tech-terms/master/terms.org"
     LAST_UPDATE = datetime(2012, 1, 1, 1, 1)
     HOURS_BEFORE_REFRESH = 3
 
@@ -19,20 +18,18 @@ class TechTermsGrabber:
         self.app = app
 
     def get_terms(self):
-        if (
-            datetime.now() - timedelta(hours=self.HOURS_BEFORE_REFRESH)
-        ) > self.LAST_UPDATE:
+        if (datetime.now() - timedelta(hours=self.HOURS_BEFORE_REFRESH)) > self.LAST_UPDATE:
             self.TERMS = self._update_terms()
         return self.TERMS
 
-    async def _update_terms(self) -> Dict[str, list]:
+    async def _update_terms(self) -> dict[str, list]:
         two_col_org_row: Pattern[str] = self._compile_regex_from_parts()
 
         content = await self._grab_data_from_github()
-        lines: List[str] = content.splitlines()
+        lines: list[str] = content.splitlines()
 
         return {
-            x["term"].lower(): f'{x["term"]} is {x["definition"]}'
+            x["term"].lower(): f"{x['term']} is {x['definition']}"
             for x in self._filter_matches(lines, two_col_org_row)
         }
 
@@ -52,7 +49,7 @@ class TechTermsGrabber:
         return re.compile(regex_string)
 
     def _filter_matches(
-        self, lines: List[str], two_col_org_row: Pattern[str]
+        self, lines: list[str], two_col_org_row: Pattern[str]
     ) -> Generator[dict, None, None]:
         for line in lines:
             match = two_col_org_row.match(line).groupdict()
@@ -66,7 +63,6 @@ class TechTerms:
     ADD_GITHUB_CHANCE = 0.25
 
     def __init__(self, channel: str, user: str, input_text: str, app):
-
         self.channel_id = channel
         self.user_id = user
         self.input_text = self.remove_tech(input_text)
@@ -101,9 +97,7 @@ class TechTerms:
         )
 
     def _source_text(self):
-        return (
-            "\nTech Terms source: <https://github.com/togakangaroo/tech-terms|github>"
-        )
+        return "\nTech Terms source: <https://github.com/togakangaroo/tech-terms|github>"
 
     def _convert_key_to_dict(self, key: str, random_val: bool = False) -> dict:
         return {"term": key, "random": random_val, "definition": f"{self.TERMS[key]}"}
@@ -122,8 +116,8 @@ class TechTerms:
         item = choice(list(self.TERMS.keys()))
         return self._convert_key_to_dict(item, random_val=True)
 
-    def _serialize_term(self, term: Dict[str, str]) -> str:
+    def _serialize_term(self, term: dict[str, str]) -> str:
         random_text = "Selected random term:\n"
         addnl = self._source_text() if random() < self.ADD_GITHUB_CHANCE else ""
 
-        return f'{random_text if term["random"] else ""} {term["definition"]}{addnl}'
+        return f"{random_text if term['random'] else ''} {term['definition']}{addnl}"

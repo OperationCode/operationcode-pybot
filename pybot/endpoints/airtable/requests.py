@@ -2,7 +2,6 @@ import asyncio
 import logging
 
 from pybot._vendor.sirbot import SirBot
-
 from pybot.endpoints.airtable.utils import (
     _create_messages,
     _get_matching_skillset_mentors,
@@ -29,9 +28,7 @@ async def mentor_request(request: dict, app: SirBot) -> None:
     airtable = app.plugins["airtable"].api
 
     id_fallback = f" [couldn't find user - email provided: {request['email']} ]"
-    slack_id = await _slack_user_id_from_email(
-        request["email"], slack, fallback=id_fallback
-    )
+    slack_id = await _slack_user_id_from_email(request["email"], slack, fallback=id_fallback)
 
     futures = [
         airtable.get_name_from_record_id("Services", request["service"]),
@@ -39,9 +36,7 @@ async def mentor_request(request: dict, app: SirBot) -> None:
         _get_matching_skillset_mentors(request.get("skillsets"), slack, airtable),
     ]
 
-    service_translation, requested_mentor_message, mentors = await asyncio.gather(
-        *futures
-    )
+    service_translation, requested_mentor_message, mentors = await asyncio.gather(*futures)
 
     first_message, *children = _create_messages(
         mentors, request, requested_mentor_message, service_translation, slack_id
