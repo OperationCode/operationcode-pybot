@@ -9,9 +9,6 @@
 <br />
 <br />
 
-# 🎃 Hacktoberfest 🎃	
-
-[All the details you need](https://github.com/OperationCode/START_HERE/blob/master/README.md#-hacktoberfest-) before participating with us during Hacktoberfest.	
 
 <br />
 
@@ -31,6 +28,21 @@ extending [Pyslacker's](https://pyslackers.com/)
 [sir-bot-a-lot](https://github.com/pyslackers/sir-bot-a-lot-2)
 framework.
 
+## Vendored Dependencies
+
+This project includes vendored copies of the following abandoned libraries,
+modified for Python 3.12+ compatibility:
+
+- **sirbot** (from [pyslackers/sir-bot-a-lot-2](https://github.com/pyslackers/sir-bot-a-lot-2)) - MIT License
+- **slack-sansio** (from [pyslackers/slack-sansio](https://github.com/pyslackers/slack-sansio)) - MIT License
+
+These libraries are located in `pybot/_vendor/` and are maintained as part of this repository.
+The vendored code has been modernized with:
+- Removed deprecated `asyncio.coroutine()` usage
+- Fixed deprecated `loop=` parameter patterns
+- Replaced removed `cgi` module with `email.message`
+- Added Python 3.12 type hints
+
 ## Resources
 * [Slack Bot Tutorial](https://www.digitalocean.com/community/tutorials/how-to-build-a-slackbot-in-python-on-ubuntu-20-04)
 * [Slack Events API Framework](https://github.com/slackapi/python-slack-events-api)
@@ -42,13 +54,12 @@ Bug reports and pull requests are welcome on [Github](https://github.com/Operati
 
 ## Quick Start
 Recommended versions of tools used within the repo:
-- `python@3.7` or greater (in some environments, you may need to specify version of python i.e. `python test.py` vs `python3 test.py`))
+- `python@3.12` or greater (Python 3.13+ also supported)
 - `git@2.17.1` or greater
-- `poetry@0.12.11` or greater
-    - [Poetry](https://poetry.eustace.io/) is a packaging and dependency manager, similar to pip or pipenv
-    - Poetry provides a custom installer that can be ran via `curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python`
-    - Alternatively, poetry can be installed via pip/pip3 with `pip install --user poetry` or `pip3 install --user poetry`
-    - See https://poetry.eustace.io/docs/
+- `poetry@1.0` or greater
+    - [Poetry](https://python-poetry.org/) is a packaging and dependency manager, similar to pip or pipenv
+    - Install via: `curl -sSL https://install.python-poetry.org | python3 -`
+    - See https://python-poetry.org/docs/
 
 
 ```bash
@@ -62,10 +73,8 @@ poetry run python -m pybot
 poetry run pytest
 
 # Run formatting and linting
-poetry run black .
-# the next line shouldn't output anything to the terminal if it passes
-poetry run flake8
-poetry run isort -rc .
+poetry run black pybot/ tests/
+poetry run ruff check pybot/ tests/
 ```
 
 ## How to Test Integration With Slack
@@ -166,16 +175,16 @@ Here's an example output from the command:
 
 ```bash
 ngrok by @inconshreveable                                                                        (Ctrl+C to quit)
-Session Status                online                                                                             
-Session Expires               7 hours, 56 minutes                                                                
-Version                       2.3.35                                                                             
-Region                        United States (us)                                                                 
-Web Interface                 http://127.0.0.1:4040                                                              
-Forwarding                    http://9d73595a7aac.ngrok.io -> http://localhost:5000                              
-Forwarding                    https://9d73595a7aac.ngrok.io -> http://localhost:5000                             
-Connections                   ttl     opn     rt1     rt5     p50     p90                                        
-                              0       1       0.00    0.00    0.00    0.00                                       
-HTTP Requests 
+Session Status                online
+Session Expires               7 hours, 56 minutes
+Version                       2.3.35
+Region                        United States (us)
+Web Interface                 http://127.0.0.1:4040
+Forwarding                    http://9d73595a7aac.ngrok.io -> http://localhost:5000
+Forwarding                    https://9d73595a7aac.ngrok.io -> http://localhost:5000
+Connections                   ttl     opn     rt1     rt5     p50     p90
+                              0       1       0.00    0.00    0.00    0.00
+HTTP Requests
 ```
 
 With this done, ngrok will now expose the instance of pybot running locally
@@ -213,8 +222,8 @@ example:
 
     https://123_random_code_321.ngrok.io/slack/events
 
-Additional setup may needed depending on the type of events pybot is subscribing to. 
-For example, in order to work on the app's functionality on a `team_join` event, you need to:  
+Additional setup may needed depending on the type of events pybot is subscribing to.
+For example, in order to work on the app's functionality on a `team_join` event, you need to:
 
 * Add `team_join` to workspace event
 * Make sure `greetings` channel exists and ensure the app is invited to the channel
@@ -229,7 +238,7 @@ make sure you configure the request URL to match the Base-URI that pybot is
 listening on followed by the text _/slack/commands_. For example:
 
     https://123_random_code_321.ngrok.io/slack/commands
-   
+
 You'll use the same URI for each command. Here's a table listing of currently
 supported commands along with some suggested configuration text:
 
@@ -246,12 +255,12 @@ Command | Description | Usage Hint
 
 **👋 IMPORTANT!**
 
-The `/lunch` command requires a valid Yelp API token stored in the `YELP_TOKEN` 
+The `/lunch` command requires a valid Yelp API token stored in the `YELP_TOKEN`
 environment variable. See https://www.yelp.com/developers/faq
 
 Similarly, the `/mentor` and `/mentor-volunteer` commands require access to an Airtable
 environment with a specific configuration.  If you're planning on working with the mentor
-functionality please reach out to the `#oc-python-projects` channel for help getting set up.  
+functionality please reach out to the `#oc-python-projects` channel for help getting set up.
 
 #### Interactive Components
 

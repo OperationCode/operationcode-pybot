@@ -20,7 +20,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir poetry
 
 # Copy dependency files
-COPY pyproject.toml poetry.lock README.md ./
+COPY pyproject.toml poetry.lock README.md logging.yml ./
 COPY pybot ./pybot
 
 # Install dependencies into .venv in project
