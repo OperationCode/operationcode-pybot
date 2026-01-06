@@ -86,7 +86,10 @@ async def link_backend_user(
     """
 
     user_info = await slack_api.query(methods.USERS_INFO, {"user": slack_id})
-    email = user_info["user"]["profile"]["email"]
+    email = user_info["user"]["profile"].get("email")
+    if not email:
+        logger.warning(f"User {slack_id} has no email in profile, skipping backend link")
+        return
 
     async with session.patch(
         f"{BACKEND_URL}/auth/profile/admin/",

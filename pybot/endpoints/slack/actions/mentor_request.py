@@ -25,7 +25,17 @@ async def mentor_request_submit(action: Action, app: SirBot):
 
     username = action["user"]["name"]
     user_info = await slack.query(methods.USERS_INFO, {"user": action["user"]["id"]})
-    email = user_info["user"]["profile"]["email"]
+    email = user_info["user"]["profile"].get("email")
+
+    if not email:
+        logger.warning(f"User {action['user']['id']} has no email in Slack profile")
+        error_attachment = {
+            "text": ":warning: Your Slack profile doesn't have an email address. Please update your profile and try again. :warning:",
+            "color": "danger",
+        }
+        request.attachments = [error_attachment]
+        await request.update_message(slack)
+        return
 
     airtable_response = await request.submit_request(username, email, airtable)
 
@@ -127,7 +137,16 @@ async def claim_mentee(action: Action, app: SirBot):
         event = MentorRequestClaim(action, slack, airtable)
         if event.is_claim():
             user_info = await slack.query(methods.USERS_INFO, {"user": event.clicker})
-            clicker_email = user_info["user"]["profile"]["email"]
+            clicker_email = user_info["user"]["profile"].get("email")
+
+            if not clicker_email:
+                logger.warning(f"Mentor {event.clicker} has no email in Slack profile")
+                event.attachment["text"] = (
+                    f":warning: <@{event.clicker}>'s Slack profile has no email address. :warning:"
+                )
+                event.should_update = False
+                await event.update_message()
+                return
 
             mentor_records = await airtable.find_records(
                 table_name="Mentors", field="Email", value=clicker_email
@@ -140,5 +159,5 @@ async def claim_mentee(action: Action, app: SirBot):
 
         await event.update_message()
 
-    except Exception as ex:
-        logger.exception("Exception while updating claim", ex)
+    except Exception:
+        logger.exception("Exception while updating claim")

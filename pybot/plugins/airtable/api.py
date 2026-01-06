@@ -37,7 +37,12 @@ class AirtableAPI:
         while offset:
             params["offset"] = offset
             response = await self.get(url, params=params)
-            records.extend(response["records"])
+            # Check for error response during pagination
+            if "error" in response:
+                error_msg = response["error"].get("message", "Unknown error")
+                logger.error(f"Airtable API error during pagination: {error_msg}")
+                break
+            records.extend(response.get("records", []))
             offset = response.get("offset")
 
         return records
@@ -50,7 +55,7 @@ class AirtableAPI:
 
     async def get_name_from_record_id(self, table_name: str, record_id):
         if self.record_id_to_name[table_name]:
-            return self.record_id_to_name[table_name][record_id]
+            return self.record_id_to_name[table_name].get(record_id)
 
         url = self.table_url("Services")
         params = {"fields[]": "Name"}
@@ -63,10 +68,13 @@ class AirtableAPI:
             return None
 
         records = res_json["records"]
+        # Skip records that don't have a Name field (Airtable omits empty fields)
         self.record_id_to_name[table_name] = {
-            record["id"]: record["fields"]["Name"] for record in records
+            record["id"]: record["fields"]["Name"]
+            for record in records
+            if "Name" in record.get("fields", {})
         }
-        return self.record_id_to_name[table_name][record_id]
+        return self.record_id_to_name[table_name].get(record_id)
 
     async def get_row_from_record_id(self, table_name: str, record_id: str) -> dict:
         url = self.table_url(table_name, record_id)
@@ -80,8 +88,8 @@ class AirtableAPI:
                 return {}
 
             return res_json["fields"]
-        except Exception as ex:
-            logger.exception(f"Couldn't get row from record id {record_id} in {table_name}", ex)
+        except Exception:
+            logger.exception(f"Couldn't get row from record id {record_id} in {table_name}")
             return {}
 
     async def get_all_records(self, table_name, field=None):
@@ -106,7 +114,12 @@ class AirtableAPI:
             )
 
         if field:
-            return [record["fields"][field] for record in res_json["records"]]
+            # Skip records that don't have the field (Airtable omits empty fields)
+            return [
+                record["fields"][field]
+                for record in res_json["records"]
+                if field in record.get("fields", {})
+            ]
         else:
             return res_json["records"]
 
@@ -141,8 +154,8 @@ class AirtableAPI:
                     for skillset in skillsets
                 ):
                     partial_match.append(mentor["fields"])
-        except Exception as e:
-            logger.exception("Exception while trying to find filter mentors by skillset", e)
+        except Exception:
+            logger.exception("Exception while trying to filter mentors by skillset")
             return []
 
         if len(complete_match) < 5:
@@ -165,8 +178,8 @@ class AirtableAPI:
                 return []
 
             return response["records"]
-        except Exception as ex:
-            logger.exception(f"Exception when attempting to get {field} from {table_name}.", ex)
+        except Exception:
+            logger.exception(f"Exception when attempting to get {field} from {table_name}")
             return []
 
     async def update_request(self, request_record, mentor_id):
