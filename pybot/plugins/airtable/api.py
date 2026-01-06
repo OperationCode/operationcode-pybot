@@ -55,6 +55,13 @@ class AirtableAPI:
         url = self.table_url("Services")
         params = {"fields[]": "Name"}
         res_json = await self.get(url, params=params)
+
+        # Check for Airtable API error response
+        if "error" in res_json:
+            error_msg = res_json["error"].get("message", "Unknown error")
+            logger.error(f"Airtable API error for Services table: {error_msg}")
+            return None
+
         records = res_json["records"]
         self.record_id_to_name[table_name] = {
             record["id"]: record["fields"]["Name"] for record in records
@@ -65,6 +72,13 @@ class AirtableAPI:
         url = self.table_url(table_name, record_id)
         try:
             res_json = await self.get(url)
+
+            # Check for Airtable API error response
+            if "error" in res_json:
+                error_msg = res_json["error"].get("message", "Unknown error")
+                logger.error(f"Airtable API error for record {record_id} in {table_name}: {error_msg}")
+                return {}
+
             return res_json["fields"]
         except Exception as ex:
             logger.exception(f"Couldn't get row from record id {record_id} in {table_name}", ex)
@@ -75,9 +89,25 @@ class AirtableAPI:
         if field:
             params = {"fields[]": field}
             res_json = await self.get(url, params=params)
-            return [record["fields"][field] for record in res_json["records"]]
         else:
             res_json = await self.get(url)
+
+        # Check for Airtable API error response
+        if "error" in res_json:
+            error_msg = res_json["error"].get("message", "Unknown error")
+            error_type = res_json["error"].get("type", "Unknown type")
+            logger.error(
+                f"Airtable API error for table '{table_name}': {error_type} - {error_msg}"
+            )
+            raise ValueError(
+                f"Airtable API error: {error_type} - {error_msg}. "
+                f"Check AIRTABLE_API_KEY (must be a Personal Access Token starting with 'pat...') "
+                f"and ensure it has access to base {self.base_key}"
+            )
+
+        if field:
+            return [record["fields"][field] for record in res_json["records"]]
+        else:
             return res_json["records"]
 
     async def find_mentors_with_matching_skillsets(self, skillsets):
@@ -85,6 +115,13 @@ class AirtableAPI:
         params = MultiDict([("fields", "Email"), ("fields", "Skillsets"), ("fields", "Slack Name")])
         skillsets = skillsets.split(",")
         response = await self.get(url, params=params)
+
+        # Check for Airtable API error response
+        if "error" in response:
+            error_msg = response["error"].get("message", "Unknown error")
+            logger.error(f"Airtable API error for Mentors table: {error_msg}")
+            return []
+
         offset = response.get("offset")
         mentors = response["records"]
 
@@ -120,6 +157,13 @@ class AirtableAPI:
 
         try:
             response = await self.get(url, params=params)
+
+            # Check for Airtable API error response
+            if "error" in response:
+                error_msg = response["error"].get("message", "Unknown error")
+                logger.error(f"Airtable API error for table '{table_name}': {error_msg}")
+                return []
+
             return response["records"]
         except Exception as ex:
             logger.exception(f"Exception when attempting to get {field} from {table_name}.", ex)

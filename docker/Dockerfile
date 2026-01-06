@@ -1,6 +1,6 @@
 FROM python:3.14-slim AS base
 
-RUN apt-get update && apt-get upgrade -y && apt clean
+RUN apt-get update && apt-get upgrade -y && apt-get install wget -y && apt clean
 
 FROM base AS builder
 

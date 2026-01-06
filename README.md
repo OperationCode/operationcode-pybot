@@ -262,6 +262,22 @@ Similarly, the `/mentor` and `/mentor-volunteer` commands require access to an A
 environment with a specific configuration.  If you're planning on working with the mentor
 functionality please reach out to the `#oc-python-projects` channel for help getting set up.
 
+### Airtable Authentication
+
+**⚠️ IMPORTANT:** Airtable deprecated API keys on February 1, 2024. You must use a **Personal Access Token (PAT)**:
+
+1. Go to [Airtable Developer Hub](https://airtable.com/create/tokens)
+2. Click **Create new token**
+3. Configure the token with required scopes:
+   - `data.records:read` - Read records from tables
+   - `data.records:write` - Create/update records
+   - `schema.bases:read` - Read base schema
+4. Select the specific base(s) to grant access to
+5. Copy the generated token (starts with `pat...`)
+6. Set environment variable: `AIRTABLE_API_KEY=<your-pat-token>`
+
+**Note:** Despite the variable name `AIRTABLE_API_KEY`, you must use a Personal Access Token, not the deprecated API key format.
+
 #### Interactive Components
 
 You can follow the instructions (and read helpful related information) on the
@@ -290,6 +306,9 @@ Name | Description | Example
 ---- | ----------- | -------
 SLACK_BOT_SIGNING_SECRET | The unique signing secret used by Slack for a specific app that will be validated by pybot when inspecting an inbound API request | f3b4d774b79e0fb55af624c3f376d5b4
 BOT_USER_OAUTH_ACCESS_TOKEN | The bot user specific OAuth token used to authenticate the bot when making API requests to Slack | xoxb-800506043194-810119867738-vRvgSc3rslDUgQakFbMy3wAt
+AIRTABLE_API_KEY | Airtable Personal Access Token (PAT) for API authentication. **Must be a PAT (starts with `pat...`), not deprecated API key** | patAbCd1234567890.1234567890abcdefghijklmnop
+AIRTABLE_BASE_KEY | The base ID for your Airtable base | appSqQz7spgg0I1jQ
+YELP_TOKEN | API token for Yelp Fusion API (required for `/lunch` command) | your-yelp-api-token
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).

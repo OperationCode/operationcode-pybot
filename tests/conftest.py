@@ -44,10 +44,11 @@ async def bot() -> SirBot:
     b.load_plugin(airtable)
     b.load_plugin(api)
 
-    # Manually initialize the Slack API for tests that don't use aiohttp_client
+    # Manually initialize API clients for tests that don't use aiohttp_client
     # (which would trigger startup callbacks automatically).
-    # The _initialize_api method is idempotent, so it won't overwrite mocks.
+    # The _initialize_api methods are idempotent, so they won't overwrite mocks.
     await slack._initialize_api(b)
+    await airtable._initialize_api(b)
 
     yield b
 
