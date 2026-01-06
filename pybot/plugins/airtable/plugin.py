@@ -42,14 +42,23 @@ class AirtablePlugin:
         base_key: str | None = None,
         verify: str | None = None,
     ) -> None:
-        self.session = sirbot.http_session
+        # Store reference to sirbot for later initialization
+        self._sirbot = sirbot
         self.api_key = api_key or os.environ.get("AIRTABLE_API_KEY", "")
         self.base_key = base_key or os.environ.get("AIRTABLE_BASE_KEY", "")
         self.verify = verify or os.environ.get("AIRTABLE_VERIFY", "")
 
-        self.api = AirtableAPI(self.session, self.api_key, self.base_key)
+        # Initialize API after session is created
+        sirbot.on_startup.append(self._initialize_api)
 
         sirbot.router.add_route("POST", "/airtable/request", endpoints.incoming_request)
+
+    async def _initialize_api(self, app: Any) -> None:
+        """Initialize AirtableAPI after http_session is created."""
+        if self.api is None:
+            logger.info("Initializing Airtable API client")
+            self.session = self._sirbot.http_session
+            self.api = AirtableAPI(self.session, self.api_key, self.base_key)
 
     def on_request(self, request: str, handler: AsyncHandler, **kwargs: Any) -> None:
         handler = _ensure_async(handler)
