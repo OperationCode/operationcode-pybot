@@ -1,6 +1,8 @@
 import logging
 import random
 
+import aiohttp
+
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 from pybot._vendor.slack import methods
@@ -91,12 +93,35 @@ async def slash_lunch(command: Command, app: SirBot):
 
     slack = app["plugins"]["slack"].api
 
-    request = lunch.get_yelp_request()
-    async with app.http_session.get(**request) as r:
-        r.raise_for_status()
-        message_params = lunch.select_random_lunch(await r.json())
+    try:
+        request = lunch.get_yelp_request()
+        async with app.http_session.get(**request) as r:
+            r.raise_for_status()
+            message_params = lunch.select_random_lunch(await r.json())
+    except aiohttp.ClientResponseError as e:
+        logger.error(f"Yelp API HTTP error for {command['user_name']}: {e.status} {e.message}")
+        message_params = {
+            "user": command["user_id"],
+            "channel": command["channel_id"],
+            "text": "Sorry, I couldn't reach the Yelp API right now. Please try again later.",
+        }
+    except aiohttp.ClientError as e:
+        logger.error(f"Yelp API connection error for {command['user_name']}: {e}")
+        message_params = {
+            "user": command["user_id"],
+            "channel": command["channel_id"],
+            "text": "Sorry, I couldn't connect to Yelp. Please try again later.",
+        }
 
-        await slack.query(methods.CHAT_POST_EPHEMERAL, message_params)
+    if message_params is None:
+        # No restaurants found in the area
+        message_params = {
+            "user": command["user_id"],
+            "channel": command["channel_id"],
+            "text": "Sorry, I couldn't find any restaurants in that area. Try a different zip code!",
+        }
+
+    await slack.query(methods.CHAT_POST_EPHEMERAL, message_params)
 
 
 @catch_command_slack_error

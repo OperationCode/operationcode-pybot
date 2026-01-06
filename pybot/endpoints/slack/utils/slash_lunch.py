@@ -28,11 +28,20 @@ class LunchCommand:
             "headers": self.AUTH_HEADER,
         }
 
-    def select_random_lunch(self, lunch_response: dict) -> dict:
-        location_count = len(lunch_response["businesses"])
+    def select_random_lunch(self, lunch_response: dict) -> dict | None:
+        """
+        Select a random restaurant from the Yelp response.
 
-        selected_location = randint(0, location_count - 1)
-        location = lunch_response["businesses"][selected_location]
+        Returns None if no businesses are found, allowing the caller to handle
+        the empty result gracefully.
+        """
+        businesses = lunch_response.get("businesses", [])
+        if not businesses:
+            logger.warning(f"No restaurants found for {self.user_name}")
+            return None
+
+        selected_location = randint(0, len(businesses) - 1)
+        location = businesses[selected_location]
 
         logger.info(f"location selected for {self.user_name}: {location}")
 

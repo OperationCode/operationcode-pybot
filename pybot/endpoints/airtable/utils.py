@@ -16,7 +16,10 @@ async def _get_requested_mentor(
         if not requested_mentor:
             return None
         mentor = await airtable.get_row_from_record_id("Mentors", requested_mentor)
-        email = mentor["Email"]
+        # mentor could be {} if the record wasn't found or an error occurred
+        email = mentor.get("Email")
+        if not email:
+            return None
         slack_user_id = await _slack_user_id_from_email(email, slack)
         return f" Requested mentor: <@{slack_user_id}>"
     except SlackAPIError:
@@ -39,10 +42,15 @@ async def _get_matching_skillset_mentors(
     if not skillsets:
         return ["No skillset Given"]
     mentors = await airtable.find_mentors_with_matching_skillsets(skillsets)
-    mentor_ids = [
-        await _slack_user_id_from_email(mentor["Email"], slack, fallback=mentor["Slack Name"])
-        for mentor in mentors
-    ]
+    mentor_ids = []
+    for mentor in mentors:
+        email = mentor.get("Email")
+        fallback = mentor.get("Slack Name", "Unknown Mentor")
+        if email:
+            mentor_id = await _slack_user_id_from_email(email, slack, fallback=fallback)
+            mentor_ids.append(mentor_id)
+        elif fallback:
+            mentor_ids.append(fallback)
     return [f"<@{mentor}>" for mentor in mentor_ids]
 
 

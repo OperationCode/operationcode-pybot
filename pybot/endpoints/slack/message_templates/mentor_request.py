@@ -36,7 +36,7 @@ class MentorRequest(BlockAction):
             self.clear_errors()
 
     @property
-    def skillsets(self) -> [str]:
+    def skillsets(self) -> list[str]:
         if self.skillset_fields:
             return [field["text"] for field in self.skillset_fields]
         return []
@@ -97,6 +97,13 @@ class MentorRequest(BlockAction):
             params["Additional Details"] = self.details
 
         service_records = await airtable.find_records("Services", "Name", self.service)
+        if not service_records:
+            return {
+                "error": {
+                    "type": "SERVICE_NOT_FOUND",
+                    "message": f"Service '{self.service}' not found in Airtable",
+                }
+            }
         params["Service"] = [service_records[0]["id"]]
         return await airtable.add_record("Mentor Request", {"fields": params})
 
