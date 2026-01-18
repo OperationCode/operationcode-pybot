@@ -58,7 +58,10 @@ async def replay_team_join(
 
     token = slack_configs.get("token")
     if not token:
-        logger.error("No Slack token configured. Set BOT_USER_OAUTH_ACCESS_TOKEN.")
+        logger.error(
+            "No Slack token configured. Set one of: "
+            "BOT_USER_OAUTH_ACCESS_TOKEN, BOT_OAUTH_TOKEN, or SLACK_TOKEN"
+        )
         sys.exit(1)
 
     logger.info(f"Starting team_join replay for user: {user_id}")

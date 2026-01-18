@@ -3,6 +3,7 @@ import os
 BOT_USER_OAUTH_ACCESS_TOKEN = os.environ.get("BOT_USER_OAUTH_ACCESS_TOKEN")
 BOT_OAUTH_TOKEN = os.environ.get("BOT_OAUTH_TOKEN")
 BOT_OATH_TOKEN = os.environ.get("BOT_OATH_TOKEN")
+SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
 MENTOR_CHANNEL = os.environ.get("MENTOR_CHANNEL", "mentors-internal")
 COMMUNITY_CHANNEL = os.environ.get("COMMUNITY_CHANNEL", "greetings")
 MODERATOR_CHANNEL = os.environ.get("MODERATOR_CHANNEL", "moderators")
@@ -22,7 +23,8 @@ BOT_URL = "https://github.com/OperationCode/operationcode-pybot"
 slack_configs = {
     "token": BOT_USER_OAUTH_ACCESS_TOKEN
     or BOT_OAUTH_TOKEN
-    or BOT_OATH_TOKEN,  # fallback for old values
+    or BOT_OATH_TOKEN
+    or SLACK_TOKEN,  # fallback for various env var names
     "signing_secret": os.environ.get("SLACK_BOT_SIGNING_SECRET"),
     "verify": os.environ.get("VERIFICATION_TOKEN"),
     "bot_id": SLACK_BOT_ID,
