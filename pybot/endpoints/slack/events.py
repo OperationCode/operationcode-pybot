@@ -29,15 +29,14 @@ async def team_join(event: Event, app: SirBot) -> None:
     user_id = event["user"]["id"]
 
     *user_messages, community_message, outreach_team_message = build_messages(user_id)
-    futures = [
-        send_user_greetings(user_messages, slack_api),
-        send_community_notification(community_message, slack_api),
-        send_community_notification(outreach_team_message, slack_api),
-    ]
 
     logger.info(f"New team join event: {event}")
     await asyncio.sleep(30)
-    await asyncio.wait(futures)
+    await asyncio.gather(
+        send_user_greetings(user_messages, slack_api),
+        send_community_notification(community_message, slack_api),
+        send_community_notification(outreach_team_message, slack_api),
+    )
 
     headers = await get_backend_auth_headers(app.http_session)
     if headers:

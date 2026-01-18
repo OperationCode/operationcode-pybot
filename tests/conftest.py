@@ -1,4 +1,5 @@
 import copy
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -7,6 +8,7 @@ from pybot._vendor.sirbot import SirBot
 from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 from pybot.plugins import AirtablePlugin, APIPlugin
 from tests import data
+from tests.fixtures import SlackMock, AirtableMock, AdminSlackMock
 
 pytest_plugins = ("pybot._vendor.slack.tests.plugin",)
 
@@ -69,3 +71,78 @@ async def slack_bot(bot: SirBot):
     # Manually initialize the Slack API (idempotent, won't overwrite existing)
     await slack._initialize_api(bot)
     return bot
+
+
+@pytest.fixture
+def slack_mock(bot: SirBot) -> SlackMock:
+    """Pre-configured Slack API mock for testing."""
+    return SlackMock(bot)
+
+
+@pytest.fixture
+def airtable_mock(bot: SirBot) -> AirtableMock:
+    """Pre-configured Airtable API mock for testing."""
+    return AirtableMock(bot)
+
+
+@pytest.fixture
+def admin_slack_mock(bot: SirBot) -> AdminSlackMock:
+    """Pre-configured admin Slack API mock for channel invites."""
+    return AdminSlackMock(bot)
+
+
+@pytest.fixture
+def mock_user_info_with_email():
+    """Standard user.info response with email."""
+    return {
+        "ok": True,
+        "user": {
+            "id": "U123TEST",
+            "name": "testuser",
+            "real_name": "Test User",
+            "profile": {
+                "email": "test@example.com",
+                "real_name": "Test User",
+            },
+        },
+    }
+
+
+@pytest.fixture
+def mock_user_info_no_email():
+    """User.info response without email (restricted profile)."""
+    return {
+        "ok": True,
+        "user": {
+            "id": "U123TEST",
+            "name": "testuser",
+            "real_name": "Test User",
+            "profile": {
+                "real_name": "Test User",
+            },
+        },
+    }
+
+
+@pytest.fixture
+def mock_mentor_record():
+    """Standard mentor record from Airtable."""
+    return {
+        "id": "recMENTOR001",
+        "fields": {
+            "Name": "Jane Mentor",
+            "Email": "mentor@example.com",
+            "Slack Name": "janementor",
+            "Skillsets": ["Python", "JavaScript", "AWS"],
+        },
+    }
+
+
+@pytest.fixture
+def mock_service_records():
+    """Standard service records from Airtable."""
+    return [
+        {"id": "recSVC001", "fields": {"Name": "Resume Review"}},
+        {"id": "recSVC002", "fields": {"Name": "Mock Interview"}},
+        {"id": "recSVC003", "fields": {"Name": "Code Review"}},
+    ]

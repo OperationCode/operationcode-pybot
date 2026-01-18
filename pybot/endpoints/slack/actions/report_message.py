@@ -16,7 +16,7 @@ async def send_report(action: Action, app: SirBot):
     """
     slack_id = action["user"]["id"]
     details = action["submission"]["details"]
-    message_details = json.loads(action.action["state"])
+    message_details = json.loads(action["state"])
 
     response = build_report_message(slack_id, details, message_details)
 

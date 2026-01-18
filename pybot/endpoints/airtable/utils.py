@@ -1,3 +1,5 @@
+import logging
+
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.slack import ROOT_URL, methods
 from pybot._vendor.slack.events import Message
@@ -7,6 +9,8 @@ from pybot.endpoints.slack.utils import MENTOR_CHANNEL
 from pybot.plugins.airtable.api import AirtableAPI
 
 from .message_templates.messages import claim_mentee_attachment, mentor_request_text
+
+logger = logging.getLogger(__name__)
 
 
 async def _get_requested_mentor(
@@ -88,7 +92,12 @@ def _create_messages(
 
 async def _post_messages(parent: Message, children: list[Message], app: SirBot) -> None:
     response = await app.plugins["slack"].api.query(url=methods.CHAT_POST_MESSAGE, data=parent)
-    timestamp = response["ts"]
+
+    # Safely get timestamp from response - if missing, children won't be threaded
+    timestamp = response.get("ts")
+    if not timestamp:
+        logger.warning("Slack response missing 'ts' field - children messages will not be threaded")
+        return
 
     for child in children:
         child["thread_ts"] = timestamp

@@ -43,7 +43,9 @@ class MentorVolunteer(BlockAction):
         self.skillset_field_text = " "
 
     def validate_self(self):
-        if not self.skillsets:
+        # Filter out empty/whitespace-only skillsets
+        valid_skillsets = [s.strip() for s in self.skillsets if s.strip()]
+        if not valid_skillsets:
             return False
 
         self.clear_errors()
