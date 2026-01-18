@@ -25,6 +25,9 @@ loggers:
   slack:
     level: DEBUG
     propagate: true
+  urllib3:
+    level: WARNING
+    propagate: true
 root:
   level: DEBUG
   handlers:

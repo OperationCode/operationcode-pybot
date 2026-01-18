@@ -24,6 +24,9 @@ black = "^25.0"
 ruff = "^0.14"
 requests = "^2.31"
 
+[tool.poetry.scripts]
+pybot-manage = "manage:main"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
