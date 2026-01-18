@@ -7,8 +7,8 @@ These tests catch common Python 3.7 → 3.12 upgrade issues:
 - Handler registration verification
 """
 
-import asyncio
 import importlib
+import inspect
 
 import pytest
 
@@ -70,12 +70,12 @@ class TestAsyncHandlers:
         for handler in handlers:
             # Get the wrapped function if decorated
             func = getattr(handler, "__wrapped__", handler)
-            assert asyncio.iscoroutinefunction(func), f"{handler.__name__} must be async"
+            assert inspect.iscoroutinefunction(func), f"{handler.__name__} must be async"
 
     def test_event_handlers_are_async(self):
         from pybot.endpoints.slack.events import team_join
 
-        assert asyncio.iscoroutinefunction(team_join), "team_join must be async"
+        assert inspect.iscoroutinefunction(team_join), "team_join must be async"
 
     def test_action_handlers_are_async(self):
         from pybot.endpoints.slack.actions.general_actions import (
@@ -86,7 +86,7 @@ class TestAsyncHandlers:
 
         handlers = [claimed, delete_message, reset_claim]
         for handler in handlers:
-            assert asyncio.iscoroutinefunction(handler), f"{handler.__name__} must be async"
+            assert inspect.iscoroutinefunction(handler), f"{handler.__name__} must be async"
 
 
 class TestPluginLoading:

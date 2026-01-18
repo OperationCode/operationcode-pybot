@@ -2,7 +2,7 @@
 Vendored sirbot Slack plugin for Python 3.12+
 """
 
-import asyncio
+import inspect
 import logging
 import os
 from collections.abc import Callable, Coroutine
@@ -24,7 +24,7 @@ AsyncHandler = Callable[..., Coroutine[Any, Any, Any]]
 
 def _ensure_async(handler: Callable) -> AsyncHandler:
     """Ensure handler is an async function."""
-    if not asyncio.iscoroutinefunction(handler):
+    if not inspect.iscoroutinefunction(handler):
         raise TypeError(
             f"Handler {handler.__name__} must be an async function (defined with 'async def')"
         )
