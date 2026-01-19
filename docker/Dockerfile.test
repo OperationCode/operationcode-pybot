@@ -1,7 +1,7 @@
 # docker/Dockerfile.test
 # For running tests in Python 3.7 (required since 3.7 won't install on modern macOS)
 
-FROM python:3.7-slim
+FROM python:3.14-slim
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
     PYTHONUNBUFFERED=1
