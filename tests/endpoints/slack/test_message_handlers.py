@@ -6,19 +6,20 @@ Covers: advertise_pybot(), here_bad(), tech_tips(),
 """
 
 import logging
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.slack.events import Message
 from pybot.endpoints.slack.messages import (
     advertise_pybot,
     here_bad,
-    tech_tips,
     message_changed,
     message_deleted,
-    not_bot_message,
     not_bot_delete,
+    not_bot_message,
+    tech_tips,
 )
 from tests.fixtures import SlackMock
 
@@ -187,9 +188,7 @@ class TestTechTips:
         """tech_tips() posts a response when triggered."""
         event = make_message_event(channel_id="C123", user_id="U456", text="!tech python")
 
-        with patch(
-            "pybot.endpoints.slack.messages.TechTerms"
-        ) as mock_tech:
+        with patch("pybot.endpoints.slack.messages.TechTerms") as mock_tech:
             mock_instance = MagicMock()
             mock_instance.grab_values = AsyncMock(
                 return_value={"message": {"channel": "C123", "text": "Python info"}}

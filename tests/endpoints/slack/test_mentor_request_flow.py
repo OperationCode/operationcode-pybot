@@ -6,33 +6,36 @@ Covers: mentor_request_submit, mentor_details_submit, open_details_dialog,
         set_requested_mentor, add_skillset, claim_mentee
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from pybot._vendor.sirbot import SirBot
 from pybot.endpoints.slack.actions.mentor_request import (
-    mentor_request_submit,
-    mentor_details_submit,
-    open_details_dialog,
-    clear_skillsets,
-    clear_mentor,
-    set_group,
-    set_requested_service,
     add_skillset,
     claim_mentee,
+    clear_mentor,
+    clear_skillsets,
+    mentor_details_submit,
+    mentor_request_submit,
+    open_details_dialog,
+    set_group,
+    set_requested_service,
 )
 from tests.data.blocks import (
-    make_mentor_request_action,
     make_claim_mentee_action,
     make_mentor_details_dialog_submission,
+    make_mentor_request_action,
 )
-from tests.fixtures import SlackMock, AirtableMock
+from tests.fixtures import AirtableMock, SlackMock
 
 
 class TestMentorRequestSubmit:
     """Tests for mentor_request_submit handler."""
 
-    async def test_submit_success_with_all_fields(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_submit_success_with_all_fields(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Successful submission with all required fields."""
         action = make_mentor_request_action(
             user_id="U123",
@@ -51,7 +54,9 @@ class TestMentorRequestSubmit:
         # Should have added a record to Airtable
         airtable_mock.assert_record_added("Mentor Request")
 
-    async def test_submit_with_skillsets_included(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_submit_with_skillsets_included(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Submission includes skillsets in the Airtable record."""
         action = make_mentor_request_action(
             user_id="U123",
@@ -72,7 +77,9 @@ class TestMentorRequestSubmit:
         fields = added[0][1].get("fields", {})
         assert "Skillsets" in fields
 
-    async def test_submit_validation_failure_missing_service(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_submit_validation_failure_missing_service(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Submission fails validation when service is missing."""
         action = make_mentor_request_action(
             user_id="U123",
@@ -89,7 +96,9 @@ class TestMentorRequestSubmit:
         assert len(airtable_mock.get_added_records("Mentor Request")) == 0
         slack_mock.assert_called_with_method("chat.update")
 
-    async def test_submit_validation_failure_missing_affiliation(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_submit_validation_failure_missing_affiliation(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Submission fails validation when affiliation is missing."""
         action = make_mentor_request_action(
             user_id="U123",
@@ -106,7 +115,9 @@ class TestMentorRequestSubmit:
         # Should have updated message with error
         assert len(airtable_mock.get_added_records("Mentor Request")) == 0
 
-    async def test_submit_validation_failure_missing_details(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_submit_validation_failure_missing_details(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Submission fails validation when details are missing."""
         action = make_mentor_request_action(
             user_id="U123",
@@ -123,7 +134,9 @@ class TestMentorRequestSubmit:
         # Should not have added a record
         assert len(airtable_mock.get_added_records("Mentor Request")) == 0
 
-    async def test_submit_fails_when_user_has_no_email(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_submit_fails_when_user_has_no_email(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Submission fails when user's Slack profile has no email."""
         action = make_mentor_request_action(
             user_id="U123",
@@ -142,7 +155,9 @@ class TestMentorRequestSubmit:
         assert len(airtable_mock.get_added_records("Mentor Request")) == 0
         slack_mock.assert_called_with_method("chat.update")
 
-    async def test_submit_handles_airtable_error(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_submit_handles_airtable_error(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Submission handles Airtable errors gracefully."""
         action = make_mentor_request_action(
             user_id="U123",
@@ -167,7 +182,10 @@ class TestMentorRequestFieldHandlers:
     async def test_set_group_updates_affiliation(self, bot: SirBot, slack_mock: SlackMock):
         """set_group handler updates affiliation in the message."""
         action = make_mentor_request_action()
-        action["actions"][0]["selected_option"] = {"value": "spouse", "text": {"type": "plain_text", "text": "Spouse"}}
+        action["actions"][0]["selected_option"] = {
+            "value": "spouse",
+            "text": {"type": "plain_text", "text": "Spouse"},
+        }
 
         await set_group(action, bot)
 
@@ -176,7 +194,10 @@ class TestMentorRequestFieldHandlers:
     async def test_set_requested_service_updates_service(self, bot: SirBot, slack_mock: SlackMock):
         """set_requested_service handler updates service in the message."""
         action = make_mentor_request_action()
-        action["actions"][0]["selected_option"] = {"value": "Mock Interview", "text": {"type": "plain_text", "text": "Mock Interview"}}
+        action["actions"][0]["selected_option"] = {
+            "value": "Mock Interview",
+            "text": {"type": "plain_text", "text": "Mock Interview"},
+        }
 
         await set_requested_service(action, bot)
 
@@ -185,7 +206,10 @@ class TestMentorRequestFieldHandlers:
     async def test_add_skillset_appends_skillset(self, bot: SirBot, slack_mock: SlackMock):
         """add_skillset handler adds a skillset to the request."""
         action = make_mentor_request_action(skillsets=["Python"])
-        action["actions"][0]["selected_option"] = {"value": "AWS", "text": {"type": "plain_text", "text": "AWS"}}
+        action["actions"][0]["selected_option"] = {
+            "value": "AWS",
+            "text": {"type": "plain_text", "text": "AWS"},
+        }
 
         await add_skillset(action, bot)
 
@@ -247,7 +271,9 @@ class TestMentorDetailsDialog:
 class TestClaimMentee:
     """Tests for claim_mentee handler."""
 
-    async def test_claim_success_updates_airtable(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_claim_success_updates_airtable(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Claiming a mentee updates the Airtable record."""
         action = make_claim_mentee_action(
             mentor_id="U123MENTOR",
@@ -267,7 +293,9 @@ class TestClaimMentee:
         # Should have updated the request with the mentor
         assert len(airtable_mock._update_history) > 0
 
-    async def test_claim_shows_warning_when_no_email(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_claim_shows_warning_when_no_email(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Claiming shows warning when mentor has no email in profile."""
         action = make_claim_mentee_action(
             mentor_id="U123MENTOR",
@@ -283,7 +311,9 @@ class TestClaimMentee:
         # Should have called chat.update (to show warning)
         slack_mock.assert_called_with_method("chat.update")
 
-    async def test_claim_shows_warning_when_mentor_not_found(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_claim_shows_warning_when_mentor_not_found(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Claiming shows warning when mentor is not found in Airtable."""
         action = make_claim_mentee_action(
             mentor_id="U123MENTOR",
@@ -299,7 +329,9 @@ class TestClaimMentee:
         # Should still update message (with warning)
         slack_mock.assert_called_with_method("chat.update")
 
-    async def test_unclaim_resets_attachment(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_unclaim_resets_attachment(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Unclaiming resets the message attachment."""
         action = make_claim_mentee_action(
             mentor_id="U123MENTOR",
@@ -312,7 +344,9 @@ class TestClaimMentee:
         # Should have updated the message
         slack_mock.assert_called_with_method("chat.update")
 
-    async def test_claim_exception_is_caught(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_claim_exception_is_caught(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Exceptions during claim are caught and logged."""
         action = make_claim_mentee_action(
             mentor_id="U123MENTOR",
@@ -330,7 +364,9 @@ class TestClaimMentee:
 class TestMentorRequestIntegration:
     """Integration tests for the full mentor request flow."""
 
-    async def test_full_flow_submit_to_claim(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_full_flow_submit_to_claim(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Test the full flow from request submission to mentor claim."""
         # Step 1: User submits request
         submit_action = make_mentor_request_action(

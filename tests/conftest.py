@@ -8,7 +8,7 @@ from pybot._vendor.sirbot import SirBot
 from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 from pybot.plugins import AirtablePlugin, APIPlugin
 from tests import data
-from tests.fixtures import SlackMock, AirtableMock, AdminSlackMock
+from tests.fixtures import AdminSlackMock, AirtableMock, SlackMock
 
 pytest_plugins = ("pybot._vendor.slack.tests.plugin",)
 

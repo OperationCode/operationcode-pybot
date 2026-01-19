@@ -2,8 +2,8 @@
 Reusable mock classes for testing Slack and Airtable integrations.
 """
 
-from unittest.mock import AsyncMock, MagicMock
 from typing import Any
+from unittest.mock import AsyncMock, MagicMock
 
 
 class SlackMock:
@@ -33,9 +33,9 @@ class SlackMock:
         actual_method = kwargs.get("url", method)
 
         # Extract URL from Methods enum (the value is a namedtuple with url attribute)
-        if hasattr(actual_method, 'value') and hasattr(actual_method.value, 'url'):
+        if hasattr(actual_method, "value") and hasattr(actual_method.value, "url"):
             method_url = actual_method.value.url
-        elif hasattr(actual_method, 'url'):
+        elif hasattr(actual_method, "url"):
             method_url = actual_method.url
         elif isinstance(actual_method, str):
             method_url = actual_method
@@ -59,7 +59,10 @@ class SlackMock:
                 return {"ok": True, "user": {"id": self._email_lookup[email]}}
             # Raise error if email not found
             from pybot._vendor.slack.exceptions import SlackAPIError
-            raise SlackAPIError(error={"ok": False, "error": "users_not_found"}, headers={}, data={})
+
+            raise SlackAPIError(
+                error={"ok": False, "error": "users_not_found"}, headers={}, data={}
+            )
 
         # Check for user.info requests
         if "users.info" in method_str and data and "user" in data:
@@ -94,8 +97,13 @@ class SlackMock:
             default_response["ts"] = "1234567890.123456"
         return default_response
 
-    def setup_user_info(self, user_id: str, email: str | None = None,
-                       name: str = "Test User", real_name: str = "Test User") -> "SlackMock":
+    def setup_user_info(
+        self,
+        user_id: str,
+        email: str | None = None,
+        name: str = "Test User",
+        real_name: str = "Test User",
+    ) -> "SlackMock":
         """Configure response for users.info API call."""
         profile = {"real_name": real_name}
         if email:
@@ -108,7 +116,7 @@ class SlackMock:
                 "name": name,
                 "real_name": real_name,
                 "profile": profile,
-            }
+            },
         }
         return self
 
@@ -131,11 +139,15 @@ class SlackMock:
         """Assert a Slack API method was called a specific number of times."""
         call_count = sum(1 for m, _ in self._call_history if method in str(m))
         if times is not None:
-            assert call_count == times, f"Expected {method} to be called {times} times, got {call_count}"
+            assert call_count == times, (
+                f"Expected {method} to be called {times} times, got {call_count}"
+            )
         else:
             assert call_count > 0, f"Expected {method} to be called at least once"
 
-    def assert_message_sent_to_channel(self, channel_id: str, text_contains: str | None = None) -> None:
+    def assert_message_sent_to_channel(
+        self, channel_id: str, text_contains: str | None = None
+    ) -> None:
         """Assert a message was sent to a specific channel."""
         for method, data in self._call_history:
             if "chat" in method and data.get("channel") == channel_id:
@@ -144,8 +156,8 @@ class SlackMock:
                 if text_contains in data.get("text", ""):
                     return
         raise AssertionError(
-            f"No message found for channel {channel_id}" +
-            (f" containing '{text_contains}'" if text_contains else "")
+            f"No message found for channel {channel_id}"
+            + (f" containing '{text_contains}'" if text_contains else "")
         )
 
     def get_calls(self, method: str | None = None) -> list[tuple[str, dict]]:
@@ -281,8 +293,14 @@ class AirtableMock:
         self._services[record_id] = {"Name": name}
         return self
 
-    def setup_mentor(self, name: str, email: str, skillsets: list[str] | None = None,
-                    record_id: str | None = None, slack_name: str | None = None) -> "AirtableMock":
+    def setup_mentor(
+        self,
+        name: str,
+        email: str,
+        skillsets: list[str] | None = None,
+        record_id: str | None = None,
+        slack_name: str | None = None,
+    ) -> "AirtableMock":
         """Add a mentor to the mock."""
         record_id = record_id or f"recmentor{len(self._mentors)}"
         self._mentors[record_id] = {
@@ -343,6 +361,7 @@ class AdminSlackMock:
         # Create a mock admin_slack plugin if it doesn't exist
         if "admin_slack" not in bot["plugins"]:
             from unittest.mock import MagicMock
+
             bot["plugins"]["admin_slack"] = MagicMock()
             bot["plugins"]["admin_slack"].api = MagicMock()
 
@@ -352,7 +371,7 @@ class AdminSlackMock:
     async def _handle_query(self, method: str, data: dict | None = None, **kwargs) -> dict:
         """Handle admin Slack API queries."""
         # Extract URL from Methods enum if needed
-        if hasattr(method, 'value') and hasattr(method.value, 'url'):
+        if hasattr(method, "value") and hasattr(method.value, "url"):
             method_url = method.value.url
         elif isinstance(method, str):
             method_url = method
@@ -372,6 +391,7 @@ class AdminSlackMock:
     def setup_invite_error(self, error: Exception) -> "AdminSlackMock":
         """Configure an error for channel invites."""
         from pybot._vendor.slack import methods
+
         self._errors[methods.CONVERSATIONS_INVITE.value.url] = error
         return self
 
@@ -382,8 +402,7 @@ class AdminSlackMock:
                 if user_id is None or user_id in users:
                     return
         raise AssertionError(
-            f"No invite found for channel {channel}" +
-            (f" with user {user_id}" if user_id else "")
+            f"No invite found for channel {channel}" + (f" with user {user_id}" if user_id else "")
         )
 
     def reset(self) -> None:

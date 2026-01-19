@@ -12,15 +12,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from pybot import endpoints
+from pybot._vendor.slack.events import Event
 from pybot.endpoints.slack.events import team_join
 from pybot.endpoints.slack.utils.event_utils import (
     build_messages,
-    send_user_greetings,
-    send_community_notification,
-    link_backend_user,
     get_backend_auth_headers,
+    link_backend_user,
+    send_community_notification,
+    send_user_greetings,
 )
-from pybot._vendor.slack.events import Event
 from tests.data.events import MESSAGE_DELETE, MESSAGE_EDIT, PLAIN_MESSAGE, TEAM_JOIN
 
 
@@ -67,9 +67,7 @@ async def test_team_join_asyncio_gather_does_not_raise_typeerror(bot):
 
     with (
         patch("pybot.endpoints.slack.events.asyncio.sleep", new_callable=AsyncMock),
-        patch(
-            "pybot.endpoints.slack.events.send_user_greetings", new_callable=AsyncMock
-        ),
+        patch("pybot.endpoints.slack.events.send_user_greetings", new_callable=AsyncMock),
         patch(
             "pybot.endpoints.slack.events.send_community_notification",
             new_callable=AsyncMock,
@@ -160,12 +158,12 @@ class TestLinkBackendUser:
     async def test_link_backend_user_handles_missing_email(self):
         """link_backend_user returns early when user has no email."""
         mock_slack_api = AsyncMock()
-        mock_slack_api.query.return_value = {
-            "user": {"profile": {}}  # No email
-        }
+        mock_slack_api.query.return_value = {"user": {"profile": {}}}  # No email
         mock_session = AsyncMock()
 
-        await link_backend_user("U123", {"Authorization": "Bearer token"}, mock_slack_api, mock_session)
+        await link_backend_user(
+            "U123", {"Authorization": "Bearer token"}, mock_slack_api, mock_session
+        )
 
         # Should not call session.patch when no email
         mock_session.patch.assert_not_called()
@@ -173,9 +171,7 @@ class TestLinkBackendUser:
     async def test_link_backend_user_calls_backend_api(self):
         """link_backend_user calls the backend API with correct params."""
         mock_slack_api = AsyncMock()
-        mock_slack_api.query.return_value = {
-            "user": {"profile": {"email": "user@example.com"}}
-        }
+        mock_slack_api.query.return_value = {"user": {"profile": {"email": "user@example.com"}}}
 
         mock_response = AsyncMock()
         mock_response.json.return_value = {"success": True}
@@ -184,10 +180,7 @@ class TestLinkBackendUser:
         mock_session.patch.return_value.__aenter__.return_value = mock_response
 
         await link_backend_user(
-            "U123",
-            {"Authorization": "Bearer token"},
-            mock_slack_api,
-            mock_session
+            "U123", {"Authorization": "Bearer token"}, mock_slack_api, mock_session
         )
 
         mock_session.patch.assert_called_once()

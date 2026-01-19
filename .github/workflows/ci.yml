@@ -1,0 +1,189 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  POETRY_VERSION: "2.3.0"
+  POETRY_VIRTUALENVS_IN_PROJECT: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
+
+      - name: Install Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-lint-${{ runner.os }}-py3.14-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            venv-lint-${{ runner.os }}-py3.14-
+
+      - name: Install dependencies
+        if: steps.cached-venv.outputs.cache-hit != 'true'
+        run: poetry install --only dev --no-interaction
+
+      - name: Run Ruff linter
+        run: poetry run ruff check .
+
+      - name: Run Ruff formatter check
+        run: poetry run ruff format --check .
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
+
+      - name: Install Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-test-${{ runner.os }}-py3.14-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            venv-test-${{ runner.os }}-py3.14-
+
+      - name: Install dependencies
+        if: steps.cached-venv.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction
+
+      - name: Run tests with coverage
+        run: |
+          poetry run pytest \
+            --cov=pybot \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            -v \
+            --tb=short
+        env:
+          SLACK_TOKEN: "xoxb-test-token"
+          SLACK_ADMIN_TOKEN: "xoxb-admin-test-token"
+          AIRTABLE_API_KEY: "test-key"
+          AIRTABLE_BASE_ID: "test-base"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          verbose: true
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
+
+      - name: Install Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-venv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-security-${{ runner.os }}-py3.14-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            venv-security-${{ runner.os }}-py3.14-
+
+      - name: Install dependencies
+        if: steps.cached-venv.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction
+
+      - name: Run Bandit security linter
+        run: poetry run bandit -r pybot -x pybot/_vendor --skip B101 -f json -o bandit-report.json || true
+
+      - name: Display Bandit results
+        run: poetry run bandit -r pybot -x pybot/_vendor --skip B101 -f txt || true
+
+      - name: Check for known vulnerabilities
+        run: poetry run safety scan --output text || true
+        continue-on-error: true
+
+  # Final status check for branch protection
+  ci-success:
+    name: CI Success
+    needs: [lint, test, security]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]]; then
+            echo "Lint job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test.result }}" != "success" ]]; then
+            echo "Test job failed"
+            exit 1
+          fi
+          # Security is informational, doesn't fail CI
+          echo "All required jobs passed!"

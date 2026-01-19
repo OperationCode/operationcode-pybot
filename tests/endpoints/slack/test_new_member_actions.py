@@ -5,18 +5,19 @@ Covers: resource_buttons(), open_suggestion(), post_suggestion(),
         member_greeted(), reset_greet(), member_messaged(), reset_message()
 """
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 from pybot._vendor.sirbot import SirBot
 from pybot.endpoints.slack.actions.new_member import (
-    resource_buttons,
+    member_greeted,
+    member_messaged,
     open_suggestion,
     post_suggestion,
-    member_greeted,
     reset_greet,
-    member_messaged,
     reset_message,
+    resource_buttons,
 )
 from tests.fixtures import SlackMock
 
@@ -183,7 +184,9 @@ class TestOpenSuggestion:
 class TestPostSuggestion:
     """Tests for post_suggestion() handler."""
 
-    async def test_post_suggestion_posts_to_community_channel(self, bot: SirBot, slack_mock: SlackMock):
+    async def test_post_suggestion_posts_to_community_channel(
+        self, bot: SirBot, slack_mock: SlackMock
+    ):
         """post_suggestion() posts to the community channel."""
         action = make_suggestion_submission(
             user_id="U456",

@@ -10,8 +10,9 @@ Environment variables required:
 """
 
 import os
-import pytest
+
 import aiohttp
+import pytest
 
 from pybot.plugins.airtable.api import AirtableAPI
 

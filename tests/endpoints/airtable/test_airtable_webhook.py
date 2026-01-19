@@ -5,26 +5,29 @@ Covers: mentor_request webhook handler, utility functions for creating messages,
         finding mentors, and posting to Slack.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from pybot._vendor.sirbot import SirBot
 from pybot.endpoints.airtable.requests import mentor_request
 from pybot.endpoints.airtable.utils import (
-    _get_requested_mentor,
-    _slack_user_id_from_email,
-    _get_matching_skillset_mentors,
     _create_messages,
+    _get_matching_skillset_mentors,
+    _get_requested_mentor,
     _post_messages,
+    _slack_user_id_from_email,
 )
 from tests.data.blocks import ZAPIER_MENTOR_REQUEST, ZAPIER_MENTOR_REQUEST_WITH_MENTOR
-from tests.fixtures import SlackMock, AirtableMock
+from tests.fixtures import AirtableMock, SlackMock
 
 
 class TestMentorRequestWebhook:
     """Tests for the mentor_request webhook handler."""
 
-    async def test_posts_to_mentor_channel(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_posts_to_mentor_channel(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Webhook posts a message to the mentor channel."""
         request = ZAPIER_MENTOR_REQUEST.copy()
 
@@ -36,7 +39,9 @@ class TestMentorRequestWebhook:
         # Should have posted a message
         slack_mock.assert_called_with_method("chat.postMessage")
 
-    async def test_message_includes_claim_button(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_message_includes_claim_button(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Posted message includes a claim button."""
         request = ZAPIER_MENTOR_REQUEST.copy()
 
@@ -54,7 +59,9 @@ class TestMentorRequestWebhook:
         attachments = data["attachments"]
         assert len(attachments) > 0
 
-    async def test_includes_requested_mentor_when_provided(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_includes_requested_mentor_when_provided(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Message includes the requested mentor when specified."""
         request = ZAPIER_MENTOR_REQUEST_WITH_MENTOR.copy()
 
@@ -67,14 +74,20 @@ class TestMentorRequestWebhook:
 
         slack_mock.assert_called_with_method("chat.postMessage")
 
-    async def test_finds_matching_mentors(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_finds_matching_mentors(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """Handler finds mentors matching the requested skillsets."""
         request = ZAPIER_MENTOR_REQUEST.copy()
         request["skillsets"] = "Python,AWS"
 
         airtable_mock.setup_service("Resume Review", "recSVC001")
-        airtable_mock.setup_mentor("Jane Mentor", "mentor1@example.com", skillsets=["Python", "JavaScript"])
-        airtable_mock.setup_mentor("John Mentor", "mentor2@example.com", skillsets=["AWS", "DevOps"])
+        airtable_mock.setup_mentor(
+            "Jane Mentor", "mentor1@example.com", skillsets=["Python", "JavaScript"]
+        )
+        airtable_mock.setup_mentor(
+            "John Mentor", "mentor2@example.com", skillsets=["AWS", "DevOps"]
+        )
         slack_mock.setup_lookup_by_email("requester@example.com", "U456REQUESTER")
         slack_mock.setup_lookup_by_email("mentor1@example.com", "U001")
         slack_mock.setup_lookup_by_email("mentor2@example.com", "U002")
@@ -83,7 +96,9 @@ class TestMentorRequestWebhook:
 
         slack_mock.assert_called_with_method("chat.postMessage")
 
-    async def test_user_email_fallback(self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock):
+    async def test_user_email_fallback(
+        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock
+    ):
         """When user email lookup fails, uses fallback message."""
         request = ZAPIER_MENTOR_REQUEST.copy()
 

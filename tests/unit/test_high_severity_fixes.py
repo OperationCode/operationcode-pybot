@@ -5,8 +5,9 @@ These tests cover the edge cases identified in CLAUDE_CODE_REVIEW.md that could
 cause crashes or stacktraces in production.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from pybot.endpoints.slack.utils.slash_lunch import LunchCommand
 from pybot.plugins.airtable.api import AirtableAPI
@@ -137,9 +138,7 @@ class TestAirtableAPIEmptyFields:
                 return {"error": {"message": "Rate limited"}}
 
         with patch.object(airtable_api, "get", side_effect=mock_get):
-            result = await airtable_api._depaginate_records(
-                "http://test", {}, "initial_offset"
-            )
+            result = await airtable_api._depaginate_records("http://test", {}, "initial_offset")
 
         # Should return the records from the first page only
         assert len(result) == 1
@@ -224,9 +223,7 @@ class TestEmptyMentorDict:
 
         mock_slack = AsyncMock()
         mock_airtable = AsyncMock()
-        mock_airtable.get_row_from_record_id.return_value = {
-            "Name": "John Doe"
-        }  # No Email field
+        mock_airtable.get_row_from_record_id.return_value = {"Name": "John Doe"}  # No Email field
 
         result = await _get_requested_mentor("rec123", mock_slack, mock_airtable)
 
@@ -262,9 +259,7 @@ class TestMissingEmailKeyError:
         from pybot.endpoints.slack.utils.event_utils import link_backend_user
 
         mock_slack_api = AsyncMock()
-        mock_slack_api.query.return_value = {
-            "user": {"profile": {}}  # No email field
-        }
+        mock_slack_api.query.return_value = {"user": {"profile": {}}}  # No email field
         mock_session = AsyncMock()
 
         # Should not raise, should return early

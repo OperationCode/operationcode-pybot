@@ -125,7 +125,9 @@ async def replay_team_join(
                 except Exception as e:
                     logger.error(f"  Failed to link backend user: {e}")
             else:
-                logger.error("  Backend authentication failed - check BACKEND_USERNAME/BACKEND_PASS")
+                logger.error(
+                    "  Backend authentication failed - check BACKEND_USERNAME/BACKEND_PASS"
+                )
         else:
             logger.info("Skipping backend linking (--skip-backend)")
 

@@ -184,10 +184,7 @@ class TestMentorVolunteerSubmission:
         # Find the actions block
         actions_block = volunteer.blocks[1]
         assert actions_block["type"] == "actions"
-        assert any(
-            e.get("action_id") == "cancel_btn"
-            for e in actions_block.get("elements", [])
-        )
+        assert any(e.get("action_id") == "cancel_btn" for e in actions_block.get("elements", []))
 
     def test_on_submit_success_mentions_mentor_channel(self):
         """Success message mentions the mentor channel."""

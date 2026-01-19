@@ -5,15 +5,16 @@ Tests cover property getters/setters, validation logic, skillset handling,
 and error attachment handling.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
 from pybot.endpoints.slack.message_templates.mentor_request import (
+    BlockIndex,
     MentorRequest,
     MentorRequestClaim,
-    BlockIndex,
 )
-from tests.data.blocks import make_mentor_request_action, make_claim_mentee_action
+from tests.data.blocks import make_claim_mentee_action, make_mentor_request_action
 
 
 class TestMentorRequestProperties:
@@ -38,7 +39,10 @@ class TestMentorRequestProperties:
         action = make_mentor_request_action()
         request = MentorRequest(action)
 
-        new_option = {"text": {"type": "plain_text", "text": "Mock Interview"}, "value": "Mock Interview"}
+        new_option = {
+            "text": {"type": "plain_text", "text": "Mock Interview"},
+            "value": "Mock Interview",
+        }
         request.service = new_option
 
         assert request.blocks[BlockIndex.SERVICE]["accessory"]["initial_option"] == new_option
@@ -399,7 +403,9 @@ class TestMentorRequestClaim:
         claim = MentorRequestClaim(action, slack_mock, airtable_mock)
         await claim.claim_request("recMENTOR001")
 
-        assert "claimed by" in claim.attachment["text"].lower() or ":100:" in claim.attachment["text"]
+        assert (
+            "claimed by" in claim.attachment["text"].lower() or ":100:" in claim.attachment["text"]
+        )
         assert claim.should_update is True
 
     @pytest.mark.asyncio
@@ -414,7 +420,10 @@ class TestMentorRequestClaim:
         await claim.claim_request(None)
 
         assert ":warning:" in claim.attachment["text"]
-        assert "not found" in claim.attachment["text"].lower() or "email" in claim.attachment["text"].lower()
+        assert (
+            "not found" in claim.attachment["text"].lower()
+            or "email" in claim.attachment["text"].lower()
+        )
         assert claim.should_update is False
 
     @pytest.mark.asyncio

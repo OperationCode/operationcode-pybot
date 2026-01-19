@@ -5,26 +5,31 @@ Covers: add_volunteer_skillset, clear_volunteer_skillsets, submit_mentor_volunte
         build_airtable_fields
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.slack.exceptions import SlackAPIError
 from pybot.endpoints.slack.actions.mentor_volunteer import (
     add_volunteer_skillset,
+    build_airtable_fields,
     clear_volunteer_skillsets,
     submit_mentor_volunteer,
-    build_airtable_fields,
 )
 from tests.data.blocks import make_mentor_volunteer_action
-from tests.fixtures import SlackMock, AirtableMock, AdminSlackMock
+from tests.fixtures import AdminSlackMock, AirtableMock, SlackMock
 
 
 class TestSubmitMentorVolunteer:
     """Tests for submit_mentor_volunteer handler."""
 
     async def test_submit_success_creates_airtable_record(
-        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock, admin_slack_mock: AdminSlackMock
+        self,
+        bot: SirBot,
+        slack_mock: SlackMock,
+        airtable_mock: AirtableMock,
+        admin_slack_mock: AdminSlackMock,
     ):
         """Successful submission creates an Airtable record."""
         action = make_mentor_volunteer_action(
@@ -33,7 +38,9 @@ class TestSubmitMentorVolunteer:
             skillsets=["Python", "JavaScript"],
         )
 
-        slack_mock.setup_user_info("U123", email="volunteer@example.com", name="testuser", real_name="Test User")
+        slack_mock.setup_user_info(
+            "U123", email="volunteer@example.com", name="testuser", real_name="Test User"
+        )
 
         await submit_mentor_volunteer(action, bot)
 
@@ -41,7 +48,11 @@ class TestSubmitMentorVolunteer:
         airtable_mock.assert_record_added("Mentors")
 
     async def test_submit_success_invites_to_channel(
-        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock, admin_slack_mock: AdminSlackMock
+        self,
+        bot: SirBot,
+        slack_mock: SlackMock,
+        airtable_mock: AirtableMock,
+        admin_slack_mock: AdminSlackMock,
     ):
         """Successful submission invites user to mentor channel."""
         action = make_mentor_volunteer_action(
@@ -57,7 +68,11 @@ class TestSubmitMentorVolunteer:
         admin_slack_mock.assert_invited_to_channel("mentors-internal", "U123")
 
     async def test_submit_handles_invite_error_gracefully(
-        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock, admin_slack_mock: AdminSlackMock
+        self,
+        bot: SirBot,
+        slack_mock: SlackMock,
+        airtable_mock: AirtableMock,
+        admin_slack_mock: AdminSlackMock,
     ):
         """Submission continues even if channel invite fails."""
         action = make_mentor_volunteer_action(
@@ -77,7 +92,11 @@ class TestSubmitMentorVolunteer:
         airtable_mock.assert_record_added("Mentors")
 
     async def test_submit_validation_fails_without_skillsets(
-        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock, admin_slack_mock: AdminSlackMock
+        self,
+        bot: SirBot,
+        slack_mock: SlackMock,
+        airtable_mock: AirtableMock,
+        admin_slack_mock: AdminSlackMock,
     ):
         """Submission fails validation when no skillsets selected."""
         action = make_mentor_volunteer_action(
@@ -95,7 +114,11 @@ class TestSubmitMentorVolunteer:
         slack_mock.assert_called_with_method("chat.update")
 
     async def test_submit_handles_airtable_error(
-        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock, admin_slack_mock: AdminSlackMock
+        self,
+        bot: SirBot,
+        slack_mock: SlackMock,
+        airtable_mock: AirtableMock,
+        admin_slack_mock: AdminSlackMock,
     ):
         """Submission handles Airtable errors gracefully."""
         action = make_mentor_volunteer_action(
@@ -112,7 +135,11 @@ class TestSubmitMentorVolunteer:
         slack_mock.assert_called_with_method("chat.update")
 
     async def test_submit_updates_message_on_success(
-        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock, admin_slack_mock: AdminSlackMock
+        self,
+        bot: SirBot,
+        slack_mock: SlackMock,
+        airtable_mock: AirtableMock,
+        admin_slack_mock: AdminSlackMock,
     ):
         """Successful submission updates message with success state."""
         action = make_mentor_volunteer_action(
@@ -178,6 +205,7 @@ class TestBuildAirtableFields:
         )
 
         from pybot.endpoints.slack.message_templates.mentor_volunteer import MentorVolunteer
+
         request = MentorVolunteer(action)
 
         user_info = {
@@ -202,6 +230,7 @@ class TestBuildAirtableFields:
         )
 
         from pybot.endpoints.slack.message_templates.mentor_volunteer import MentorVolunteer
+
         request = MentorVolunteer(action)
 
         user_info = {
@@ -221,7 +250,11 @@ class TestMentorVolunteerIntegration:
     """Integration tests for the full mentor volunteer flow."""
 
     async def test_full_volunteer_flow(
-        self, bot: SirBot, slack_mock: SlackMock, airtable_mock: AirtableMock, admin_slack_mock: AdminSlackMock
+        self,
+        bot: SirBot,
+        slack_mock: SlackMock,
+        airtable_mock: AirtableMock,
+        admin_slack_mock: AdminSlackMock,
     ):
         """Test the full flow from adding skillsets to submission."""
         # Step 1: Add first skillset
@@ -246,7 +279,9 @@ class TestMentorVolunteerIntegration:
             skillsets=["Python", "JavaScript"],
         )
 
-        slack_mock.setup_user_info("U123", email="volunteer@example.com", real_name="Test Volunteer")
+        slack_mock.setup_user_info(
+            "U123", email="volunteer@example.com", real_name="Test Volunteer"
+        )
 
         await submit_mentor_volunteer(submit_action, bot)
 
