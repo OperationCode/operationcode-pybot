@@ -1,14 +1,13 @@
 import logging.config
 import os
 
-import sentry_sdk
 import yaml
-from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.sirbot.plugins.slack import SlackPlugin
 from pybot.endpoints import handle_health_check
 from pybot.endpoints.slack.utils import HOST, PORT, slack_configs
+from pybot.sentry import init_sentry
 
 from . import endpoints
 from .plugins import AirtablePlugin, APIPlugin
@@ -25,13 +24,7 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
         logger.exception(e)
 
-    if "SENTRY_DSN" in os.environ:
-        sentry_sdk.init(
-            dsn=os.environ["SENTRY_DSN"],
-            release=os.environ.get("VERSION", "1.0.0"),
-            environment=os.environ.get("ENVIRONMENT", "production"),
-            integrations=[AioHttpIntegration()],
-        )
+    init_sentry()
 
     bot = SirBot()
 

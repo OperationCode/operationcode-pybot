@@ -24,6 +24,8 @@ black = "^25.0"
 ruff = "^0.14"
 requests = "^2.31"
 pytest-cov = "^7.0.0"
+bandit = "^1.9.3"
+safety = "^3.7.0"
 
 [tool.poetry.scripts]
 pybot-manage = "manage:main"

@@ -5,8 +5,9 @@ Covers: open_report_dialog(), send_report()
 """
 
 import json
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from pybot._vendor.sirbot import SirBot
 from pybot._vendor.slack.actions import Action
@@ -81,7 +82,9 @@ class TestOpenReportDialog:
         data = calls[0][1]
         assert data["trigger_id"] == "trigger999"
 
-    async def test_open_report_dialog_includes_dialog_config(self, bot: SirBot, slack_mock: SlackMock):
+    async def test_open_report_dialog_includes_dialog_config(
+        self, bot: SirBot, slack_mock: SlackMock
+    ):
         """open_report_dialog() includes dialog configuration."""
         action = make_report_action()
 

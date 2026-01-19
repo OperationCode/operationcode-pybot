@@ -4,14 +4,15 @@ Tests for general action handlers.
 Covers: claimed(), reset_claim(), delete_message()
 """
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 from pybot._vendor.sirbot import SirBot
 from pybot.endpoints.slack.actions.general_actions import (
     claimed,
-    reset_claim,
     delete_message,
+    reset_claim,
 )
 from tests.fixtures import SlackMock
 

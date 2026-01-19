@@ -84,7 +84,9 @@ class AirtableAPI:
             # Check for Airtable API error response
             if "error" in res_json:
                 error_msg = res_json["error"].get("message", "Unknown error")
-                logger.error(f"Airtable API error for record {record_id} in {table_name}: {error_msg}")
+                logger.error(
+                    f"Airtable API error for record {record_id} in {table_name}: {error_msg}"
+                )
                 return {}
 
             return res_json["fields"]
@@ -104,9 +106,7 @@ class AirtableAPI:
         if "error" in res_json:
             error_msg = res_json["error"].get("message", "Unknown error")
             error_type = res_json["error"].get("type", "Unknown type")
-            logger.error(
-                f"Airtable API error for table '{table_name}': {error_type} - {error_msg}"
-            )
+            logger.error(f"Airtable API error for table '{table_name}': {error_type} - {error_msg}")
             raise ValueError(
                 f"Airtable API error: {error_type} - {error_msg}. "
                 f"Check AIRTABLE_API_KEY (must be a Personal Access Token starting with 'pat...') "

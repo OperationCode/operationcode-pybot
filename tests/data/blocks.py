@@ -109,9 +109,7 @@ def make_mentor_request_blocks(
 
     # Add skillsets if provided
     if skillsets:
-        blocks[4]["fields"] = [
-            {"type": "plain_text", "text": s, "emoji": True} for s in skillsets
-        ]
+        blocks[4]["fields"] = [{"type": "plain_text", "text": s, "emoji": True} for s in skillsets]
 
     # Add details if provided
     if details:
@@ -462,9 +460,7 @@ class BlockActionPayload(Enum):
         make_mentor_volunteer_action(skillsets=["Python", "JavaScript"])
     )
 
-    MENTOR_VOLUNTEER_NO_SKILLSETS = json.dumps(
-        make_mentor_volunteer_action(skillsets=None)
-    )
+    MENTOR_VOLUNTEER_NO_SKILLSETS = json.dumps(make_mentor_volunteer_action(skillsets=None))
 
     CLAIM_MENTEE = json.dumps(make_claim_mentee_action(is_claim=True))
 

@@ -56,7 +56,9 @@ async def submit_mentor_volunteer(action: Action, app: SirBot) -> None:
                 {"channel": MENTOR_CHANNEL, "users": [user_id]},
             )
         except SlackAPIError as error:
-            logger.debug("Error during mentor channel invite %s", error.data.get("errors", error.data))
+            logger.debug(
+                "Error during mentor channel invite %s", error.data.get("errors", error.data)
+            )
 
         request.on_submit_success()
 
