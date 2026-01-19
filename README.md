@@ -1,24 +1,17 @@
 <div align="center">
-  <a href="https://operationcode.org" height="750" width="750">
+  <a href="https://operationcode.org">
     <img
-      alt="Operation Code Hacktoberfest Banner"
-      src="https://operation-code-assets.s3.us-east-2.amazonaws.com/operationcode_hacktoberfest_2020.jpg"
+      alt="Operation Code Logo"
+      src="https://operation-code-assets.s3.us-east-2.amazonaws.com/branding/logos/large-blue-logo.png"
+      width="400"
     >
   </a>
 </div>
 <br />
-<br />
-
-
-<br />
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Twitter Follow](https://img.shields.io/twitter/follow/operation_code.svg?style=social&label=Follow&style=social)](https://twitter.com/operation_code)
-[![Code-style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-
-
-[![CircleCI](https://circleci.com/gh/OperationCode/operationcode-pybot.svg?style=svg)](https://circleci.com/gh/OperationCode/operationcode-pybot)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=OperationCode/operationcode-pybot)](https://dependabot.com)
+[![CI](https://github.com/OperationCode/operationcode-pybot/actions/workflows/ci.yml/badge.svg)](https://github.com/OperationCode/operationcode-pybot/actions/workflows/ci.yml)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://contributor-covenant.org/)
 
 # [OperationCode-Pybot](https://github.com/OperationCode/operationcode-pybot)
@@ -41,7 +34,7 @@ The vendored code has been modernized with:
 - Removed deprecated `asyncio.coroutine()` usage
 - Fixed deprecated `loop=` parameter patterns
 - Replaced removed `cgi` module with `email.message`
-- Added Python 3.12 type hints
+- Added Python 3.12+ type hints
 
 ## Resources
 * [Slack Bot Tutorial](https://www.digitalocean.com/community/tutorials/how-to-build-a-slackbot-in-python-on-ubuntu-20-04)
@@ -54,9 +47,9 @@ Bug reports and pull requests are welcome on [Github](https://github.com/Operati
 
 ## Quick Start
 Recommended versions of tools used within the repo:
-- `python@3.12` or greater (Python 3.13+ also supported)
+- `python@3.14` or greater
 - `git@2.17.1` or greater
-- `poetry@1.0` or greater
+- `poetry@2.0` or greater
     - [Poetry](https://python-poetry.org/) is a packaging and dependency manager, similar to pip or pipenv
     - Install via: `curl -sSL https://install.python-poetry.org | python3 -`
     - See https://python-poetry.org/docs/
@@ -73,7 +66,7 @@ poetry run python -m pybot
 poetry run pytest
 
 # Run formatting and linting
-poetry run black pybot/ tests/
+poetry run ruff format pybot/ tests/
 poetry run ruff check pybot/ tests/
 ```
 
@@ -253,7 +246,7 @@ Command | Description | Usage Hint
 /ticket | submit ticket to admins | (text of ticket)
 
 
-**👋 IMPORTANT!**
+**IMPORTANT!**
 
 The `/lunch` command requires a valid Yelp API token stored in the `YELP_TOKEN`
 environment variable. See https://www.yelp.com/developers/faq
@@ -264,7 +257,7 @@ functionality please reach out to the `#oc-python-projects` channel for help get
 
 ### Airtable Authentication
 
-**⚠️ IMPORTANT:** Airtable deprecated API keys on February 1, 2024. You must use a **Personal Access Token (PAT)**:
+**IMPORTANT:** Airtable deprecated API keys on February 1, 2024. You must use a **Personal Access Token (PAT)**:
 
 1. Go to [Airtable Developer Hub](https://airtable.com/create/tokens)
 2. Click **Create new token**
