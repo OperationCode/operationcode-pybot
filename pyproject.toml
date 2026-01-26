@@ -12,7 +12,7 @@ python = "^3.12"
 aiohttp = "^3.9"
 python-dotenv = "^1.0"
 pyyaml = "^6.0"
-sentry-sdk = "^2.0"
+sentry-sdk = "^2.50"
 zipcodes = "^1.2"
 
 [tool.poetry.group.dev.dependencies]
