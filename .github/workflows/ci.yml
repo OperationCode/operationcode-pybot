@@ -164,17 +164,100 @@ jobs:
       - name: Display Bandit results
         run: poetry run bandit -r pybot -x pybot/_vendor --skip B101 -f txt || true
 
+  docker-build-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-24.04-arm
+    # Run on push to master (build+push) and on PRs (build only)
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    # Wait for CI checks to pass
+    needs: [ci-success]
+    permissions:
+      id-token: write  # Required for OIDC authentication
+      contents: read   # Required to checkout code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine push eligibility
+        id: can-push
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "push=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]; then
+            echo "push=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "push=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Determine Docker tags
+        id: docker-tag
+        run: |
+          ECR=633607774026.dkr.ecr.us-east-2.amazonaws.com/pybot
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            echo "images=${ECR}:prod,${ECR}:latest" >> "$GITHUB_OUTPUT"
+            echo "environment=Production" >> "$GITHUB_OUTPUT"
+          else
+            echo "images=${ECR}:staging" >> "$GITHUB_OUTPUT"
+            echo "environment=Staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: Configure AWS credentials
+        if: steps.can-push.outputs.push == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubActions-DockerBuild-${{ steps.docker-tag.outputs.environment }}
+          aws-region: us-east-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        if: steps.can-push.outputs.push == 'true'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: prod
+          platforms: linux/arm64
+          push: ${{ steps.can-push.outputs.push == 'true' }}
+          tags: ${{ steps.docker-tag.outputs.images }}
+          provenance: false
+          cache-from: type=gha,scope=arm64
+          cache-to: type=gha,mode=max,scope=arm64
+
+      - name: Output image URI
+        if: steps.can-push.outputs.push == 'true'
+        run: |
+          echo "Successfully pushed ${{ steps.docker-tag.outputs.environment }} images:"
+          echo "${{ steps.docker-tag.outputs.images }}"
+
   # Final status check for branch protection
   ci-success:
     name: CI Success
     needs: [lint, test, security]
     runs-on: ubuntu-latest
+    # Always run to satisfy docker-build-push dependency
     if: always()
     steps:
       - name: Check all jobs passed
         run: |
+          if [[ "${{ needs.lint.result }}" == "skipped" ]]; then
+            echo "Lint job was skipped"
+            exit 1
+          fi
           if [[ "${{ needs.lint.result }}" != "success" ]]; then
             echo "Lint job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test.result }}" == "skipped" ]]; then
+            echo "Test job was skipped"
             exit 1
           fi
           if [[ "${{ needs.test.result }}" != "success" ]]; then
