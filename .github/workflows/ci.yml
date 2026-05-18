@@ -164,10 +164,6 @@ jobs:
       - name: Display Bandit results
         run: poetry run bandit -r pybot -x pybot/_vendor --skip B101 -f txt || true
 
-      - name: Check for known vulnerabilities
-        run: poetry run safety scan --output text || true
-        continue-on-error: true
-
   # Final status check for branch protection
   ci-success:
     name: CI Success
