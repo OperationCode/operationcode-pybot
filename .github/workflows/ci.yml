@@ -208,7 +208,7 @@ jobs:
 
       - name: Configure AWS credentials
         if: steps.can-push.outputs.push == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActions-DockerBuild-${{ steps.docker-tag.outputs.environment }}
