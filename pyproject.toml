@@ -8,19 +8,19 @@ readme = "README.md"
 packages = [{include = "pybot"}]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.14"
 aiohttp = "^3.9"
 python-dotenv = "^1.0"
 pyyaml = "^6.0"
 sentry-sdk = "^2.0"
 zipcodes = "^1.2"
+multidict = "^6.9.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0"
 pytest-asyncio = "^1.0"
 pytest-aiohttp = "^1.0"
 pytest-mock = "^3.12"
-black = "^26.0"
 ruff = "^0.15"
 requests = "^2.31"
 pytest-cov = "^7.0.0"
@@ -39,13 +39,9 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
 extend-exclude = ["pybot/_vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
 ignore = ["F401", "E501"]  # Allow re-exports and longer lines for now
-
-[tool.black]
-line-length = 100
-target-version = ["py312"]

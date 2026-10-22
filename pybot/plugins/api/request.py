@@ -71,7 +71,7 @@ class SlackApiRequest(MutableMapping):
     def __repr__(self):
         return "API Request: " + str(self.request)
 
-    def clone(self) -> "SlackApiRequest":
+    def clone(self) -> SlackApiRequest:
         return self.__class__(
             copy.deepcopy(self.request),
             copy.deepcopy(self.resource),

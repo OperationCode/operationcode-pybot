@@ -1,16 +1,19 @@
-FROM python:3.14-slim AS base
+# Pin the exact patch release and Debian suite. A new tag invalidates the CI
+# build cache, so the apt-get upgrade below runs again and picks up security fixes.
+FROM python:3.14.9-slim-trixie AS base
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/*
 
 FROM base AS builder
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
     PYTHONUNBUFFERED=1 \
-    POETRY_VERSION=2.4.0 \
+    POETRY_VERSION=2.5.1 \
     POETRY_HOME="/opt/poetry" \
     POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_VIRTUALENVS_OPTIONS_NO_PIP=true \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 
 # Install build dependencies
@@ -42,6 +45,9 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
     PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
+
+# pip is not used at runtime, and its vendored packages carry CVEs
+RUN python -m pip uninstall -y pip
 
 # Copy application and virtual environment from builder
 COPY --from=builder /app ./

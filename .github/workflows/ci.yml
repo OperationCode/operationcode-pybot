@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 env:
-  POETRY_VERSION: "2.3.0"
+  POETRY_VERSION: "2.5.1"
   POETRY_VIRTUALENVS_IN_PROJECT: true
 
 jobs:
