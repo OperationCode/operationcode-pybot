@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "pybot"}]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.14"
 aiohttp = "^3.9"
 python-dotenv = "^1.0"
 pyyaml = "^6.0"
@@ -40,7 +40,7 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
 extend-exclude = ["pybot/_vendor"]
 
 [tool.ruff.lint]
@@ -49,4 +49,4 @@ ignore = ["F401", "E501"]  # Allow re-exports and longer lines for now
 
 [tool.black]
 line-length = 100
-target-version = ["py312"]
+target-version = ["py314"]

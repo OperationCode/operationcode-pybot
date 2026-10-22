@@ -28,7 +28,7 @@ class TestRollParsing:
             text = input_text.lower()
             numdice, typedice = [int(num) for num in text.split("d")]
             valid = 0 < numdice <= 10 and 0 < typedice <= 20
-        except (ValueError, IndexError):
+        except ValueError, IndexError:
             valid = False
 
         assert valid == expected_valid

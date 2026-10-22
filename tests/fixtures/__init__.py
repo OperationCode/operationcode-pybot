@@ -103,7 +103,7 @@ class SlackMock:
         email: str | None = None,
         name: str = "Test User",
         real_name: str = "Test User",
-    ) -> "SlackMock":
+    ) -> SlackMock:
         """Configure response for users.info API call."""
         profile = {"real_name": real_name}
         if email:
@@ -120,17 +120,17 @@ class SlackMock:
         }
         return self
 
-    def setup_method_response(self, method: str, response: Any) -> "SlackMock":
+    def setup_method_response(self, method: str, response: Any) -> SlackMock:
         """Configure response for a specific Slack API method."""
         self._method_responses[method] = response
         return self
 
-    def setup_error_response(self, method: str, error: Exception) -> "SlackMock":
+    def setup_error_response(self, method: str, error: Exception) -> SlackMock:
         """Configure an error to be raised for a specific method."""
         self._error_responses[method] = error
         return self
 
-    def setup_lookup_by_email(self, email: str, user_id: str) -> "SlackMock":
+    def setup_lookup_by_email(self, email: str, user_id: str) -> SlackMock:
         """Configure users.lookupByEmail response."""
         self._email_lookup[email] = user_id
         return self
@@ -287,7 +287,7 @@ class AirtableMock:
             return [m.get(field) for m in self._mentors.values() if m.get(field)]
         return []
 
-    def setup_service(self, name: str, record_id: str | None = None) -> "AirtableMock":
+    def setup_service(self, name: str, record_id: str | None = None) -> AirtableMock:
         """Add a service to the mock."""
         record_id = record_id or f"recsvc{len(self._services)}"
         self._services[record_id] = {"Name": name}
@@ -300,7 +300,7 @@ class AirtableMock:
         skillsets: list[str] | None = None,
         record_id: str | None = None,
         slack_name: str | None = None,
-    ) -> "AirtableMock":
+    ) -> AirtableMock:
         """Add a mentor to the mock."""
         record_id = record_id or f"recmentor{len(self._mentors)}"
         self._mentors[record_id] = {
@@ -311,7 +311,7 @@ class AirtableMock:
         }
         return self
 
-    def setup_error(self, table: str, operation: str, error: Exception | str) -> "AirtableMock":
+    def setup_error(self, table: str, operation: str, error: Exception | str) -> AirtableMock:
         """Configure an error for a specific table/operation combination."""
         if isinstance(error, str):
             error = Exception(error)
@@ -388,7 +388,7 @@ class AdminSlackMock:
 
         return {"ok": True}
 
-    def setup_invite_error(self, error: Exception) -> "AdminSlackMock":
+    def setup_invite_error(self, error: Exception) -> AdminSlackMock:
         """Configure an error for channel invites."""
         from pybot._vendor.slack import methods
 

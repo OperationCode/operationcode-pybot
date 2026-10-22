@@ -48,9 +48,7 @@ class TechTermsGrabber:
 
         return re.compile(regex_string)
 
-    def _filter_matches(
-        self, lines: list[str], two_col_org_row: Pattern[str]
-    ) -> Generator[dict, None, None]:
+    def _filter_matches(self, lines: list[str], two_col_org_row: Pattern[str]) -> Generator[dict]:
         for line in lines:
             match = two_col_org_row.match(line).groupdict()
             if match.get("term") and match.get("definition"):
