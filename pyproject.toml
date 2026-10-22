@@ -14,6 +14,7 @@ python-dotenv = "^1.0"
 pyyaml = "^6.0"
 sentry-sdk = "^2.0"
 zipcodes = "^1.2"
+multidict = "^6.9.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0"
