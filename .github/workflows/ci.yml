@@ -5,6 +5,13 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  # Manual rebuild, e.g. to pick up Debian security updates when nothing in the repo changed
+  workflow_dispatch:
+    inputs:
+      no_cache:
+        description: "Build without layer cache (re-runs apt-get upgrade)"
+        type: boolean
+        default: true
 
 env:
   POETRY_VERSION: "2.5.1"
@@ -16,36 +23,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        id: setup-python
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
 
-      - name: Load cached Poetry installation
-        id: cached-poetry
-        uses: actions/cache@v4
-        with:
-          path: ~/.local
-          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
-
+      # pipx is preinstalled on GitHub runners; avoids a third-party install action
       - name: Install Poetry
-        if: steps.cached-poetry.outputs.cache-hit != 'true'
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: pipx install "poetry==${{ env.POETRY_VERSION }}" --python "${{ steps.setup-python.outputs.python-path }}"
 
       - name: Load cached venv
         id: cached-venv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .venv
-          key: venv-lint-${{ runner.os }}-py3.14-${{ hashFiles('poetry.lock') }}
+          key: venv-lint-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
           restore-keys: |
-            venv-lint-${{ runner.os }}-py3.14-
+            venv-lint-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-
 
       - name: Install dependencies
         if: steps.cached-venv.outputs.cache-hit != 'true'
@@ -62,36 +59,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python 3.14
-        uses: actions/setup-python@v5
+        id: setup-python
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
 
-      - name: Load cached Poetry installation
-        id: cached-poetry
-        uses: actions/cache@v4
-        with:
-          path: ~/.local
-          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
-
+      # pipx is preinstalled on GitHub runners; avoids a third-party install action
       - name: Install Poetry
-        if: steps.cached-poetry.outputs.cache-hit != 'true'
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: pipx install "poetry==${{ env.POETRY_VERSION }}" --python "${{ steps.setup-python.outputs.python-path }}"
 
       - name: Load cached venv
         id: cached-venv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .venv
-          key: venv-test-${{ runner.os }}-py3.14-${{ hashFiles('poetry.lock') }}
+          key: venv-test-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
           restore-keys: |
-            venv-test-${{ runner.os }}-py3.14-
+            venv-test-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-
 
       - name: Install dependencies
         if: steps.cached-venv.outputs.cache-hit != 'true'
@@ -112,7 +99,7 @@ jobs:
           AIRTABLE_BASE_ID: "test-base"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage.xml
           fail_ci_if_error: false
@@ -123,36 +110,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python 3.14
-        uses: actions/setup-python@v5
+        id: setup-python
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
 
-      - name: Load cached Poetry installation
-        id: cached-poetry
-        uses: actions/cache@v4
-        with:
-          path: ~/.local
-          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}
-
+      # pipx is preinstalled on GitHub runners; avoids a third-party install action
       - name: Install Poetry
-        if: steps.cached-poetry.outputs.cache-hit != 'true'
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: pipx install "poetry==${{ env.POETRY_VERSION }}" --python "${{ steps.setup-python.outputs.python-path }}"
 
       - name: Load cached venv
         id: cached-venv
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .venv
-          key: venv-security-${{ runner.os }}-py3.14-${{ hashFiles('poetry.lock') }}
+          key: venv-security-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
           restore-keys: |
-            venv-security-${{ runner.os }}-py3.14-
+            venv-security-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-
 
       - name: Install dependencies
         if: steps.cached-venv.outputs.cache-hit != 'true'
@@ -167,8 +144,8 @@ jobs:
   docker-build-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-24.04-arm
-    # Run on push to master (build+push) and on PRs (build only)
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    # Run on push to master (build+push), manual dispatch (build+push) and on PRs (build only)
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     # Wait for CI checks to pass
     needs: [ci-success]
     permissions:
@@ -176,12 +153,12 @@ jobs:
       contents: read   # Required to checkout code
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Determine push eligibility
         id: can-push
         run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
+          if [ "${{ github.event_name }}" == "push" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "push=true" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]; then
             echo "push=true" >> "$GITHUB_OUTPUT"
@@ -202,13 +179,13 @@ jobs:
           fi
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           platforms: linux/arm64
 
       - name: Configure AWS credentials
         if: steps.can-push.outputs.push == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActions-DockerBuild-${{ steps.docker-tag.outputs.environment }}
@@ -220,7 +197,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/Dockerfile
@@ -229,6 +206,8 @@ jobs:
           push: ${{ steps.can-push.outputs.push == 'true' }}
           tags: ${{ steps.docker-tag.outputs.images }}
           provenance: false
+          no-cache: ${{ inputs.no_cache == true }}
+          pull: ${{ inputs.no_cache == true }}
           cache-from: type=gha,scope=arm64
           cache-to: type=gha,mode=max,scope=arm64
 
