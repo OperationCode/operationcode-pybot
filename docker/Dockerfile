@@ -1,6 +1,6 @@
 # Pin the exact patch release and Debian suite. A new tag invalidates the CI
 # build cache, so the apt-get upgrade below runs again and picks up security fixes.
-FROM python:3.14.9-slim-trixie AS base
+FROM python:3.15.0-slim-trixie AS base
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/*
 
