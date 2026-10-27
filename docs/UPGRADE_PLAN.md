@@ -241,14 +241,12 @@ class TestAsyncHandlers:
         for handler in handlers:
             # Get the wrapped function if decorated
             func = getattr(handler, "__wrapped__", handler)
-            assert asyncio.iscoroutinefunction(func), \
-                f"{handler.__name__} must be async"
+            assert asyncio.iscoroutinefunction(func), f"{handler.__name__} must be async"
 
     def test_event_handlers_are_async(self):
         from pybot.endpoints.slack.events import team_join
 
-        assert asyncio.iscoroutinefunction(team_join), \
-            "team_join must be async"
+        assert asyncio.iscoroutinefunction(team_join), "team_join must be async"
 
     def test_action_handlers_are_async(self):
         from pybot.endpoints.slack.actions.general_actions import (
@@ -259,8 +257,7 @@ class TestAsyncHandlers:
 
         handlers = [claimed, delete_message, reset_claim]
         for handler in handlers:
-            assert asyncio.iscoroutinefunction(handler), \
-                f"{handler.__name__} must be async"
+            assert asyncio.iscoroutinefunction(handler), f"{handler.__name__} must be async"
 
 
 class TestPluginLoading:
@@ -268,11 +265,13 @@ class TestPluginLoading:
 
     def test_airtable_plugin_instantiates(self):
         from pybot.plugins.airtable.plugin import AirtablePlugin
+
         plugin = AirtablePlugin()
         assert plugin.__name__ == "airtable"
 
     def test_api_plugin_instantiates(self):
         from pybot.plugins.api.plugin import APIPlugin
+
         plugin = APIPlugin()
         assert plugin.__name__ == "api"
 ```
@@ -343,9 +342,7 @@ class TestLunchCommandResponse:
 
         mock_location = {
             "name": "Test Restaurant",
-            "location": {
-                "display_address": ["123 Main St", "Los Angeles, CA 90210"]
-            }
+            "location": {"display_address": ["123 Main St", "Los Angeles, CA 90210"]},
         }
 
         response = cmd._build_response_text(mock_location)
@@ -379,29 +376,29 @@ import pytest
 class TestRollParsing:
     """Test dice roll input parsing."""
 
-    @pytest.mark.parametrize("input_text,expected_valid", [
-        ("1d6", True),
-        ("2d10", True),
-        ("10d20", True),
-        ("1D6", True),  # Case insensitive
-        ("0d6", False),  # Zero dice
-        ("11d6", False),  # Too many dice
-        ("1d0", False),  # Zero sides
-        ("1d21", False),  # Too many sides
-        ("abc", False),  # Not a dice format
-        ("1d", False),  # Incomplete
-        ("d6", False),  # Missing count
-    ])
+    @pytest.mark.parametrize(
+        "input_text,expected_valid",
+        [
+            ("1d6", True),
+            ("2d10", True),
+            ("10d20", True),
+            ("1D6", True),  # Case insensitive
+            ("0d6", False),  # Zero dice
+            ("11d6", False),  # Too many dice
+            ("1d0", False),  # Zero sides
+            ("1d21", False),  # Too many sides
+            ("abc", False),  # Not a dice format
+            ("1d", False),  # Incomplete
+            ("d6", False),  # Missing count
+        ],
+    )
     def test_roll_input_validation(self, input_text, expected_valid):
         """Test various roll command inputs."""
         try:
             text = input_text.lower()
             numdice, typedice = [int(num) for num in text.split("d")]
-            valid = (
-                0 < numdice <= 10 and
-                0 < typedice <= 20
-            )
-        except (ValueError, IndexError):
+            valid = 0 < numdice <= 10 and 0 < typedice <= 20
+        except ValueError, IndexError:
             valid = False
 
         assert valid == expected_valid
@@ -628,6 +625,7 @@ class SlackAPI(_SlackAPI):
     def __init__(self, *, session: aiohttp.ClientSession, **kwargs) -> None:
         self._session = session
         super().__init__(**kwargs)
+
 
 # This should work as-is, but check for any loop= usage
 ```
@@ -875,9 +873,7 @@ class SlackPlugin:
         handler = _ensure_async(handler)
 
         if admin and not self.admins:
-            LOG.warning(
-                "Slack admin IDs are not set. Admin-limited endpoints will not work."
-            )
+            LOG.warning("Slack admin IDs are not set. Admin-limited endpoints will not work.")
 
         configuration = {"mention": mention, "admin": admin, "wait": wait}
         self.routers["message"].register(
@@ -906,9 +902,7 @@ class SlackPlugin:
         """Register handler for a block_actions type action."""
         handler = _ensure_async(handler)
         configuration = {"wait": wait}
-        self.routers["action"].register_block_action(
-            block_id, (handler, configuration), action_id
-        )
+        self.routers["action"].register_block_action(block_id, (handler, configuration), action_id)
 
     def on_dialog_submission(
         self,
@@ -919,14 +913,10 @@ class SlackPlugin:
         """Register handler for a dialog_submission type action."""
         handler = _ensure_async(handler)
         configuration = {"wait": wait}
-        self.routers["action"].register_dialog_submission(
-            callback_id, (handler, configuration)
-        )
+        self.routers["action"].register_dialog_submission(callback_id, (handler, configuration))
 
     async def find_bot_id(self, app: Any) -> None:
-        rep = await self.api.query(
-            url=methods.USERS_INFO, data={"user": self.bot_user_id}
-        )
+        rep = await self.api.query(url=methods.USERS_INFO, data={"user": self.bot_user_id})
         self.bot_id = rep["user"]["profile"]["bot_id"]
         LOG.warning(
             '`SLACK_BOT_ID` not set. For a faster start time set it to: "%s"',
@@ -938,6 +928,7 @@ class SlackPlugin:
 
 ```python
 """Slack plugin for sirbot."""
+
 from pybot._vendor.sirbot.plugins.slack.plugin import SlackPlugin
 
 __all__ = ["SlackPlugin"]
@@ -950,6 +941,7 @@ __all__ = ["SlackPlugin"]
 Vendored sirbot library for Python 3.12+
 Original: https://github.com/pyslackers/sir-bot-a-lot-2
 """
+
 from pybot._vendor.sirbot.bot import SirBot
 
 __all__ = ["SirBot"]
@@ -1083,6 +1075,7 @@ async def bot() -> SirBot:
     b = SirBot()
     # Manually create session for testing (normally done on startup)
     import aiohttp
+
     b["http_session"] = aiohttp.ClientSession()
 
     slack = SlackPlugin(
@@ -1299,12 +1292,8 @@ class APIPlugin:
     def load(self, sirbot):
         self.session = sirbot.http_session
 
-        sirbot.router.add_route(
-            "GET", "/pybot/api/v1/slack/{resource}", endpoints.slack_api
-        )
-        sirbot.router.add_route(
-            "POST", "/pybot/api/v1/slack/{resource}", endpoints.slack_api
-        )
+        sirbot.router.add_route("GET", "/pybot/api/v1/slack/{resource}", endpoints.slack_api)
+        sirbot.router.add_route("POST", "/pybot/api/v1/slack/{resource}", endpoints.slack_api)
 
     def on_get(self, request, handler, **kwargs):
         if not asyncio.iscoroutinefunction(handler):

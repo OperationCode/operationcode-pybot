@@ -101,13 +101,12 @@ class LunchCommand:
         :return: zip_code
         :rtype: str
         """
-        random_zip = 0
-        while not is_real(str(random_zip)):
-            range_start = 10**4
-            range_end = (10**5) - 1
+        range_start = 10**4
+        range_end = (10**5) - 1
+        while True:
             random_zip = randint(range_start, range_end)
-
-        return random_zip
+            if is_real(str(random_zip)):
+                return random_zip
 
     def _within_lunch_range(self, input_number: int) -> bool:
         return input_number <= self.DEFAULT_LUNCH_DISTANCE
