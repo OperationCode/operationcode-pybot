@@ -120,9 +120,7 @@ if not asyncio.iscoroutinefunction(handler):
 #### asyncio.get_event_loop() Behavior
 ```python
 # sirbot/bot.py current code:
-self["http_session"] = aiohttp.ClientSession(
-    loop=kwargs.get("loop") or asyncio.get_event_loop()
-)
+self["http_session"] = aiohttp.ClientSession(loop=kwargs.get("loop") or asyncio.get_event_loop())
 ```
 **Impact**: `asyncio.get_event_loop()` deprecation warnings in 3.10+, different behavior in 3.12.
 **Fix**: Remove explicit loop passing; aiohttp 3.9+ handles this automatically.

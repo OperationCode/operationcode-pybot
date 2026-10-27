@@ -91,9 +91,7 @@ params["Service"] = [service_records[0]["id"]]  # IndexError if no records found
 ```python
 res_json = await self.get(url, params=params)
 records = res_json["records"]  # KeyError if API returns error response
-self.record_id_to_name[table_name] = {
-    record["id"]: record["fields"]["Name"] for record in records
-}
+self.record_id_to_name[table_name] = {record["id"]: record["fields"]["Name"] for record in records}
 ```
 
 **Problem:** Airtable API error responses don't include `records` key. Also assumes all records have a `Name` field.
