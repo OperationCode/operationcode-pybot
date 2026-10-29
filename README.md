@@ -305,3 +305,4 @@ YELP_TOKEN | API token for Yelp Fusion API (required for `/lunch` command) | you
 
 ## License
 This package is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+<!-- Claude PR reviewer pilot test. -->
