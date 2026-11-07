@@ -108,6 +108,24 @@ def client_ip_from_forwarded_for(header, hops=1):
     return addresses[-hops]
 
 
+def trusted_proxy_hops():
+    """
+    Return SENTRY_TRUSTED_PROXY_HOPS, or 1 if it is not a positive integer.
+
+    This runs inside before_send. If it raised, Sentry would drop the event,
+    so a bad value must never raise.
+    """
+    raw = config("SENTRY_TRUSTED_PROXY_HOPS", default="1")
+    try:
+        hops = int(raw)
+    except TypeError, ValueError:
+        hops = 0
+    if hops < 1:
+        logging.getLogger(__name__).warning("Invalid SENTRY_TRUSTED_PROXY_HOPS=%r, using 1", raw)
+        return 1
+    return hops
+
+
 def set_client_ip_from_forwarded_for(event):
     """
     Replace the ALB's IP with the real client IP in the event.
@@ -128,8 +146,7 @@ def set_client_ip_from_forwarded_for(event):
     if not forwarded_for:
         return event
 
-    hops = config("SENTRY_TRUSTED_PROXY_HOPS", default=1, cast=int)
-    client_ip = client_ip_from_forwarded_for(forwarded_for, hops)
+    client_ip = client_ip_from_forwarded_for(forwarded_for, trusted_proxy_hops())
     if client_ip:
         env["REMOTE_ADDR"] = client_ip
     return event

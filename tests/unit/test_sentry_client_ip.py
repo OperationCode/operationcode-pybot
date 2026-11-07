@@ -76,3 +76,11 @@ def test_before_send_transaction_still_drops_404():
     event = make_event({"X-Forwarded-For": "203.0.113.7"})
     event["contexts"] = {"response": {"status_code": 404}}
     assert before_send_transaction(event, {}) is None
+
+
+@pytest.mark.parametrize("value", ["abc", "", "0", "-2", "1.5"])
+def test_before_send_invalid_hops_falls_back_to_one(monkeypatch, value):
+    """A bad SENTRY_TRUSTED_PROXY_HOPS must not raise, or Sentry drops the event."""
+    monkeypatch.setenv("SENTRY_TRUSTED_PROXY_HOPS", value)
+    event = make_event({"X-Forwarded-For": "198.51.100.1, 203.0.113.7"})
+    assert before_send(event, {})["request"]["env"]["REMOTE_ADDR"] == "203.0.113.7"
