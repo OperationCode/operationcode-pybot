@@ -7,6 +7,7 @@ Covers: team_join flow, message edit/delete logging, greeting messages,
 
 import inspect
 import logging
+import time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -215,3 +216,105 @@ class TestGetBackendAuthHeaders:
 
         assert "Authorization" in result
         assert "Bearer" in result["Authorization"]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [b"", b"not json", b"[1, 2]"],
+    ids=["empty", "invalid", "not-an-object"],
+)
+async def test_events_endpoint_rejects_bad_body(bot, aiohttp_client, body):
+    """A body that is not a JSON object returns 400, not an unhandled 500."""
+    client = await aiohttp_client(bot)
+
+    response = await client.post(
+        "/slack/events", data=body, headers={"Content-Type": "application/json"}
+    )
+    assert response.status == 400
+
+
+async def test_url_verification_without_token_returns_500(bot, aiohttp_client):
+    """A url_verification payload with no token is refused, not a KeyError."""
+    client = await aiohttp_client(bot)
+
+    response = await client.post(
+        "/slack/events", json={"type": "url_verification", "challenge": "abc"}
+    )
+    assert response.status == 500
+
+
+async def test_url_verification_with_valid_token(bot, aiohttp_client):
+    client = await aiohttp_client(bot)
+
+    response = await client.post(
+        "/slack/events",
+        json={"type": "url_verification", "token": "supersecuretoken", "challenge": "abc"},
+    )
+    assert response.status == 200
+    assert await response.text() == "abc"
+
+
+@pytest.fixture
+async def signed_bot():
+    """A bot whose Slack plugin has a signing_secret set (production mode)."""
+    import aiohttp
+
+    from pybot._vendor.sirbot import SirBot
+    from pybot._vendor.sirbot.plugins.slack import SlackPlugin
+
+    b = SirBot()
+    b["http_session"] = aiohttp.ClientSession()
+    slack = SlackPlugin(
+        token="token",
+        signing_secret="signing-secret",
+        bot_user_id="bot_user_id",
+        bot_id="bot_id",
+    )
+    endpoints.slack.create_endpoints(slack)
+    b.load_plugin(slack)
+    await slack._initialize_api(b)
+    yield b
+    await b["http_session"].close()
+
+
+BAD_SIGNATURE_HEADERS = [
+    pytest.param({}, id="no-headers"),
+    pytest.param({"X-Slack-Request-Timestamp": "abc", "X-Slack-Signature": "v0=x"}, id="bad-ts"),
+    pytest.param({"X-Slack-Request-Timestamp": str(int(time.time()))}, id="missing-signature"),
+    pytest.param({"X-Slack-Signature": "v0=x"}, id="missing-timestamp"),
+]
+
+
+@pytest.mark.parametrize("headers", BAD_SIGNATURE_HEADERS)
+async def test_signed_events_endpoint_rejects_bad_headers(signed_bot, aiohttp_client, headers):
+    """Missing or malformed Slack signature headers return 401, not a 500."""
+    client = await aiohttp_client(signed_bot)
+
+    response = await client.post("/slack/events", json={}, headers=headers)
+    assert response.status == 401
+
+
+@pytest.mark.parametrize("headers", BAD_SIGNATURE_HEADERS)
+async def test_signed_url_verification_rejects_bad_headers(
+    signed_bot, aiohttp_client, headers, caplog
+):
+    """url_verification keeps its 500 for a failed signature, without an unhandled exception."""
+    client = await aiohttp_client(signed_bot)
+    caplog.set_level(logging.ERROR, logger="aiohttp.server")
+
+    response = await client.post(
+        "/slack/events", json={"type": "url_verification", "challenge": "abc"}, headers=headers
+    )
+    assert response.status == 500
+    # aiohttp logs an unhandled handler exception on "aiohttp.server" with exc_info.
+    # Check the record, not the message text, so a reworded message cannot hide it.
+    unhandled = [r for r in caplog.records if r.name == "aiohttp.server" and r.exc_info]
+    assert not unhandled
+
+
+@pytest.mark.parametrize("path", ["/slack/commands", "/slack/actions"])
+async def test_signed_commands_and_actions_reject_missing_headers(signed_bot, aiohttp_client, path):
+    client = await aiohttp_client(signed_bot)
+
+    response = await client.post(path, data={"payload": "{}"})
+    assert response.status == 401

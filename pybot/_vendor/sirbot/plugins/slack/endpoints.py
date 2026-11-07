@@ -19,7 +19,13 @@ LOG = logging.getLogger(__name__)
 
 async def incoming_event(request):
     slack = request.app.plugins["slack"]
-    payload = await request.json()
+    try:
+        payload = await request.json()
+    except ValueError:
+        LOG.info("Rejected /slack/events request with a body that is not JSON")
+        return Response(status=400)
+    if not isinstance(payload, dict):
+        return Response(status=400)
     LOG.log(5, "Incoming event payload: %s", payload)
 
     if payload.get("type") == "url_verification":
@@ -29,11 +35,11 @@ async def incoming_event(request):
                 validate_request_signature(
                     raw_payload.decode("utf-8"), request.headers, slack.signing_secret
                 )
-                return Response(body=payload["challenge"])
+                return Response(body=payload.get("challenge", ""))
             except (InvalidSlackSignature, InvalidTimestamp):
                 return Response(status=500)
-        elif payload["token"] == slack.verify:
-            return Response(body=payload["challenge"])
+        elif slack.verify and payload.get("token") == slack.verify:
+            return Response(body=payload.get("challenge", ""))
         else:
             return Response(status=500)
 

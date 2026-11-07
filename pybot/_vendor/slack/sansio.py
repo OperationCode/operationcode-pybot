@@ -367,17 +367,26 @@ def validate_request_signature(body: str, headers: MutableMapping, signing_secre
         :class:`slack.exceptions.InvalidTimestamp`: when incoming request timestamp is more than 5 minutes old
     """
 
-    request_timestamp = int(headers["X-Slack-Request-Timestamp"])
+    raw_timestamp = headers.get("X-Slack-Request-Timestamp")
+    slack_signature = headers.get("X-Slack-Signature")
+
+    # The second argument below is a marker string, not a computed signature.
+    if raw_timestamp is None or slack_signature is None:
+        raise exceptions.InvalidSlackSignature(slack_signature or "", "missing-header")
+
+    try:
+        request_timestamp = int(raw_timestamp)
+    except ValueError:
+        raise exceptions.InvalidSlackSignature(slack_signature, "invalid-timestamp") from None
 
     if (int(time.time()) - request_timestamp) > (60 * 5):
         raise exceptions.InvalidTimestamp(timestamp=request_timestamp)
 
-    slack_signature = headers["X-Slack-Signature"]
     calculated_signature = (
         "v0="
         + hmac.new(
             signing_secret.encode("utf-8"),
-            f"""v0:{headers["X-Slack-Request-Timestamp"]}:{body}""".encode(),
+            f"v0:{raw_timestamp}:{body}".encode(),
             digestmod=hashlib.sha256,
         ).hexdigest()
     )
