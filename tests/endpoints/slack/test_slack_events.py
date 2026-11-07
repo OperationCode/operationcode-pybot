@@ -306,7 +306,10 @@ async def test_signed_url_verification_rejects_bad_headers(
         "/slack/events", json={"type": "url_verification", "challenge": "abc"}, headers=headers
     )
     assert response.status == 500
-    assert "Error handling request" not in caplog.text
+    # aiohttp logs an unhandled handler exception on "aiohttp.server" with exc_info.
+    # Check the record, not the message text, so a reworded message cannot hide it.
+    unhandled = [r for r in caplog.records if r.name == "aiohttp.server" and r.exc_info]
+    assert not unhandled
 
 
 @pytest.mark.parametrize("path", ["/slack/commands", "/slack/actions"])
