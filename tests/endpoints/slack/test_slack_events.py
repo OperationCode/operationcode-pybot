@@ -215,3 +215,39 @@ class TestGetBackendAuthHeaders:
 
         assert "Authorization" in result
         assert "Bearer" in result["Authorization"]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [b"", b"not json", b"[1, 2]"],
+    ids=["empty", "invalid", "not-an-object"],
+)
+async def test_events_endpoint_rejects_bad_body(bot, aiohttp_client, body):
+    """A body that is not a JSON object returns 400, not an unhandled 500."""
+    client = await aiohttp_client(bot)
+
+    response = await client.post(
+        "/slack/events", data=body, headers={"Content-Type": "application/json"}
+    )
+    assert response.status == 400
+
+
+async def test_url_verification_without_token_returns_500(bot, aiohttp_client):
+    """A url_verification payload with no token is refused, not a KeyError."""
+    client = await aiohttp_client(bot)
+
+    response = await client.post(
+        "/slack/events", json={"type": "url_verification", "challenge": "abc"}
+    )
+    assert response.status == 500
+
+
+async def test_url_verification_with_valid_token(bot, aiohttp_client):
+    client = await aiohttp_client(bot)
+
+    response = await client.post(
+        "/slack/events",
+        json={"type": "url_verification", "token": "supersecuretoken", "challenge": "abc"},
+    )
+    assert response.status == 200
+    assert await response.text() == "abc"

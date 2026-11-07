@@ -94,6 +94,52 @@ def traces_sampler(sampling_context):
     return config("SENTRY_TRACES_SAMPLE_RATE", default=1.0, cast=float)
 
 
+def client_ip_from_forwarded_for(header, hops=1):
+    """
+    Return the client IP that the trusted proxy appended to X-Forwarded-For.
+
+    The AWS ALB appends the address of the peer it received the request from,
+    so the real client is ``hops`` entries from the end. Entries further left
+    come from the client and can be forged.
+    """
+    addresses = [addr.strip() for addr in str(header).split(",") if addr.strip()]
+    if hops < 1 or len(addresses) < hops:
+        return None
+    return addresses[-hops]
+
+
+def set_client_ip_from_forwarded_for(event):
+    """
+    Replace the ALB's IP with the real client IP in the event.
+
+    The aiohttp integration sets REMOTE_ADDR to the TCP peer, which is the ALB.
+    Only rewrites when REMOTE_ADDR is already present, so PII settings apply.
+    """
+    request = event.get("request") or {}
+    env = request.get("env") or {}
+    if "REMOTE_ADDR" not in env:
+        return event
+
+    headers = request.get("headers") or {}
+    forwarded_for = next(
+        (value for key, value in headers.items() if key.lower() == "x-forwarded-for"),
+        None,
+    )
+    if not forwarded_for:
+        return event
+
+    hops = config("SENTRY_TRUSTED_PROXY_HOPS", default=1, cast=int)
+    client_ip = client_ip_from_forwarded_for(forwarded_for, hops)
+    if client_ip:
+        env["REMOTE_ADDR"] = client_ip
+    return event
+
+
+def before_send(event, hint):  # noqa: ARG001
+    """Adjust error events before sending to Sentry."""
+    return set_client_ip_from_forwarded_for(event)
+
+
 def before_send_transaction(event, hint):  # noqa: ARG001
     """
     Filter transactions before sending to Sentry.
@@ -107,7 +153,7 @@ def before_send_transaction(event, hint):  # noqa: ARG001
     if event.get("contexts", {}).get("response", {}).get("status_code") == 404:
         return None
 
-    return event
+    return set_client_ip_from_forwarded_for(event)
 
 
 def init_sentry():
@@ -134,6 +180,8 @@ def init_sentry():
         release=config("VERSION", default="1.0.0"),
         # Performance Monitoring (Tracing) - use custom sampler to filter health checks
         traces_sampler=traces_sampler,
+        # Report the real client IP from X-Forwarded-For instead of the ALB's IP
+        before_send=before_send,
         # Filter transactions before sending (e.g., drop 404s)
         before_send_transaction=before_send_transaction,
         # Set profiles_sample_rate to 1.0 to profile 100% of sampled transactions.
