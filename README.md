@@ -47,7 +47,7 @@ Bug reports and pull requests are welcome on [Github](https://github.com/Operati
 
 ## Quick Start
 Recommended versions of tools used within the repo:
-- `python@3.14` or greater
+- `python@3.14` (required; 3.15+ is not supported yet)
 - `git@2.17.1` or greater
 - `poetry@2.0` or greater
     - [Poetry](https://python-poetry.org/) is a packaging and dependency manager, similar to pip or pipenv
