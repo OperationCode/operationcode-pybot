@@ -38,7 +38,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-    # Stay on Python 3.14; remove this rule to move to 3.15
     ignore:
+      # Stay on the current minor's patch releases; bump the minor by hand
       - dependency-name: "python"
-        versions: [">=3.15"]
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
