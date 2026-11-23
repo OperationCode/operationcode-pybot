@@ -4,7 +4,7 @@ This guide gives the setup that CI must have to push Docker images to ECR. It al
 
 ## How pushes are gated
 
-Only maintainers can cause CI to push an image. The workflow file does not enforce this, because a writer can change the file on a branch. GitHub Environments and the AWS trust policy enforce it.
+Only maintainers can cause CI to push an image through the pybot role. The workflow file does not enforce this, because a writer can change the file on a branch. GitHub Environments and the AWS trust policy enforce it.
 
 ```
 pull_request (any author)     --> docker-build        build only, no AWS credentials
@@ -13,16 +13,17 @@ workflow_dispatch (any ref)   --> docker-build-push   environment ecr-approval  
 re-run of any push run        --> docker-build-push   environment ecr-approval  maintainer approves
                                          |
                                          v
-     AWS role GitHubActions-ECR-Push-pybot trusts ONLY the ecr-main and ecr-approval subjects
+     role GitHubActions-ECR-Push-pybot trusts ONLY the ecr-main and ecr-approval subjects
 ```
 
 - `ecr-main` can skip the wait because the org ruleset on `master` requires a pull request with code-owner review.
 - Image tags: `:prod` and `:latest` when the ref is `master`, and `:staging` for all other refs. All tags are in the same ECR repository, `pybot`.
 - Pull requests, Dependabot and forks included, never get AWS credentials. Branch and PR pushes do not publish `:staging`. A maintainer pushes `:staging` with a dispatch (see [Push a Staging Image](#push-a-staging-image-maintainers)).
+- The gate is not complete until the old shared role is deleted. See [The Old Shared Role](#the-old-shared-role).
 
 ## Required Secret
 
-- **`AWS_ROLE_ARN`**: the ARN of the IAM role that the push job assumes: `arn:aws:iam::633607774026:role/GitHubActions-ECR-Push-pybot`.
+- **`AWS_ROLE_ARN`** (repository secret): the ARN of the IAM role that the push job assumes.
 
 ```bash
 gh secret set AWS_ROLE_ARN --repo OperationCode/operationcode-pybot --body "arn:aws:iam::633607774026:role/GitHubActions-ECR-Push-pybot"
@@ -35,19 +36,10 @@ Create the two environments in Settings > Environments. Create them **before** a
 | Environment | Required reviewers | Deployment branches and tags |
 |---|---|---|
 | `ecr-main` | None | "Selected branches and tags", with one **branch** rule: `master`. Do not add a tag rule. Do not use "Protected branches only". |
-| `ecr-approval` | The code owner `irvingpop` and the maintainers | No restriction |
+| `ecr-approval` | `irvingpop` and `kylemh` | No restriction |
 
-Get the reviewers from GitHub. Do not copy them from an old list:
-
-```bash
-# Code owners
-gh api repos/OperationCode/operationcode-pybot/contents/.github/CODEOWNERS --jq .content | base64 -d
-# Maintainers: users with the admin or maintain role on the repository
-gh api repos/OperationCode/operationcode-pybot/collaborators --paginate \
-  --jq '.[] | select(.role_name == "admin" or .role_name == "maintain") | .login'
-```
-
-Do not add a team that has only write access (for example `contributors` or `core-contributors`) as a reviewer.
+- The owner chose the `ecr-approval` reviewers. The owner can change them later in Settings > Environments > `ecr-approval`. GitHub allows at most 6 users or teams. Add only maintainers. Do not add a team that has only write access (for example `contributors` or `core-contributors`).
+- One approval from a reviewer is sufficient.
 
 Check the environments after you create them:
 
@@ -59,11 +51,11 @@ gh api repos/OperationCode/operationcode-pybot/environments/ecr-main/deployment-
 # Expect exactly one policy: {"name":"master","type":"branch"}
 ```
 
-The old environments `oc-pybot-production` and `oc-pybot-staging` are not used by any workflow. The AWS role does not trust them.
+The old environments `oc-pybot-production` and `oc-pybot-staging` are not used by any workflow, and no role trusts them.
 
-## AWS Role `GitHubActions-ECR-Push-pybot`
+## AWS Role
 
-Pybot has its own role. The shared role `GitHubActions-ECR-Push` is for `back-end` only, and must not trust pybot or allow `repository/pybot`.
+The pybot repository has its own role, `GitHubActions-ECR-Push-pybot`. No other repository uses it.
 
 ### Trust policy
 
@@ -74,7 +66,7 @@ gh api repos/OperationCode/operationcode-pybot/actions/oidc/customization/sub --
 # repo:OperationCode@10479364/operationcode-pybot@146210805
 ```
 
-The trust must use `StringEquals` and these two subjects only:
+Save this as `pybot-trust.json`:
 
 ```json
 {
@@ -101,26 +93,26 @@ The trust must use `StringEquals` and these two subjects only:
 ```
 
 Rules:
-- Do not use `StringLike` or `*`.
+- Use `StringEquals` and these two subjects only. Do not use `StringLike` or `*`.
 - Do not add `:pull_request` or `:ref:refs/heads/...` subjects. A writer can get those subjects without approval.
-- The role must have only this one statement. Examine it with this command:
+- Do not add subjects of another repository. Each repository gets its own role.
+- The role must have only this one `Allow` statement. Examine all statements with this command:
   `aws iam get-role --role-name GitHubActions-ECR-Push-pybot --query Role.AssumeRolePolicyDocument`
 
-### Permission policy
+### Permissions policy (inline)
 
-ECR push to `repository/pybot` only. `GetAuthorizationToken` does not support a resource, so it has its own statement.
+Save this as `pybot-ecr-push.json`. The first statement has the ECR actions of the push job, on the `pybot` repository only. `ecr:GetAuthorizationToken` (used by `amazon-ecr-login`) cannot be limited to a repository, so it has its own statement on `*`.
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "PushPybot",
       "Effect": "Allow",
       "Action": [
         "ecr:BatchCheckLayerAvailability",
-        "ecr:BatchGetImage",
         "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
         "ecr:InitiateLayerUpload",
         "ecr:UploadLayerPart",
         "ecr:CompleteLayerUpload",
@@ -129,7 +121,6 @@ ECR push to `repository/pybot` only. `GetAuthorizationToken` does not support a 
       "Resource": "arn:aws:ecr:us-east-2:633607774026:repository/pybot"
     },
     {
-      "Sid": "EcrLogin",
       "Effect": "Allow",
       "Action": "ecr:GetAuthorizationToken",
       "Resource": "*"
@@ -138,59 +129,73 @@ ECR push to `repository/pybot` only. `GetAuthorizationToken` does not support a 
 }
 ```
 
-## Safe Switch-over
+### Create the role
 
-Use this procedure to move from the shared role to `GitHubActions-ECR-Push-pybot`. It makes sure that no unapproved credential path stays open during the change.
+```bash
+aws iam create-role \
+  --role-name GitHubActions-ECR-Push-pybot \
+  --assume-role-policy-document file://pybot-trust.json \
+  --max-session-duration 3600 \
+  --description "GitHub Actions OperationCode/operationcode-pybot: push to ECR repository pybot"
 
-1. Create the two environments, as given in [Required Environments](#required-environments).
-2. Create the role `GitHubActions-ECR-Push-pybot` with the trust and permission policies above.
-3. Get the pull request that adds the environments to `ci.yml` approved and green. Do not merge it yet.
-4. Set the secret `AWS_ROLE_ARN` to the new role, as given in [Required Secret](#required-secret).
-5. Remove pybot from the shared role `GitHubActions-ECR-Push`, in one change for each policy:
-   - Trust: remove every `operationcode-pybot` subject (all spellings, the name form and the ID form). If the back-end switch-over is already done, the trust has only the back-end environment subjects. Examine it:
-     `aws iam get-role --role-name GitHubActions-ECR-Push --query Role.AssumeRolePolicyDocument`
-   - Permission: remove `repository/pybot` from `GitHubActions-ECR-Push-Policy`.
+aws iam put-role-policy \
+  --role-name GitHubActions-ECR-Push-pybot \
+  --policy-name ecr-push-pybot \
+  --policy-document file://pybot-ecr-push.json
 
-   Write down the time of this change (T). After T, the shared role cannot issue a new session to pybot CI.
-6. Cancel every pybot CI run that is in progress or queued. These runs can hold credentials from before T.
+# Examine the result.
+aws iam get-role --role-name GitHubActions-ECR-Push-pybot \
+  --query 'Role.[Arn,MaxSessionDuration,AssumeRolePolicyDocument]'
+aws iam list-role-policies --role-name GitHubActions-ECR-Push-pybot           # only ecr-push-pybot
+aws iam list-attached-role-policies --role-name GitHubActions-ECR-Push-pybot  # empty
+```
+
+## The Old Shared Role
+
+Before this change, pybot used `arn:aws:iam::633607774026:role/GitHubActions-ECR-Push`. That role is shared with `OperationCode/back-end`:
+- Its trust uses `StringLike` with `repo:...:*` subjects for back-end and pybot. Any branch or pull request of either repository can assume it.
+- Its policy allows push to `repository/back-end` and to `repository/pybot`. Thus a session of either repository can overwrite the images of the other.
+
+**The old role is not gated.** It stays open to branch workflows of both repositories until it is deleted. A writer can edit a workflow on a branch, put the old role ARN in it, and get credentials without an approval. These credentials can push `pybot:prod` and `back-end:prod`. The environments do not stop this.
+
+**Do not change the old role during the move.** Do not edit its trust, do not edit its permissions, and do not use "Revoke active sessions" on it. The other repository uses it until its own move is done.
+
+The old role is deleted one time, after both repositories have done step 6 of their move. The back-end guide owns the deletion and the CloudTrail check of ECR writes to both repositories: see "The Old Shared Role" and the steps after it in [back-end `.github/SETUP.md`](https://github.com/OperationCode/back-end/blob/main/.github/SETUP.md). Do not do those steps from this guide.
+
+## Safe Change to the New Role
+
+Use this procedure to move pybot from the old shared role to its own role. Do not change the old role during this procedure (see above).
+
+1. Create the two environments, as given in [Required Environments](#required-environments). Write down the time when you start this step (S). The back-end CloudTrail check uses the earlier S of the two repositories.
+2. Create the new role, as given in [Create the role](#create-the-role). Get the pull request that adds the environments to `ci.yml` approved and green. Do not merge it yet.
+3. Set the secret to the new role ARN, as given in [Required Secret](#required-secret).
+   - Between step 3 and step 5, every push run of the old workflow fails at "Configure AWS credentials", because the new role does not trust its subject. Nobody must push to `master` during this time.
+4. Cancel every pybot CI run that is in progress or queued. These runs can hold the old ARN or credentials of the old role.
    ```bash
    # List the runs, then cancel each one.
    for s in in_progress queued; do
      gh run list --repo OperationCode/operationcode-pybot --status $s --limit 100 --json databaseId --jq '.[].databaseId'
    done | xargs -n 1 gh run cancel --repo OperationCode/operationcode-pybot
    ```
-   Run the list again until it is empty.
-7. Revoke the sessions of the shared role: IAM > Roles > `GitHubActions-ECR-Push` > "Revoke active sessions". Write down the time of this revoke (R). This also stops running back-end push jobs. Do it when no back-end push is running.
-8. Immediately merge the pull request. The push to `master` that the merge causes uses `ecr-main` and pushes `:prod` and `:latest`.
-   - Between step 4 and step 8, every push run of the old workflow fails at "Configure AWS credentials". Nobody must push to `master` during this time.
-   - If the first push fails, correct the trust subject (see the rules above). Then re-run the job. The re-run uses `ecr-approval`, so a maintainer must approve it.
-   - When the push run is complete, write down the image digest of `:prod`. You compare with it in step 9:
+   To cancel one run: `gh run cancel <id> --repo OperationCode/operationcode-pybot`. Run the list again until it is empty.
+5. Immediately merge the pull request. The push to `master` that the merge causes uses `ecr-main` and the new role, and pushes `:prod` and `:latest`.
+   - If the first push fails, correct the new role (see the rules above). Then re-run the job. The re-run uses `ecr-approval`, so a maintainer must approve it.
+   - When the push run is complete, write down the image digest of `:prod`. Give it to the person who does the back-end CloudTrail check:
      `aws ecr describe-images --region us-east-2 --repository-name pybot --image-ids imageTag=prod --query 'imageDetails[0].imageDigest' --output text`
-9. Check for ECR login tokens from before R. A session issued before T can call ECR `GetAuthorizationToken` until the revoke at R. An ECR login token stays valid for 12 hours, and AWS does not document that "Revoke active sessions" stops it. Thus such a token can push until R + 12 h. An unapproved push during this window is detected, not prevented. When you follow these steps, you accept this risk.
-   - At R + 12 h plus approximately 30 minutes (CloudTrail can deliver events late), list the ECR write events from T - 12 h to R + 12 h:
+6. Confirm one successful push to `master` through the new role. Use one of these:
+   - CloudTrail: find the `AssumeRoleWithWebIdentity` event for the new role ARN, at the time of the push run from step 5.
      ```bash
-     for e in InitiateLayerUpload PutImage BatchDeleteImage; do
-       aws cloudtrail lookup-events --region us-east-2 \
-         --lookup-attributes AttributeKey=EventName,AttributeValue=$e \
-         --start-time <T-12h> --end-time <R+12h> --output json |
-         jq -r '.Events[] | (.CloudTrailEvent | fromjson) as $c
-           | [.EventTime, .EventName, .Username,
-              ($c.userIdentity.sessionContext.sessionIssuer.arn // "-"),
-              ($c.requestParameters.repositoryName // "-"),
-              ($c.sourceIPAddress // "-")] | @tsv'
-     done
+     aws cloudtrail lookup-events --region us-east-2 \
+       --lookup-attributes AttributeKey=EventName,AttributeValue=AssumeRoleWithWebIdentity \
+       --start-time <merge time> --output json |
+       jq -r '.Events[] | (.CloudTrailEvent | fromjson) as $c
+         | select($c.requestParameters.roleArn == "arn:aws:iam::633607774026:role/GitHubActions-ECR-Push-pybot")
+         | [.EventTime, $c.requestParameters.roleArn, ($c.userIdentity.userName // "-"), ($c.errorCode // "ok")] | @tsv'
      ```
-     The columns are: time, event, `Username`, session issuer ARN, ECR repository, source IP address. Use the session issuer ARN to find the events of the CI roles (`role/GitHubActions-ECR-Push` and `role/GitHubActions-ECR-Push-pybot`). Do not use `Username` for this: for a role session it is the session name, and the caller chooses it. Each event of a CI role on the `pybot` repository must match a pybot CI run that you know about (time and run).
-   - The `PutImage` events are the real control. The tag check below shows only the current state of each tag.
-   - At the same time, make sure that the `:prod`, `:latest` and `:staging` digests are the digests that known CI runs pushed. For `:prod` and `:latest`, this is the digest from step 8, unless a later known run pushed them:
-     ```bash
-     for t in prod latest staging; do
-       aws ecr describe-images --region us-east-2 --repository-name pybot \
-         --image-ids imageTag=$t --query 'imageDetails[].[imageTags,imageDigest,imagePushedAt]'
-     done
-     ```
-     An `ImageNotFoundException` for a tag means that the tag does not exist. This is not a failure of the check.
-   - If an event or a digest does not match, push a known-good image again (re-run the master build with an `ecr-approval` approval) and investigate.
+     Expect a line with `ok` and the subject `...:environment:ecr-main`.
+   - Run log: the push run from step 5 shows environment `ecr-main`, and the "Output image URI" step prints `Successfully pushed Production images`.
+
+   The pybot move is done after this step. Tell the back-end owner, because the old role is deleted only after both repositories finish step 6.
 
 ## Push a Staging Image (maintainers)
 
@@ -208,10 +213,10 @@ A dispatch on `master` pushes `:prod` and `:latest`, and it also needs approval.
 ### Build fails with "Error assuming role"
 - Make sure that the `AWS_ROLE_ARN` secret is the ARN of `GitHubActions-ECR-Push-pybot`.
 - Make sure that the job ran in `ecr-main` or `ecr-approval` (the job page shows the environment).
-- Compare the trust subjects with the prefix from `gh api .../actions/oidc/customization/sub`. The subject is `<prefix>:environment:<environment name>`.
+- Compare the trust subjects with the prefix from `gh api .../actions/oidc/customization/sub`. The subject is `<prefix>:environment:<environment name>`. Never add an old subject back.
 
 ### Build fails with "AccessDenied" to ECR
-- Make sure that the role has the permission policy above.
+- Make sure that the role has the inline policy `ecr-push-pybot`.
 - Make sure that the repository is `633607774026.dkr.ecr.us-east-2.amazonaws.com/pybot`.
 
 ### Production build runs even when tests fail
