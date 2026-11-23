@@ -141,13 +141,45 @@ jobs:
       - name: Display Bandit results
         run: poetry run bandit -r pybot -x pybot/_vendor --skip B101 -f txt || true
 
+  # Every PR (same-repo, fork, Dependabot): build only, no AWS credentials
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-24.04-arm
+    if: github.event_name == 'pull_request'
+    needs: [ci-success]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          platforms: linux/arm64
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: prod
+          platforms: linux/arm64
+          push: false
+          provenance: false
+          cache-from: type=gha,scope=arm64
+          cache-to: type=gha,mode=max,scope=arm64
+
+  # Push to master and manual dispatch only. The environment's protection rules,
+  # not this file, are the gate: the AWS role must trust only these environments.
   docker-build-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-24.04-arm
-    # Run on push to master (build+push), manual dispatch (build+push) and on PRs (build only)
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    # Wait for CI checks to pass
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: [ci-success]
+    # First attempt of a push to master: reviewed by a code owner before merge, so no wait.
+    # Dispatch and re-runs (any ref, any writer): a maintainer must approve.
+    environment: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master' && github.run_attempt == '1') && 'ecr-main' || 'ecr-approval' }}
     permissions:
       id-token: write  # Required for OIDC authentication
       contents: read   # Required to checkout code
@@ -155,22 +187,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: Determine push eligibility
-        id: can-push
-        run: |
-          if [ "${{ github.event_name }}" == "push" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "push=true" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]; then
-            echo "push=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "push=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Determine Docker tags
         id: docker-tag
         run: |
           ECR=633607774026.dkr.ecr.us-east-2.amazonaws.com/pybot
-          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+          if [ "$GITHUB_REF" == "refs/heads/master" ]; then
             echo "images=${ECR}:prod,${ECR}:latest" >> "$GITHUB_OUTPUT"
             echo "environment=Production" >> "$GITHUB_OUTPUT"
           else
@@ -184,7 +205,6 @@ jobs:
           platforms: linux/arm64
 
       - name: Configure AWS credentials
-        if: steps.can-push.outputs.push == 'true'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -193,7 +213,6 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        if: steps.can-push.outputs.push == 'true'
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push Docker image
@@ -203,7 +222,7 @@ jobs:
           file: docker/Dockerfile
           target: prod
           platforms: linux/arm64
-          push: ${{ steps.can-push.outputs.push == 'true' }}
+          push: true
           tags: ${{ steps.docker-tag.outputs.images }}
           provenance: false
           no-cache: ${{ inputs.no_cache == true }}
@@ -212,7 +231,6 @@ jobs:
           cache-to: type=gha,mode=max,scope=arm64
 
       - name: Output image URI
-        if: steps.can-push.outputs.push == 'true'
         run: |
           echo "Successfully pushed ${{ steps.docker-tag.outputs.environment }} images:"
           echo "${{ steps.docker-tag.outputs.images }}"
