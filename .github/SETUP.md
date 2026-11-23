@@ -131,19 +131,13 @@ Save this as `pybot-ecr-push.json`. The first statement has the ECR actions of t
 
 ### Create the role
 
+The role is defined in [operationcode_infra](https://github.com/OperationCode/operationcode_infra), file `terraform/github_actions_ecr.tf`. Apply it with Terraform. Do not create the role by hand, and do not edit it by hand.
+
+The trust policy and permissions policy above are a reference only. The Terraform file is the source of truth.
+
+To examine the result after the apply:
+
 ```bash
-aws iam create-role \
-  --role-name GitHubActions-ECR-Push-pybot \
-  --assume-role-policy-document file://pybot-trust.json \
-  --max-session-duration 3600 \
-  --description "GitHub Actions OperationCode/operationcode-pybot: push to ECR repository pybot"
-
-aws iam put-role-policy \
-  --role-name GitHubActions-ECR-Push-pybot \
-  --policy-name ecr-push-pybot \
-  --policy-document file://pybot-ecr-push.json
-
-# Examine the result.
 aws iam get-role --role-name GitHubActions-ECR-Push-pybot \
   --query 'Role.[Arn,MaxSessionDuration,AssumeRolePolicyDocument]'
 aws iam list-role-policies --role-name GitHubActions-ECR-Push-pybot           # only ecr-push-pybot
