@@ -48,7 +48,7 @@ WORKDIR /app
 
 # pip is not used at runtime, and its vendored packages carry CVEs; the wheel bundled for ensurepip carries them too
 RUN python -m pip uninstall -y pip && \
-    rm -f /usr/local/lib/python3.14/ensurepip/_bundled/*.whl
+    rm -f /usr/local/lib/python3.*/ensurepip/_bundled/*.whl
 
 # Copy application and virtual environment from builder
 COPY --from=builder /app ./

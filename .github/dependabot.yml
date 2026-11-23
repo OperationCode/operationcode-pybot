@@ -6,17 +6,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     groups:
       python-minor:
-        patterns:
-          - "*"
         update-types:
           - "minor"
           - "patch"
-    labels:
-      - "dependencies"
-      - "python"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -24,10 +20,12 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "github-actions"
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns:
+          - "*"
 
   # Docker
   - package-ecosystem: "docker"
@@ -35,9 +33,6 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    labels:
-      - "dependencies"
-      - "docker"
     ignore:
       # Stay on the current minor's patch releases; bump the minor by hand
       - dependency-name: "python"
