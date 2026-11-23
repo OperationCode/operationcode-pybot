@@ -38,3 +38,7 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    # Stay on Python 3.14; remove this rule to move to 3.15
+    ignore:
+      - dependency-name: "python"
+        versions: [">=3.15"]
