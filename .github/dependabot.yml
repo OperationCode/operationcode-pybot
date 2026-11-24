@@ -1,3 +1,4 @@
+# Majors are ignored (ignore also covers security PRs, per GitHub docs); a security fix needing a major still raises a Dependabot alert (Security tab), so bump it by hand.
 version: 2
 updates:
   # Python dependencies via Poetry
@@ -7,12 +8,15 @@ updates:
       interval: "weekly"
       day: "monday"
     cooldown:
-      default-days: 7
+      default-days: 3
     groups:
       python-minor:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -21,11 +25,14 @@ updates:
       interval: "weekly"
       day: "monday"
     cooldown:
-      default-days: 7
+      default-days: 3
     groups:
       actions:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # Docker
   - package-ecosystem: "docker"
@@ -34,6 +41,8 @@ updates:
       interval: "weekly"
       day: "monday"
     ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
       # Stay on the current minor's patch releases; bump the minor by hand
       - dependency-name: "python"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
