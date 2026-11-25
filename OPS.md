@@ -2,12 +2,7 @@
 
 How pybot is built, deployed, rolled back, and debugged. Each step has a command you can copy. Run all commands from any directory.
 
-Set this once per shell. Every later command uses it:
-
-```bash
-export AWS_PROFILE=operationcode AWS_REGION=us-east-2
-C=operationcode-ecs-us-east-2
-```
+Every block below sets its own variables (profile, region, cluster, task ID, saved digest). You can paste any one block alone, in a new shell. A block in `( )` with `set -euo pipefail` stops at the first failed check.
 
 ## 1. Overview
 
@@ -51,14 +46,14 @@ Deploys cause a short outage: `deployment_minimum_healthy_percent` is 0, `deploy
    ```bash
    gh run list -R OperationCode/operationcode-pybot --workflow ci.yml --branch master --limit 3
    ```
-2. Save the running digest in a file, and print it. You need it for a rollback. A new terminal loses shell variables, the file does not. Run this step one time per deploy, before step 3. It refuses to overwrite a saved digest, so a failed deploy cannot replace the good digest with a bad one. Delete the file only after a deploy that you checked and finished:
+2. Save the running digest in a file, and print it. You need it for a rollback. A new terminal loses shell variables, the file does not. Run this step one time per deploy, before step 3. It refuses to overwrite a saved digest, so a failed deploy cannot replace the good digest with a bad one. The file `$HOME/pybot-deploy.env` stays until you delete it at the end of step 4 (a good deploy) or at the end of section 4 (a rollback):
    ```bash
    (
      set -euo pipefail
      export AWS_PROFILE=operationcode AWS_REGION=us-east-2
      C=operationcode-ecs-us-east-2
      D=$HOME/pybot-deploy.env
-     test ! -s $D || { echo "$D exists: STOP. Roll back with it, or delete it after a finished deploy"; false; }
+     test ! -s $D || { echo "$D exists: a previous deploy or rollback was not finished. If it was finished, run: rm $D. If not, finish it (section 4) first. STOP"; false; }
      T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --query 'taskArns[0]' --output text)
      G=$(aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].containers[0].imageDigest' --output text)
      test -n "$G" -a "$G" != None || { echo "no running digest: STOP"; false; }
@@ -77,7 +72,7 @@ Deploys cause a short outage: `deployment_minimum_healthy_percent` is 0, `deploy
      echo "deploy stable"
    )
    ```
-4. Check. The block prints `CHECKS OK` and exits at the first failed check. On any failure: STOP, and do section 4:
+4. Check. The block prints `CHECKS OK` and exits at the first failed check. On any failure: STOP, and do section 4 (do not run step 5):
    ```bash
    (
      set -euo pipefail
@@ -101,10 +96,14 @@ Deploys cause a short outage: `deployment_minimum_healthy_percent` is 0, `deploy
      echo "CHECKS OK"
    )
    ```
+5. The deploy is finished and good. Delete the saved digest now, so the next deploy can save a new one:
+   ```bash
+   rm $HOME/pybot-deploy.env
+   ```
 
 ## 4. Roll back
 
-Use the digest saved in deploy step 2 (`cat $HOME/pybot-deploy.env`). The task definition runs `:latest`, but `:prod` must match it, so retag both. The block stops at the first failed step:
+Use the digest saved in deploy step 2 (`cat $HOME/pybot-deploy.env`). The task definition runs `:latest`, but `:prod` must match it, so retag both. A tag that already points at the saved digest is skipped. The block stops at the first failed step:
 
 ```bash
 (
@@ -117,7 +116,12 @@ Use the digest saved in deploy step 2 (`cat $HOME/pybot-deploy.env`). The task d
   M=$(aws ecr batch-get-image --repository-name pybot --image-ids imageDigest=$DIGEST --query 'images[0].imageManifest' --output text)
   test -n "$M" -a "$M" != None || { echo "no manifest for the digest: STOP"; false; }
   for TAG in latest prod; do
-    aws ecr put-image --repository-name pybot --image-tag $TAG --image-manifest "$M" >/dev/null
+    CUR=$(aws ecr describe-images --repository-name pybot --image-ids imageTag=$TAG --query 'imageDetails[0].imageDigest' --output text 2>/dev/null || true)
+    if test "$CUR" = "$DIGEST"; then
+      echo ":$TAG already points at $DIGEST: put-image skipped"
+    else
+      aws ecr put-image --repository-name pybot --image-tag $TAG --image-manifest "$M" >/dev/null
+    fi
     N=$(aws ecr describe-images --repository-name pybot --image-ids imageTag=$TAG --query 'imageDetails[0].imageDigest' --output text)
     test "$N" = "$DIGEST" || { echo ":$TAG is $N, not $DIGEST: STOP"; false; }
   done
@@ -146,6 +150,12 @@ Verify. The block prints `ROLLBACK OK` only if the task digest equals the saved 
 )
 ```
 
+The rollback is finished. Delete the saved digest now, so the next deploy can save a new one:
+
+```bash
+rm $HOME/pybot-deploy.env
+```
+
 - ECR does not keep tag history. If you did not save the digest, you cannot find the old one by tag.
 - The `pybot` ECR repository has no lifecycle policy, so untagged images stay until someone deletes them.
 - After a rollback, the next merge to `master` moves `:prod` and `:latest` again. The next restart then runs that new image.
@@ -155,6 +165,7 @@ Verify. The block prints `ROLLBACK OK` only if the task digest equals the saved 
 ECS Exec is enabled on `pybot_prod` (`enable_execute_command = true`). You need the `session-manager-plugin` (`brew install --cask session-manager-plugin`).
 
 ```bash
+set -euo pipefail
 export AWS_PROFILE=operationcode AWS_REGION=us-east-2
 C=operationcode-ecs-us-east-2
 T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --query 'taskArns[0]' --output text)
@@ -221,6 +232,14 @@ aws ecs describe-services --cluster $C --services pybot_prod \
 aws ecs list-tasks --cluster $C --service-name pybot_prod --desired-status STOPPED
 ```
 
-If a new task keeps stopping, read the stop reason: `aws ecs describe-tasks --cluster $C --tasks <task ARN> --query 'tasks[0].[stoppedReason,containers[0].reason]'`.
+If a new task keeps stopping, read the stop reason. This block reads the newest stopped task:
+
+```bash
+set -euo pipefail
+export AWS_PROFILE=operationcode AWS_REGION=us-east-2
+C=operationcode-ecs-us-east-2
+T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --desired-status STOPPED --query 'taskArns[0]' --output text)
+aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].[stoppedReason,containers[0].reason]'
+```
 
 The container health check (`wget` to `http://localhost:5000/health`) and the target group check (path `/health`) test the same endpoint. Errors are also in Sentry (`SENTRY_DSN` is one of the secrets).
