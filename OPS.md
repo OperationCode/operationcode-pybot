@@ -150,7 +150,7 @@ Verify. The block prints `ROLLBACK OK` only if the task digest equals the saved 
 )
 ```
 
-The rollback is finished. Delete the saved digest now, so the next deploy can save a new one:
+If `ROLLBACK OK` printed, the rollback is finished. Delete the saved digest now, so the next deploy can save a new one:
 
 ```bash
 rm $HOME/pybot-deploy.env
