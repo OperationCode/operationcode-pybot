@@ -88,9 +88,11 @@ Deploys cause a short outage: `deployment_minimum_healthy_percent` is 0, `deploy
      TG=$(aws elbv2 describe-target-groups --names ecs-pybot-prod --query 'TargetGroups[0].TargetGroupArn' --output text)
      TS=$(aws elbv2 describe-target-health --target-group-arn "$TG" --query 'TargetHealthDescriptions[0].TargetHealth.State' --output text)
      test "$TS" = healthy || { echo "target state is $TS: STOP"; false; }
-     # c) no errors in the last 15 minutes
+     # c) no errors since the new task started (errors of the old task do not count)
+     A=$(aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].startedAt' --output text)
+     B=$(python3 -c 'import sys,datetime as d; print(int(d.datetime.fromisoformat(sys.argv[1]).timestamp()*1000))' "$A")   # ISO time to epoch ms, same on macOS and Linux
      E=$(aws logs filter-log-events --log-group-name ecs-20221213004720404200000001 \
-       --log-stream-name-prefix pybot_prod --start-time $(( ($(date +%s) - 900) * 1000 )) \
+       --log-stream-name-prefix pybot_prod --start-time $B \
        --filter-pattern '?Traceback ?ERROR' --query 'events[].message' --output text)
      test -z "$E" || { echo "$E"; echo "errors in the logs: STOP"; false; }
      echo "CHECKS OK"

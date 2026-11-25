@@ -165,7 +165,7 @@ Done on 2026-11-23. Kept as a record: do not run it again. It moved pybot from t
    To cancel one run: `gh run cancel <id> --repo OperationCode/operationcode-pybot`. Run the list again until it is empty.
 5. Immediately merge the pull request. The push to `master` that the merge causes uses `ecr-main` and the new role, and pushes `:prod` and `:latest`.
    - If the first push fails, correct the new role (see the rules above). Then re-run the job. The re-run uses `ecr-approval`, so a maintainer must approve it.
-   - When the push run is complete, write down the image digest of `:prod`.:
+   - When the push run is complete, write down the image digest of `:prod`:
      `aws ecr describe-images --region us-east-2 --repository-name pybot --image-ids imageTag=prod --query 'imageDetails[0].imageDigest' --output text`
 6. Confirm one successful push to `master` through the new role. Use one of these:
    - CloudTrail: find the `AssumeRoleWithWebIdentity` event for the new role ARN, at the time of the push run from step 5.
