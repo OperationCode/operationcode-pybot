@@ -23,3 +23,4 @@ make ci                                         # lint + tests with coverage + b
 - Deploy, rollback, secrets, and logs: [OPS.md](OPS.md). CI and AWS security setup: [.github/SETUP.md](.github/SETUP.md).
 - Never deploy, run prod commands, or change AWS or GitHub settings without an explicit human OK.
 - pybot and back-end share the same CI, AWS, deploy, and dependency setup. Keep changes in sync: when you improve something in one (CI, docs, runbook, deps policy, tooling), make the same change in `OperationCode/back-end`, or note why it does not apply.
+- Infrastructure (ECS services, task definitions, IAM roles, ECR, load balancers) lives in `OperationCode/operationcode_infra` (Terraform). Change it there through a PR. Never hand-edit AWS. Many changes here need a matching infra change.
