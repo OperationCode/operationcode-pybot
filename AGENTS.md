@@ -22,3 +22,4 @@ make ci                                         # lint + tests with coverage + b
 - The org PR reviewer blocks dependencies that are less than 72 hours old.
 - Deploy, rollback, secrets, and logs: [OPS.md](OPS.md). CI and AWS security setup: [.github/SETUP.md](.github/SETUP.md).
 - Never deploy, run prod commands, or change AWS or GitHub settings without an explicit human OK.
+- pybot and back-end share the same CI, AWS, deploy, and dependency setup. Keep changes in sync: when you improve something in one (CI, docs, runbook, deps policy, tooling), make the same change in `OperationCode/back-end`, or note why it does not apply.
