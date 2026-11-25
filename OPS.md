@@ -51,69 +51,99 @@ Deploys cause a short outage: `deployment_minimum_healthy_percent` is 0, `deploy
    ```bash
    gh run list -R OperationCode/operationcode-pybot --workflow ci.yml --branch master --limit 3
    ```
-2. Save the running digest in a file, and print it. You need it for a rollback. A new terminal loses shell variables, the file does not:
+2. Save the running digest in a file, and print it. You need it for a rollback. A new terminal loses shell variables, the file does not. Run this step one time per deploy, before step 3. It refuses to overwrite a saved digest, so a failed deploy cannot replace the good digest with a bad one. Delete the file only after a deploy that you checked and finished:
    ```bash
-   export AWS_PROFILE=operationcode AWS_REGION=us-east-2
-   C=operationcode-ecs-us-east-2
-   D=$HOME/pybot-deploy.env
-   T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --query 'taskArns[0]' --output text)
-   G=$(aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].containers[0].imageDigest' --output text)
-   echo "PROD_DIGEST=$G" > $D
-   cat $D   # copy this line to your notes. Stop if the value is empty or None.
+   (
+     set -euo pipefail
+     export AWS_PROFILE=operationcode AWS_REGION=us-east-2
+     C=operationcode-ecs-us-east-2
+     D=$HOME/pybot-deploy.env
+     test ! -s $D || { echo "$D exists: STOP. Roll back with it, or delete it after a finished deploy"; false; }
+     T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --query 'taskArns[0]' --output text)
+     G=$(aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].containers[0].imageDigest' --output text)
+     test -n "$G" -a "$G" != None || { echo "no running digest: STOP"; false; }
+     echo "PROD_DIGEST=$G" > $D
+     cat $D   # copy this line to your notes
+   )
    ```
 3. Deploy:
    ```bash
-   export AWS_PROFILE=operationcode AWS_REGION=us-east-2
-   C=operationcode-ecs-us-east-2
-   aws ecs update-service --cluster $C --service pybot_prod --force-new-deployment
-   aws ecs wait services-stable --cluster $C --services pybot_prod
+   (
+     set -euo pipefail
+     export AWS_PROFILE=operationcode AWS_REGION=us-east-2
+     C=operationcode-ecs-us-east-2
+     aws ecs update-service --cluster $C --service pybot_prod --force-new-deployment >/dev/null
+     aws ecs wait services-stable --cluster $C --services pybot_prod || { echo "not stable: STOP, roll back (section 4)"; false; }
+     echo "deploy stable"
+   )
    ```
-4. Check. All three must pass:
+4. Check. The block prints `CHECKS OK` and exits at the first failed check. On any failure: STOP, and do section 4:
    ```bash
-   export AWS_PROFILE=operationcode AWS_REGION=us-east-2
-   C=operationcode-ecs-us-east-2
-   S=pybot_prod
-   T=$(aws ecs list-tasks --cluster $C --service-name $S --query 'taskArns[0]' --output text)
-   # a) task HEALTHY, and its digest equals the digest of :latest
-   aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].[healthStatus,containers[0].imageDigest]' --output text
-   aws ecr describe-images --repository-name pybot --image-ids imageTag=latest --query 'imageDetails[0].imageDigest' --output text
-   # b) the target is healthy (State: healthy)
-   TG=$(aws elbv2 describe-target-groups --names ecs-pybot-prod --query 'TargetGroups[0].TargetGroupArn' --output text)
-   aws elbv2 describe-target-health --target-group-arn "$TG" --query 'TargetHealthDescriptions[].[Target.Id,TargetHealth.State]' --output text
-   # c) no errors in the last 15 minutes (no output is good)
-   aws logs filter-log-events --log-group-name ecs-20221213004720404200000001 \
-     --log-stream-name-prefix pybot_prod --start-time $(( ($(date +%s) - 900) * 1000 )) \
-     --filter-pattern '?Traceback ?ERROR' --query 'events[].message' --output text
+   (
+     set -euo pipefail
+     export AWS_PROFILE=operationcode AWS_REGION=us-east-2
+     C=operationcode-ecs-us-east-2
+     T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --query 'taskArns[0]' --output text)
+     # a) task HEALTHY, and its digest equals the digest of :latest
+     read -r H G < <(aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].[healthStatus,containers[0].imageDigest]' --output text)
+     L=$(aws ecr describe-images --repository-name pybot --image-ids imageTag=latest --query 'imageDetails[0].imageDigest' --output text)
+     test "$H" = HEALTHY || { echo "task health is $H: STOP"; false; }
+     test "$G" = "$L" || { echo "task digest $G is not :latest $L: STOP"; false; }
+     # b) the target is healthy
+     TG=$(aws elbv2 describe-target-groups --names ecs-pybot-prod --query 'TargetGroups[0].TargetGroupArn' --output text)
+     TS=$(aws elbv2 describe-target-health --target-group-arn "$TG" --query 'TargetHealthDescriptions[0].TargetHealth.State' --output text)
+     test "$TS" = healthy || { echo "target state is $TS: STOP"; false; }
+     # c) no errors in the last 15 minutes
+     E=$(aws logs filter-log-events --log-group-name ecs-20221213004720404200000001 \
+       --log-stream-name-prefix pybot_prod --start-time $(( ($(date +%s) - 900) * 1000 )) \
+       --filter-pattern '?Traceback ?ERROR' --query 'events[].message' --output text)
+     test -z "$E" || { echo "$E"; echo "errors in the logs: STOP"; false; }
+     echo "CHECKS OK"
+   )
    ```
 
 ## 4. Roll back
 
-Use the digest saved in deploy step 2 (`cat $HOME/pybot-deploy.env`). The task definition runs `:latest`, but `:prod` must match it, so retag both:
+Use the digest saved in deploy step 2 (`cat $HOME/pybot-deploy.env`). The task definition runs `:latest`, but `:prod` must match it, so retag both. The block stops at the first failed step:
 
 ```bash
-export AWS_PROFILE=operationcode AWS_REGION=us-east-2
-C=operationcode-ecs-us-east-2
-. $HOME/pybot-deploy.env
-DIGEST=$PROD_DIGEST
-test -n "$DIGEST" -a "$DIGEST" != None || { echo "no saved digest: STOP"; false; }
-M=$(aws ecr batch-get-image --repository-name pybot --image-ids imageDigest=$DIGEST --query 'images[0].imageManifest' --output text)
-test -n "$M" -a "$M" != None || { echo "no manifest for the digest: STOP"; false; }
-for TAG in latest prod; do
-  aws ecr put-image --repository-name pybot --image-tag $TAG --image-manifest "$M"
-done
-aws ecs update-service --cluster $C --service pybot_prod --force-new-deployment
-aws ecs wait services-stable --cluster $C --services pybot_prod
+(
+  set -euo pipefail
+  export AWS_PROFILE=operationcode AWS_REGION=us-east-2
+  C=operationcode-ecs-us-east-2
+  . $HOME/pybot-deploy.env
+  DIGEST=${PROD_DIGEST:-}
+  test -n "$DIGEST" -a "$DIGEST" != None || { echo "no saved digest: STOP"; false; }
+  M=$(aws ecr batch-get-image --repository-name pybot --image-ids imageDigest=$DIGEST --query 'images[0].imageManifest' --output text)
+  test -n "$M" -a "$M" != None || { echo "no manifest for the digest: STOP"; false; }
+  for TAG in latest prod; do
+    aws ecr put-image --repository-name pybot --image-tag $TAG --image-manifest "$M" >/dev/null
+    N=$(aws ecr describe-images --repository-name pybot --image-ids imageTag=$TAG --query 'imageDetails[0].imageDigest' --output text)
+    test "$N" = "$DIGEST" || { echo ":$TAG is $N, not $DIGEST: STOP"; false; }
+  done
+  aws ecs update-service --cluster $C --service pybot_prod --force-new-deployment >/dev/null
+  aws ecs wait services-stable --cluster $C --services pybot_prod || { echo "not stable: STOP"; false; }
+  echo "rollback deployed"
+)
 ```
 
-Verify. The task digest must equal `$DIGEST` (the saved digest), the task must be HEALTHY, and the target must be healthy (deploy step 4b):
+Verify. The block prints `ROLLBACK OK` only if the task digest equals the saved digest, the task is HEALTHY, and the target is healthy:
 
 ```bash
-export AWS_PROFILE=operationcode AWS_REGION=us-east-2
-C=operationcode-ecs-us-east-2
-. $HOME/pybot-deploy.env
-T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --query 'taskArns[0]' --output text)
-aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].[healthStatus,containers[0].imageDigest]' --output text
-echo "$PROD_DIGEST"
+(
+  set -euo pipefail
+  export AWS_PROFILE=operationcode AWS_REGION=us-east-2
+  C=operationcode-ecs-us-east-2
+  . $HOME/pybot-deploy.env
+  T=$(aws ecs list-tasks --cluster $C --service-name pybot_prod --query 'taskArns[0]' --output text)
+  read -r H G < <(aws ecs describe-tasks --cluster $C --tasks "$T" --query 'tasks[0].[healthStatus,containers[0].imageDigest]' --output text)
+  test "$H" = HEALTHY || { echo "task health is $H: STOP"; false; }
+  test "$G" = "$PROD_DIGEST" || { echo "task digest $G is not $PROD_DIGEST: STOP"; false; }
+  TG=$(aws elbv2 describe-target-groups --names ecs-pybot-prod --query 'TargetGroups[0].TargetGroupArn' --output text)
+  TS=$(aws elbv2 describe-target-health --target-group-arn "$TG" --query 'TargetHealthDescriptions[0].TargetHealth.State' --output text)
+  test "$TS" = healthy || { echo "target state is $TS: STOP"; false; }
+  echo "ROLLBACK OK"
+)
 ```
 
 - ECR does not keep tag history. If you did not save the digest, you cannot find the old one by tag.

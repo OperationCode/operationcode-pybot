@@ -149,9 +149,9 @@ The old shared role `GitHubActions-ECR-Push` was deleted on 2026-11-23, after bo
 
 ## Safe Change to the New Role
 
-Use this procedure to move pybot from the old shared role to its own role. Do not change the old role during this procedure (see above).
+Done on 2026-11-23. Kept as a record: do not run it again. It moved pybot from the old shared role to its own role.
 
-1. Create the two environments, as given in [Required Environments](#required-environments). Write down the time when you start this step (S). The back-end CloudTrail check uses the earlier S of the two repositories.
+1. Create the two environments, as given in [Required Environments](#required-environments). Write down the time when you start this step (S).
 2. Create the new role, as given in [Create the role](#create-the-role). Get the pull request that adds the environments to `ci.yml` approved and green. Do not merge it yet.
 3. Set the secret to the new role ARN, as given in [Required Secret](#required-secret).
    - Between step 3 and step 5, every push run of the old workflow fails at "Configure AWS credentials", because the new role does not trust its subject. Nobody must push to `master` during this time.
@@ -165,7 +165,7 @@ Use this procedure to move pybot from the old shared role to its own role. Do no
    To cancel one run: `gh run cancel <id> --repo OperationCode/operationcode-pybot`. Run the list again until it is empty.
 5. Immediately merge the pull request. The push to `master` that the merge causes uses `ecr-main` and the new role, and pushes `:prod` and `:latest`.
    - If the first push fails, correct the new role (see the rules above). Then re-run the job. The re-run uses `ecr-approval`, so a maintainer must approve it.
-   - When the push run is complete, write down the image digest of `:prod`. Give it to the person who does the back-end CloudTrail check:
+   - When the push run is complete, write down the image digest of `:prod`.:
      `aws ecr describe-images --region us-east-2 --repository-name pybot --image-ids imageTag=prod --query 'imageDetails[0].imageDigest' --output text`
 6. Confirm one successful push to `master` through the new role. Use one of these:
    - CloudTrail: find the `AssumeRoleWithWebIdentity` event for the new role ARN, at the time of the push run from step 5.
@@ -180,7 +180,7 @@ Use this procedure to move pybot from the old shared role to its own role. Do no
      Expect a line with `ok` and the subject `...:environment:ecr-main`.
    - Run log: the push run from step 5 shows environment `ecr-main`, and the "Output image URI" step prints `Successfully pushed Production images`.
 
-   The pybot move is done after this step. Tell the back-end owner, because the old role is deleted only after both repositories finish step 6.
+   The pybot move is done after this step.
 
 ## Push a Staging Image (maintainers)
 
